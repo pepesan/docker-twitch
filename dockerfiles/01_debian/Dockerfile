@@ -1,4 +1,4 @@
-# imagen basada en Ubuntu 22.04 jammy
+# imagen basada en Debian Bookworm
 FROM debian:bookworm
 
 RUN apt update && \
