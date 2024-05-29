@@ -19,9 +19,6 @@ RUN mkdir -p miniconda3 && \
 # configuramos el bash
 RUN ~/miniconda3/bin/conda init bash
 
-# Metemos en el path el bin de miniconda
-RUN export PATH=$PATH:/root/miniconda3/bin
-
 ENV CONDA_EXEC=/root/miniconda3/bin/conda
 # creamos el entorno de python
 RUN $CONDA_EXEC create -y --name prod python=$PYTHON_VERSION
