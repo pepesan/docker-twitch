@@ -6,7 +6,13 @@ docker build -t pepesan/debian-jdk-tomcat:latest .
 docker login 
 docker push pepesan/debian-jdk-tomcat:bookworm-17-10
 docker push pepesan/debian-jdk-tomcat:latest
-docker run -d --name tomcat -p 8083:8080 pepesan/debian-jdk-tomcat:bookworm-17-10
+# version sin volumenes personalizados
+docker run -d --name tomcat \ 
+  -p 8083:8080 pepesan/debian-jdk-tomcat:bookworm-17-10
+# version con volumen personalizado
+docker run -d --name tomcat \ 
+  -v ./webapps:/deploy/tomcat/webapps \
+  -p 8083:8080 pepesan/debian-jdk-tomcat:bookworm-17-10
 ```
 
 ## Acceso al tomcat
