@@ -1,5 +1,5 @@
-# imagen basada en Ubuntu 22.04 jammy
-FROM ubuntu:jammy
+# imagen basada en Ubuntu 24.04 jammy
+FROM ubuntu:noble
 
 RUN apt update && \
     apt upgrade -y && \
