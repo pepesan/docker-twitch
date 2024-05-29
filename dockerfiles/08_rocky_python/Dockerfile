@@ -44,7 +44,11 @@ COPY app.py /deploy/app.py
 # configura comando de ejecución
 # CMD ["/root/miniconda3/bin/conda", "run", "-n", "prod", "python", "app.py"
 # sólo podemos usar variables de entorno de esta manera
-CMD sh -c "$CONDA_EXEC run -n prod python app.py"
+# CMD sh -c "$CONDA_EXEC run -n prod python app.py"
+# Uso conjunto de entrypoint y CMD
+ENTRYPOINT ["sh", "-c"]
+CMD ["$CONDA_EXEC run -n prod python app.py"]
+
 
 
 
