@@ -10,7 +10,8 @@ crear las carpetas volumes/database y ponerle los permisos adecuados
 ```shell
 mkdir -p volumes
 mkdir -p volumes/database
-chmod -R 777 volumes/database
+mkdir -p volumes/html
+chmod -R 777 volumes/
 ```
 ## Arranque
 ```shell
@@ -24,5 +25,5 @@ docker compose down
 ```
 ## Limpieza
 ```shell
-sudo rm -rf volumes/database/*
+sudo rm -rf volumes/*
 ```
