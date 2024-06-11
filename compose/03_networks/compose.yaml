@@ -1,0 +1,20 @@
+services:
+  ping1:
+    build: .
+    hostname: ping12
+    networks:
+      - red_ping
+    entrypoint: ["/bin/bash"]
+    tty: true
+  ping2:
+    build: .
+    hostname: ping22
+    networks:
+      - red_ping
+    entrypoint: ["/bin/bash"]
+    tty: true
+
+
+networks:
+  red_ping:
+    external: true
