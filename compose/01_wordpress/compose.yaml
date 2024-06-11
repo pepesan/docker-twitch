@@ -10,9 +10,9 @@ services:
       - MARIADB_DATABASE=wordpress
       - MARIADB_USER=wordpress_user
       - MARIADB_PASSWORD=wordpress_password
-    ports:
-      - 3306:3306
-      - 33060:33060
+#    ports:
+#      - 3306:3306
+#      - 33060:33060
   wordpress:
     container_name: wordpress-web-server
     image: wordpress:latest
@@ -21,6 +21,8 @@ services:
     ports:
       - 81:80
     restart: always
+    volumes:
+      - ./volumes/html:/var/www/html
     environment:
       - WORDPRESS_DB_HOST=db
       - WORDPRESS_DB_USER=wordpress_user
