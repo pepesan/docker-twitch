@@ -1,0 +1,36 @@
+services:
+  db:
+    container_name: wordpress-database
+    image: bitnami/mariadb:11.3.2
+    volumes:
+      - wp_database:/bitnami/mariadb
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=somewordpress
+      - MARIADB_DATABASE=wordpress
+      - MARIADB_USER=wordpress_user
+      - MARIADB_PASSWORD=wordpress_password
+#    ports:
+#      - 3306:3306
+#      - 33060:33060
+  wordpress:
+    container_name: wordpress-web-server
+    image: wordpress:latest
+    depends_on:
+      - db
+    ports:
+      - 81:80
+    restart: always
+    volumes:
+      - wp_html_volume:/var/www/html
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wordpress_user
+      - WORDPRESS_DB_PASSWORD=wordpress_password
+      - WORDPRESS_DB_NAME=wordpress
+
+volumes:
+  wp_database:
+    name: wp_database
+  wp_html_volume:
+    name: wp_html_volume
