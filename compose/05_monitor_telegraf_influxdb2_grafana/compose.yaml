@@ -1,7 +1,7 @@
 services:
   grafana:
     image: grafana/grafana-oss:latest
-    container_name: grafana:latest
+    container_name: grafana
     restart: always
     user: "1001"
     depends_on:
@@ -26,13 +26,13 @@ services:
     networks:
       - monitor
     volumes:
-      - "./influxdb-data:/var/lib/influxdb2"
+      - "./influxdb2-data:/var/lib/influxdb2"
   telegraf:
-    image: telegraf:1.31.1
+    image: telegraf:latest
     container_name: telegraf
     restart: always
     hostname: "moria"
-    user: 1001:994
+    user: 1001:984
     depends_on:
       - influxdb2
     networks:
@@ -46,4 +46,5 @@ services:
 
 networks:
   monitor:
+    name: monitoring
     driver: bridge
