@@ -1,1 +1,3 @@
 .env
+grafana-data/*
+influxdb2-data/*
