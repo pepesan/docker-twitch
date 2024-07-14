@@ -1,0 +1,49 @@
+services:
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana:latest
+    restart: always
+    user: "1001"
+    depends_on:
+      - influxdb2
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    networks:
+      - monitor
+    volumes:
+      - "./grafana-data:/var/lib/grafana"
+  influxdb2:
+    image: influxdb:latest
+    container_name: influxdb2
+    restart: always
+    ports:
+      - 8086:8086
+      - 8089:8089/udp
+    env_file:
+      - .env
+    networks:
+      - monitor
+    volumes:
+      - "./influxdb-data:/var/lib/influxdb2"
+  telegraf:
+    image: telegraf:1.31.1
+    container_name: telegraf
+    restart: always
+    hostname: "moria"
+    user: 1001:994
+    depends_on:
+      - influxdb2
+    networks:
+      - monitor
+    env_file:
+      - 'config/env.telegraf'
+    volumes:
+      - /:/hostfs:ro
+      - ./config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  monitor:
+    driver: bridge
