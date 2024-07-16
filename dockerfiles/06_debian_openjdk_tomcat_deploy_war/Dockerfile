@@ -1,7 +1,7 @@
 # Imagen basada en Debian Bookworm
 FROM debian:bookworm
 
-ENV TOMCAT_VERSION=10.1.24
+ENV TOMCAT_VERSION=10.1.26
 
 RUN apt update && \
     apt upgrade -y
