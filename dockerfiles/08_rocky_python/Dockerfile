@@ -1,7 +1,7 @@
 # imagen basada en Ubuntu 24.04 jammy
 FROM rockylinux:9.3
 
-ENV PYTHON_VERSION=3.11
+ENV PYTHON_VERSION=3.12
 # Actualizamos el sistema
 RUN dnf -y update
 
