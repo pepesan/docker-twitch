@@ -2,7 +2,7 @@
 # definir el usuario de dockerhub
 DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
-DOCKER_HUB_REPOSITORY=app-python
+DOCKER_HUB_REPOSITORY=app-python-debian
 # Definir la versión del Tag
 DOCKER_HUB_TAG=1.0.0-3.12
 # crear el contenedor en base la imagen al Docker hub
