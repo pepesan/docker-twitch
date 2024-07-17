@@ -15,15 +15,19 @@ chmod -R 777 volumes/
 ```
 ## Arranque
 ```shell
-docker compose up
+docker compose up -d
 ```
 ## Acceso web
-http://localhost:81
+URL: http://localhost:81
+```shell
+curl http://localhost:81
+```
+
 # Parada
 ```shell
 docker compose down
 ```
 ## Limpieza
 ```shell
-sudo rm -rf volumes/*
+sudo rm -rf volumes/database/* volumes/html/*
 ```
