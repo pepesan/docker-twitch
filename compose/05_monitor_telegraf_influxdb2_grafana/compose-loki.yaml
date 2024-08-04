@@ -1,0 +1,31 @@
+services:
+  loki:
+    image: grafana/loki:main
+    container_name: loki
+    #ports:
+    #  - "3100:3100"
+    networks:
+      monitor:
+        ipv4_address: 172.28.0.6
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./volumes-loki:/tmp/loki
+      #- ./volumes-rules:/tmp/loki/rules
+    command: -config.file=/etc/loki/local-config.yaml
+  promtail:
+    image: grafana/promtail:main
+    container_name: promtail
+    depends_on:
+      - loki
+    networks:
+      monitor:
+        ipv4_address: 172.28.0.7
+    volumes:
+      - /var/log:/var/log:ro
+      - ./config/promtail-config.yaml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+
+networks:
+  monitor:
+    name: monitoring
+    external: true

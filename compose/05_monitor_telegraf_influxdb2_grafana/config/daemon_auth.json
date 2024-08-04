@@ -1,0 +1,8 @@
+{
+  "log-driver": "loki",
+  "log-opts": {
+    "loki-batch-size": "400",
+    "loki-retries": "5",
+    "loki-url": "http://admin:admin@172.28.0.6:3100/loki/api/v1/push"
+  }
+}
