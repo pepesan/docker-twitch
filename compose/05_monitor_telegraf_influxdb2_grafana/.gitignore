@@ -1,3 +1,4 @@
 .env
 grafana-data/*
 influxdb2-data/*
+volumes-loki/*
