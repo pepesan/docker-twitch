@@ -1,0 +1,15 @@
+Found new grafana/promtail:main image (35489b649e07)
+Found new grafana/loki:main image (a54fcfc703b6)
+Found new lscr.io/linuxserver/jackett:latest image (723603067874)
+Found new linuxserver/heimdall:latest image (b42719897530)
+Found new lscr.io/linuxserver/syncthing:latest image (185f9e0f309f)
+Stopping /syncthing (2acd0ef4397d) with SIGTERM
+Stopping /heimdall (9f1db5710b5b) with SIGTERM
+Stopping /jackett (ee2f9fc9a4aa) with SIGTERM
+Stopping /loki (4b3af8cbf052) with SIGTERM
+Stopping /promtail (5a50a1077503) with SIGTERM
+Creating /promtail
+Creating /loki
+Creating /jackett
+Creating /heimdall
+Creating /syncthing

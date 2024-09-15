@@ -1,0 +1,20 @@
+services:
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 86400
+    env_file:
+      - .env
+    environment:
+      - WATCHTOWER_NOTIFICATIONS=email
+      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=${SMTP_FROM}
+      - WATCHTOWER_NOTIFICATION_EMAIL_TO=${SMTP_TO}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=${SMTP_HOST}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=${SMTP_PORT}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=${SMTP_USERNAME}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=${SMTP_PASSWORD}
+      - WATCHTOWER_NOTIFICATION_EMAIL_DELAY=2
+      - WATCHTOWER_NOTIFICATION_EMAIL_SUBJECTTAG=WATCHTOWER_NOMBRE_HOST
