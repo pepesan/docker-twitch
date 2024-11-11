@@ -11,6 +11,9 @@ DOCKER_HUB_TAG=10.1.31-jdk17
 ## tag: usuario/repositorio:tag
 ## tag: usuario/nombre_imagen:tag
 ## . pilla el Dockerfile que hay en el directorio actual
+# uso de buildx
+#docker buildx build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest --load --push .
+# uso de build normal
 docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest .
 ## define otro tag con la fecha actual
 docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20241111 .
