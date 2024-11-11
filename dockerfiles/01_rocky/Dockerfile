@@ -1,4 +1,4 @@
-# imagen basada en Ubuntu 24.04 jammy
-FROM rockylinux:9.3
+# imagen basada en Rocky Linux 9.4
+FROM rockylinux/rockylinux:9.4
 
 RUN dnf -y update
