@@ -9,6 +9,6 @@ DOCKER_HUB_USER=pepesan
 ## . pilla el Dockerfile que hay en el directorio actual
 docker build -t $DOCKER_HUB_USER/docker-whale:latest .
 ## define otro tag con la fecha actual
-docker build -t $DOCKER_HUB_USER/docker-whale:20241111 .
+docker build -t $DOCKER_HUB_USER/docker-whale:20250227 .
 ## define otro tag con la versión de nuestro software
-docker build -t $DOCKER_HUB_USER/docker-whale:1.2.0 .
+docker build -t $DOCKER_HUB_USER/docker-whale:1.3.0 .
