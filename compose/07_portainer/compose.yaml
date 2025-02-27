@@ -5,7 +5,7 @@ services:
     image: portainer/portainer-ce:2.27.1
     ports:
       - "9000:9000"
-      - "8001:8000"
+      - "8000:8000"
       - "9443:9443"
     networks:
       - portainer
@@ -15,6 +15,7 @@ services:
 
 networks:
   portainer:
+    name: portainer
     driver: bridge
 
 volumes:
