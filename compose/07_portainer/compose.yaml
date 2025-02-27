@@ -1,0 +1,23 @@
+services:
+  portainer:
+    restart: always
+    container_name: portainer
+    image: portainer/portainer-ce:2.27.1
+    ports:
+      - "9000:9000"
+      - "8001:8000"
+      - "9443:9443"
+    networks:
+      - portainer
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  portainer:
+    driver: bridge
+
+volumes:
+  portainer_data:
+    name: portainer_data
+    driver: local
