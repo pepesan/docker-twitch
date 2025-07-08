@@ -1,5 +1,5 @@
 #!/bin/bash
 
-docker container rm sample-war
+docker container rm tomcat-sample-war
 
-docker ps -a | grep sample-war
+docker ps -a | grep tomcat-sample-war

@@ -4,11 +4,11 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=app-python
 # Definir la versión del Tag
-DOCKER_HUB_TAG=1.0.0-3.12
+DOCKER_HUB_TAG=1.0.1-3.12
 # Antes de hacer el push hay que hacer el login
 # el docker hub
 ## pedirá usuario y contraseña
-docker login -u $DOCKER_HUB_USER
+# docker login -u $DOCKER_HUB_USER
 # subir la imagen al Docker hub
 ## push es el comando principal
 ## tag: usuario/repositorio:tag

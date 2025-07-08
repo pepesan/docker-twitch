@@ -1,5 +1,5 @@
-# imagen basada en Ubuntu 24.04 jammy
-FROM rockylinux:9.3
+# imagen basada en Rocky Linux 9.5
+FROM rockylinux/rockylinux:9.5
 
 ENV PYTHON_VERSION=3.12
 # Actualizamos el sistema
@@ -39,9 +39,9 @@ RUN $CONDA_EXEC install -y -n prod --file requirements.txt
 COPY app.py /deploy/app.py
 
 # configura comando de ejecución
-# CMD ["/root/miniconda3/bin/conda", "run", "-n", "prod", "python", "app.py"
+# CMD ["/root/miniconda3/bin/conda", "run", "-n", "prod", "python", "main.py"
 # sólo podemos usar variables de entorno de esta manera
-# CMD sh -c "$CONDA_EXEC run -n prod python app.py"
+# CMD sh -c "$CONDA_EXEC run -n prod python main.py"
 # Uso conjunto de entrypoint y CMD
 ENTRYPOINT ["sh", "-c"]
 CMD ["$CONDA_EXEC run -n prod python app.py"]

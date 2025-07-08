@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker container stop sample-war
+docker container stop tomcat-sample-war

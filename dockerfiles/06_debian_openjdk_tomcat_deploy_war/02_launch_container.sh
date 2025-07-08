@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=sample-war
 # Definir la versión del Tag
-DOCKER_HUB_TAG=1.2.0-10.1.36-jdk17
+DOCKER_HUB_TAG=1.2.0-10.1.43-jdk17
 # crear el contenedor en base la imagen al Docker hub
 ## push es el comando principal
 ## tag: usuario/repositorio:tag
@@ -14,7 +14,7 @@ DOCKER_HUB_TAG=1.2.0-10.1.36-jdk17
 ## -v el directorio del host ./webapps se asocia al /deploy/tomcat/webapps del contenedor
 docker run -d \
  -p 8080:8080 \
- --name sample-war \
+ --name tomcat-sample-war \
  $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:$DOCKER_HUB_TAG
 
 docker ps | grep tomcat
