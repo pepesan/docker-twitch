@@ -2,7 +2,7 @@
 # definir el usuario de dockerhub
 DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
-DOCKER_HUB_REPOSITORY=app-python-uv
+DOCKER_HUB_REPOSITORY=app-python
 # Definir la versión del Tag
 DOCKER_HUB_TAG=1.0.3-3.12
 # construir la imagen en base al Dockerfile

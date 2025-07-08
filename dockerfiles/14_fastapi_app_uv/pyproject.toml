@@ -1,0 +1,9 @@
+[project]
+name = "uv-fastapi-example"
+version = "0.1.0"
+description = "FastAPI project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]",
+]
