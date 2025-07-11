@@ -1,0 +1,33 @@
+pipeline {
+  // Usa un contenedor Maven como entorno de ejecución
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'      // Imagen pública de Maven+JDK
+      label 'AgentSSH'
+      args  '-v $HOME/.m2:/root/.m2'              // Cachea ~/.m2 entre builds
+    }
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        // Método rápido si no necesitas credenciales:
+        git url: 'https://github.com/pepesan/spring-boot-3.1-api-rest-jpa-testing.git', branch: 'main'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        // Ejecuta los tests de Maven en modo batch
+        sh 'mvn -B clean test'
+      }
+    }
+  }
+
+  post {
+    always {
+      // Publica los informes de test JUnit (si los hay)
+      junit 'target/surefire-reports/*.xml'
+    }
+  }
+}
