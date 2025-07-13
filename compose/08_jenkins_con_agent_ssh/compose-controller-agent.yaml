@@ -9,7 +9,7 @@ services:
     container_name: jenkins_controller
     ports:
       - 8081:8080
-      - 50002:50000
+      - 50000:50000
     volumes:
       - ./jenkins_home:/var/jenkins_home
       - ./id_ed25519:/home/jenkins/.ssh/id_ed25519

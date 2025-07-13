@@ -3,6 +3,7 @@ USER root
 
 # Instala Docker CLI (y sus dependencias)
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
@@ -16,7 +17,7 @@ RUN apt-get update && \
     $(lsb_release -cs) stable" \
     > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && \
+    apt-get install -y --no-install-recommends docker-ce docker-ce-cli docker-buildx-plugin && \
     usermod -aG docker jenkins && \
     rm -rf /var/lib/apt/lists/*
 
