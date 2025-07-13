@@ -13,11 +13,15 @@ chmod -R 777 ./jenkins_home ./jenkins_home_agent
 ```shell
 docker compose -p jenkins_controller up  -d --build
 ```
+## Comprobación del estado del servidor Jenkins Controller
+```shell
+docker compose -p jenkins_controller ps 
+```
 ## Acceso al servidor Jenkins
 Accede a la interfaz web de Jenkins en `http://localhost:8081` y sigue las instrucciones para completar la configuración inicial. Necesitarás el token de desbloqueo que se encuentra en el archivo `jenkins_home/secrets/initialAdminPassword` dentro del contenedor.
 o sino puede ver el log
 ```shell
-docker compose logs jenkins-controller -f 
+docker compose -p jenkins_controller logs -f 
 ```
 ## Instalación del Jenkins Controller
 1. Accede a la interfaz web de Jenkins.

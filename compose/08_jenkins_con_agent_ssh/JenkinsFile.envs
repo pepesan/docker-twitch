@@ -1,0 +1,54 @@
+pipeline {
+  agent none  // Sin agente global
+
+  stages {
+    stage('Build with Maven') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-21'
+          args  '-v $HOME/.m2:/root/.m2'
+        }
+      }
+      steps {
+        sh 'mvn --version'
+      }
+    }
+
+    stage('Build with Gradle') {
+      agent {
+        docker {
+          image 'gradle:8.14-jdk21'
+          args  '-v $HOME/.gradle:/home/gradle/.gradle'
+        }
+      }
+      steps {
+        sh 'gradle --version'
+      }
+    }
+
+    stage('Build with Node.js') {
+      agent {
+        docker {
+          image 'node:22'
+          args  '-v $HOME/.npm:/home/node/.npm'
+        }
+      }
+      steps {
+        sh 'node --version'
+        sh 'npm --version'
+      }
+    }
+
+    stage('Test with Python') {
+      agent {
+        docker {
+          image 'python:3.12'
+          args  '-v $HOME/.cache/pip:/root/.cache/pip'
+        }
+      }
+      steps {
+        sh 'python --version'
+      }
+    }
+  }
+}

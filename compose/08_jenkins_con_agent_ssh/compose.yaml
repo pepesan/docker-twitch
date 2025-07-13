@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     privileged: true
+    user: root
     container_name: jenkins_controller
     ports:
       - 8081:8080
