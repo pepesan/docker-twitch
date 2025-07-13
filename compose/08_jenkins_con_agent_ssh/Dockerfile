@@ -20,11 +20,13 @@ RUN apt-get update && \
     usermod -aG docker jenkins && \
     rm -rf /var/lib/apt/lists/*
 
-# Vuelve a usuario jenkins
-USER jenkins
-
 # Configuración del usuario jenkins
 RUN mkdir -p /home/jenkins
 # Creación del directorio de la clave SSH pública al contenedor
 RUN mkdir -p /home/jenkins/.ssh
-RUN chown -R jenkins:jenkins /home/jenkins/.ssh
+
+RUN chown -R jenkins:jenkins /home/jenkins
+# Vuelve a usuario jenkins
+USER jenkins
+
+

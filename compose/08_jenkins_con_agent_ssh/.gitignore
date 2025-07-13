@@ -1,0 +1,3 @@
+# Ignore all files in the jenkins_home directory
+jenkins_home/*
+jenkins_home_agent/*

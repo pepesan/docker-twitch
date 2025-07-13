@@ -1,11 +1,11 @@
-# Servidor Jenkins con agente SSH
+# Servidor Jenkins Controller con agente SSH
 Aquí tenemos un ejemplo de cómo levantar un servidor Jenkins con un agente SSH. El agente SSH se conecta al servidor Jenkins y permite ejecutar trabajos en el contenedor del agente.
 ## Requisitos
 - Docker
 - Docker Compose
-## Arranque del servidor Jenkins
+## Arranque del servidor Jenkins Controller 
 ```shell
-docker compose up -d --build
+docker compose up -p jenkins_controller -d --build
 ```
 ## Acceso al servidor Jenkins
 Accede a la interfaz web de Jenkins en `http://localhost:8081` y sigue las instrucciones para completar la configuración inicial. Necesitarás el token de desbloqueo que se encuentra en el archivo `jenkins_home/secrets/initialAdminPassword` dentro del contenedor.
@@ -20,6 +20,11 @@ docker compose logs jenkins-controller -f
 4. Crea un usuario administrador.
 5. Configura el nombre del Jenkins Controller y la URL.
 6. Completa la configuración inicial.
+
+## Arranque del servidor Jenkins Controller
+```shell
+docker compose up -p jenkins_controller_agent -f compose-controller-agent.yaml -d --build
+```
 
 ## Configuración de las credenciales SSH
 Para que el agente SSH pueda conectarse al servidor Jenkins, debes configurar las credenciales SSH en Jenkins:
