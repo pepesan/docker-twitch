@@ -12,8 +12,8 @@ services:
       - 50002:50000
     volumes:
       - ./jenkins_home:/var/jenkins_home
-      - ./id_ed25519:/root/.ssh/id_ed25519
-      - ./id_ed25519.pub:/root/.ssh/id_ed25519.pub
+      - ./id_ed25519:/home/jenkins/.ssh/id_ed25519
+      - ./id_ed25519.pub:/home/jenkins/.ssh/id_ed25519.pub
       - /var/run/docker.sock:/var/run/docker.sock
   jenkins_agent:
     #image: jenkins/ssh-agent:jdk21
