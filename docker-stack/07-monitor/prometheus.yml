@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Node exporter (métricas del host)
+  - job_name: 'node-exporter'
+    dns_sd_configs:
+      - names: ['tasks.node-exporter']
+        type: 'A'
+        port: 9100
+
+  # cAdvisor (métricas por contenedor)
+  - job_name: 'cadvisor'
+    dns_sd_configs:
+      - names: ['tasks.cadvisor']
+        type: 'A'
+        port: 8080
+
+  # Prometheus self
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+

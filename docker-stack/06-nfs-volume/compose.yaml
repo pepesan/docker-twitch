@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  web:
+    image: nginx:stable-alpine
+    ports:
+      - target: 80
+        published: 8084
+        protocol: tcp
+        mode: ingress           # accesible desde cualquier nodo del cluster
+    volumes:
+      - nfs_www:/usr/share/nginx/html:ro   # sirve el contenido del NFS (solo lectura)
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker            # SOLO en nodos worker
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  nfs_www:
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "addr=109.199.113.55,nfsvers=4,ro"
+      device: ":/srv/nfs/data"
+

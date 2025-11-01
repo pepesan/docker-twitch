@@ -1,0 +1,54 @@
+services:
+  app:
+    image: nginx:stable-alpine
+    command: >
+      sh -lc 'printf "<h1>App</h1><p>/ (publico)</p>" > /usr/share/nginx/html/index.html && nginx -g "daemon off;"'
+    # Puertos publicados (externos) del MISMO servicio
+    ports:
+      - target: 80     # HTTP app dentro del contenedor
+        published: 8083
+        protocol: tcp
+        mode: ingress  # accesible en cualquier nodo del Swarm
+      # (ejemplo de segundo puerto público, opcional)
+      # - target: 443
+      #   published: 8443
+      #   protocol: tcp
+      #   mode: host
+    networks:
+      # Red pública: entrada de clientes
+      public:
+        aliases: [app-public]
+      # Red interna: acceso a datos (DB/Redis)
+      internal:
+        aliases: [app-internal]
+    deploy:
+      replicas: 2
+      restart_policy: { condition: on-failure }
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: apppass
+    networks: [internal]
+    deploy:
+      replicas: 1
+      restart_policy: { condition: on-failure }
+
+  redis:
+    image: redis:7-alpine
+    networks: [internal]
+    deploy:
+      replicas: 1
+      restart_policy: { condition: on-failure }
+
+
+networks:
+  public:
+    driver: overlay
+  internal:
+    driver: overlay
+    # driver_opts:
+    #   encrypted: "true"
+

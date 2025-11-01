@@ -1,0 +1,41 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - appnet
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    environment:
+      PMA_HOST: mariadb      # Se conecta al servicio MariaDB por DNS interno
+      PMA_PORT: 3306
+    networks:
+      - appnet               # Misma red que MariaDB
+    ports:
+      - target: 80
+        published: 8082
+        protocol: tcp
+        mode: ingress        # Disponible desde cualquier nodo del Swarm
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  appnet:
+    driver: overlay          # Red compartida (interna + externa)
+
+volumes:
+  mariadb_data:
+

@@ -1,0 +1,16 @@
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]   # comando de test
+      interval: 10s   # cada cuánto se ejecuta
+      timeout: 2s     # cuánto espera a que responda
+      retries: 3      # cuántos fallos antes de marcarlo como unhealthy
+      start_period: 5s  # tiempo de gracia inicial antes de empezar a chequear
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+

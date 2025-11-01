@@ -1,0 +1,102 @@
+version: "3.8"
+
+networks:
+  monitor:
+    driver: overlay
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+configs:
+  prometheus.yml:
+    file: ./prometheus.yml
+  grafana-datasource.yml:
+    file: ./grafana-datasource.yml
+
+services:
+  # 1) Exporta métricas del host (CPU, RAM, FS, etc.) – una tarea por nodo
+  node-exporter:
+    image: prom/node-exporter:latest
+    command:
+      - '--path.rootfs=/host'
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro,rslave
+    networks: [monitor]
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.platform.os == linux
+
+  # 2) Exporta métricas por contenedor (CPU/ram por container, IO, etc.) – una tarea por nodo
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    command:
+      - '--docker_only=true'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks: [monitor]
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.platform.os == linux
+
+  # 3) Prometheus – recoge métricas de node-exporter y cAdvisor
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+    configs:
+      - source: prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+    volumes:
+      - prometheus_data:/prometheus
+    networks: [monitor]
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    ports:
+      - target: 9090
+        published: 9090
+        protocol: tcp
+        mode: ingress
+
+  # 4) Grafana – dashboards
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SERVER_DOMAIN: grafana.local
+      GF_USERS_DEFAULT_THEME: light
+    volumes:
+      - grafana_data:/var/lib/grafana
+    configs:
+      - source: grafana-datasource.yml
+        target: /etc/grafana/provisioning/datasources/datasource.yml
+    networks: [monitor]
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: ingress
+

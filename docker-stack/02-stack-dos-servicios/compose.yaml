@@ -1,0 +1,50 @@
+services:
+  mesh-test:
+    image: ealen/echo-server:latest
+    environment:
+      NODE_ID: "{{.Node.ID}}"
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+      TASK_NAME: "{{.Task.Name}}"
+      TASK_SLOT: "{{.Task.Slot}}"
+      SERVICE_NAME: "{{.Service.Name}}"
+    ports:
+      - target: 80
+        published: 8081
+        protocol: tcp
+        mode: ingress   # publica en TODOS los nodos (routing mesh)
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.role == worker     # opcional: forzar a workers
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      rollback_config:
+        order: stop-first
+    networks:
+      - web
+
+  whoami-host:
+    image: traefik/whoami
+    ports:
+      - target: 80
+        published: 8082
+        protocol: tcp
+        mode: host      # publica SOLO en nodos que tengan una réplica
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      update_config:
+        parallelism: 1
+        delay: 3s
+    networks:
+      - web
+
+networks:
+  web:
+    driver: overlay
+
