@@ -12,3 +12,6 @@ Usuario: appuser
 Contraseña: apppass
 DB: appdb
 Contraseña root: root
+
+## Dar de baja
+docker stack rm demo-db
