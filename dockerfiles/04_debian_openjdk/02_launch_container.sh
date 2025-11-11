@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=debian-openjdk
 # Definir la versión del Tag
-DOCKER_HUB_TAG=17
+DOCKER_HUB_TAG=21
 # crear el contenedor en base la imagen al Docker hub
 ## push es el comando principal
 ## tag: usuario/repositorio:tag
@@ -13,7 +13,7 @@ DOCKER_HUB_TAG=17
 ## -p redirecciona el puerto 8080 del host al 8080 de contenedor
 ## -v el directorio del host ./webapps se asocia al /deploy/tomcat/webapps del contenedor
 docker run \
- --name debian-bookwork-17 \
+ --name debian-trixie-21 \
  --rm \
  -it \
  $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:$DOCKER_HUB_TAG

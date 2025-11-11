@@ -13,6 +13,6 @@ DOCKER_HUB_REPOSITORY=debian-openjdk
 ## tag: usuario/nombre_imagen:tag
 docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest
 ## define otro tag con la fecha actual
-docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20250708
+docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20251111
 ## define otro tag con la versión de nuestro software
-docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:17
+docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:21

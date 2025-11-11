@@ -1,18 +1,18 @@
 ## Pasos a ejecutar
 
 ```shell
-docker build -t pepesan/debian-jdk-tomcat:bookworm-17-10 .
-docker build -t pepesan/debian-jdk-tomcat:latest .
+docker build -t pepesan/tomcat:10.1.49-jdk21 .
+docker build -t pepesan/tomcat:latest .
 docker login 
-docker push pepesan/debian-jdk-tomcat:bookworm-17-10
-docker push pepesan/debian-jdk-tomcat:latest
+docker push pepesan/tomcat:10.1.49-jdk21
+docker push pepesan/tomcat:latest
 # version sin volumenes personalizados
 docker run -d --name tomcat \ 
-  -p 8083:8080 pepesan/debian-jdk-tomcat:bookworm-17-10
+  -p 8083:8080 pepesan/tomcat:10.1.49-jdk21
 # version con volumen personalizado
 docker run -d --name tomcat \ 
   -v ./webapps:/deploy/tomcat/webapps \
-  -p 8083:8080 pepesan/debian-jdk-tomcat:bookworm-17-10
+  -p 8083:8080 pepesan/tomcat:10.1.49-jdk21
 ```
 
 ## Acceso al tomcat
@@ -20,6 +20,6 @@ docker run -d --name tomcat \
 
 ## Acceso a volúmenes
 ```shell
-docker run -d --name tomcat -p 8083:8080 -v ./webapps:/deploy/tomcat/webapps pepesan/debian-jdk-tomcat:bookworm-17-10
+docker run -d --name tomcat -p 8083:8080 -v ./webapps:/deploy/tomcat/webapps pepesan/tomcat:10.1.49-jdk21
 ```
 

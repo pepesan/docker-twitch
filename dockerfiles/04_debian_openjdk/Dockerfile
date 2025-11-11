@@ -1,10 +1,10 @@
 # Imagen basada en Debian Bookworm
-FROM debian:bookworm
+FROM debian:trixie
 
 RUN apt update && \
     apt upgrade -y
 
-RUN apt install -y openjdk-17-jdk && \
+RUN apt install -y openjdk-21-jdk && \
     apt clean
 
 
