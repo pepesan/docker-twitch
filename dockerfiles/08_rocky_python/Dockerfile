@@ -1,5 +1,5 @@
-# imagen basada en Rocky Linux 9.5
-FROM rockylinux/rockylinux:9.5
+# imagen basada en Rocky Linux 10
+FROM rockylinux/rockylinux:10
 
 ENV PYTHON_VERSION=3.12
 # Actualizamos el sistema
@@ -15,6 +15,10 @@ RUN mkdir -p miniconda3 && \
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
     rm -rf ~/miniconda3/miniconda.sh
+
+# aceptar TOS de los canales de anaconda
+RUN /root/miniconda3/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    /root/miniconda3/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 # configuramos el bash
 RUN ~/miniconda3/bin/conda init bash
