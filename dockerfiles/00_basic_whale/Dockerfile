@@ -7,4 +7,4 @@ RUN apt-get -y update && \
     apt-get autoclean && \
     apt-get autoremove
 
-CMD ["sh", "-c", "/usr/games/fortune -a | cowsay"]
+CMD ["sh", "-c", "/usr/games/fortune -a | /usr/games/cowsay"]
