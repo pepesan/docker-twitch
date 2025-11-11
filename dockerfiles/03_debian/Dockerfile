@@ -1,5 +1,5 @@
-# imagen basada en Debian Bookworm
-FROM debian:bookworm
+# imagen basada en Debian Trixie
+FROM debian:trixie
 
 RUN apt update && \
     apt upgrade -y && \

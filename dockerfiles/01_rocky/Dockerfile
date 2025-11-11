@@ -1,4 +1,4 @@
-# imagen basada en Rocky Linux 9.5
-FROM rockylinux/rockylinux:9.5
+# imagen basada en Rocky Linux 10
+FROM rockylinux/rockylinux:10
 
 RUN dnf -y update

@@ -13,6 +13,8 @@ docker login -u $DOCKER_HUB_USER
 ## tag: usuario/nombre_imagen:tag
 docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest
 ## define otro tag con la fecha actual
-docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20241111
+docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20251111
 ## define otro tag con la versión de nuestro software
-docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:12
+docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:13
+## define otro tag con la versión de nuestro software
+docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:trixie

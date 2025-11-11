@@ -1,4 +1,4 @@
-# imagen basada en Ubuntu 24.04 jammy
+# imagen basada en Ubuntu 24.04 noble
 FROM ubuntu:noble
 
 RUN apt update && \
