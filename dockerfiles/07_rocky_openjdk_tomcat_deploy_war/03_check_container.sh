@@ -1,3 +1,3 @@
 #!/bin/bash
 
-curl http://localhost:8080/app/
+curl http://localhost:8081/app/

@@ -1,7 +1,7 @@
 # Imagen basada en Debian Bookworm
-FROM rockylinux/rockylinux:9.4
+FROM rockylinux/rockylinux:10
 
-ENV TOMCAT_VERSION=10.1.31
+ENV TOMCAT_VERSION=10.1.49
 
 RUN dnf -y update
 
@@ -11,7 +11,7 @@ RUN mkdir -p /deploy
 
 WORKDIR /deploy
 
-# https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.18/bin/apache-tomcat-10.1.18-deployer.tar.gz
+# https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.49/bin/apache-tomcat-10.1.49-deployer.tar.gz
 RUN curl -o tomcat.tgz https://archive.apache.org/dist/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN tar -xvf tomcat.tgz

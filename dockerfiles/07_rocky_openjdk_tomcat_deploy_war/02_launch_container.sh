@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=rocky-sample-war
 # Definir la versión del Tag
-DOCKER_HUB_TAG=1.1.0-10.1.31-jdk21
+DOCKER_HUB_TAG=1.2.0-10.1.49-jdk21
 # crear el contenedor en base la imagen al Docker hub
 ## push es el comando principal
 ## tag: usuario/repositorio:tag
@@ -13,7 +13,7 @@ DOCKER_HUB_TAG=1.1.0-10.1.31-jdk21
 ## -p redirecciona el puerto 8080 del host al 8080 de contenedor
 ## -v el directorio del host ./webapps se asocia al /deploy/tomcat/webapps del contenedor
 docker run -d \
- -p 8080:8080 \
+ -p 8081:8080 \
  --name sample-war \
  $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:$DOCKER_HUB_TAG
 
