@@ -12,6 +12,6 @@ docker login -u $DOCKER_HUB_USER
 ## tag: usuario/nombre_imagen:tag
 docker push $DOCKER_HUB_USER/docker-whale:latest
 ## define otro tag con la fecha actual
-docker push $DOCKER_HUB_USER/docker-whale:20241111
+docker push $DOCKER_HUB_USER/docker-whale:20251111
 ## define otro tag con la versión de nuestro software
-docker push $DOCKER_HUB_USER/docker-whale:1.2.0
+docker push $DOCKER_HUB_USER/docker-whale:1.5.0

@@ -1,4 +1,4 @@
-FROM docker/whalesay:latest
+FROM grycap/cowsay:latest
 
 RUN apt-get -y update && \
     apt -y upgrade  && \
@@ -7,4 +7,4 @@ RUN apt-get -y update && \
     apt-get autoclean && \
     apt-get autoremove
 
-CMD /usr/games/fortune -a | cowsay
+CMD ["sh", "-c", "/usr/games/fortune -a | cowsay"]
