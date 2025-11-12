@@ -1,0 +1,15 @@
+services:
+  plantuml:
+    image: plantuml/plantuml-server:latest
+    container_name: plantuml-server
+    restart: always
+    ports:
+      - "8081:8080"
+    environment:
+      # Ajusta la cantidad de memoria si es necesario
+      JAVA_OPTS: "-Xmx512m"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
