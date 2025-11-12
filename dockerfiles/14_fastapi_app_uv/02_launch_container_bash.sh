@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=fastapi-uv
 # Definir la versión del Tag
-DOCKER_HUB_TAG=1.1.8-3.12
+DOCKER_HUB_TAG=1.1.8-3.13
 # crear el contenedor en base la imagen al Docker hub
 ## push es el comando principal
 ## tag: usuario/repositorio:tag

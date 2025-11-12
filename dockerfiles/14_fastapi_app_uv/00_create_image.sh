@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=fastapi-uv
 # Definir la versión del Tag
-DOCKER_HUB_TAG=1.1.8-3.12
+DOCKER_HUB_TAG=1.1.8-3.13
 # construir la imagen en base al Dockerfile
 ## build es el comando principal
 ## -t define el tag asociado a la imagen

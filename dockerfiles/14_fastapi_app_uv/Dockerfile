@@ -1,32 +1,34 @@
-# Etapa 1: coger sólo el binario de uv/uvx
+# Etapa 1: binarios uv/uvx
 FROM ghcr.io/astral-sh/uv:latest AS uvx
 
-# Etapa 2: imagen de runtime en Rocky Linux
+# Etapa 2: runtime Rocky Linux
 FROM rockylinux/rockylinux:10
 
 # Certs
 RUN dnf install -y ca-certificates && dnf clean all
 
-# Copiar binarios uv y uvx
+# Copiar uv/uvx
 COPY --from=uvx /uv /uvx /bin/
 
-# Forzar Python con wheels disponibles
-ENV UV_PYTHON=3.12
-ENV UV_PYTHON_PREFERENCE="only-managed"
-ENV UV_PROJECT_ENVIRONMENT=".venv"
-ENV PATH="/root/.local/bin:/bin:${PATH}"
+# Python gestionado por uv (3.13) y venv local
+ENV UV_PYTHON=3.13 \
+    UV_PYTHON_PREFERENCE="only-managed" \
+    UV_PROJECT_ENVIRONMENT=".venv" \
+    PATH="/root/.local/bin:/bin:${PATH}"
 
-# App
 WORKDIR /app
-COPY . /app
 
-# Instalar dependencias usando el lockfile si existe
-# (si no tienes uv.lock, quita --frozen)
+# 1) Copia sólo metadata de deps para cachear
+COPY pyproject.toml uv.lock* ./
+
+# 2) Instala deps (se cachea mientras no cambien los archivos anteriores)
 RUN uv sync --frozen --no-cache
 
-# Exponer puerto 80
-EXPOSE 80
+# 3) Copia el resto del proyecto
+COPY . /app
 
-# Arranque (para prod suele ser mejor uvicorn que 'fastapi dev')
-# Ajusta `main:app` al módulo/objeto real de tu aplicación
+# Si tu proyecto es empaquetable y quieres reinstalarlo dentro de la venv:
+# RUN uv pip install -e .
+
+EXPOSE 80
 CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
