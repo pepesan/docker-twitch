@@ -6,3 +6,9 @@ services:
       - "81:80"
     volumes:
       - ./html:/usr/share/nginx/html
+# Equivalente a:
+# docker run -d \
+#  --name nginx-compose \
+#  -p 81:80 \
+#  -v $(pwd)/html:/usr/share/nginx/html \
+#  nginx:latest

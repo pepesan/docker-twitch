@@ -1,0 +1,6 @@
+services:
+    blog:
+        container_name: blog-cdd
+        image: pepesan/blog:latest
+        ports:
+            - "8001:80"
