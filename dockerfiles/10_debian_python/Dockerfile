@@ -1,7 +1,7 @@
 # imagen basada en Ubuntu 24.04 jammy
-FROM python:3.12.4-bookworm
+FROM python:3.14.0-trixie
 
-ENV PYTHON_VERSION=3.12
+ENV PYTHON_VERSION=3.14
 
 # Actualiza pip
 RUN pip install --upgrade pip
