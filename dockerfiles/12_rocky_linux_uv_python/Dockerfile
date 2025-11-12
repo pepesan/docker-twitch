@@ -1,8 +1,8 @@
 # imagen base
-FROM rockylinux/rockylinux:9.5
+FROM rockylinux/rockylinux:10
 
 # Variables de entorno
-ENV PYTHON_VERSION=3.12 \
+ENV PYTHON_VERSION=3.14 \
     PATH="/root/.local/bin:$PATH"
 
 # Actualización del sistema e instalación de herramientas

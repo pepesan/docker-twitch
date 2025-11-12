@@ -11,6 +11,6 @@ DOCKER_HUB_REPOSITORY=debian-openjdk
 ## . pilla el Dockerfile que hay en el directorio actual
 docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest .
 ## define otro tag con la fecha actual
-docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20250227 .
+docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20251111 .
 ## define otro tag con la versión de nuestro software
-docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:21 .
+docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:25 .
