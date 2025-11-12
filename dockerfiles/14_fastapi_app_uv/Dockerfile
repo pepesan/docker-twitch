@@ -2,7 +2,7 @@
 FROM ghcr.io/astral-sh/uv:latest AS uvx
 
 # Etapa 2: imagen de runtime en Rocky Linux
-FROM rockylinux/rockylinux:9.5
+FROM rockylinux/rockylinux:10
 
 # Certs
 RUN dnf install -y ca-certificates && dnf clean all
