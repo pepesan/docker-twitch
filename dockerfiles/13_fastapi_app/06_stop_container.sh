@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker container stop app-python-uv
+docker container stop app-python

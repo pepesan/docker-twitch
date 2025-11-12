@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker logs app-python-uv
+docker logs app-python

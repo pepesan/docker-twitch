@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.routers import items
 
 app = FastAPI(
     title="Mi API con FastAPI",
@@ -6,7 +7,8 @@ app = FastAPI(
     description="Ejemplo de proyecto FastAPI"
 )
 
-
+# Incluir routers
+app.include_router(items.router)
 
 @app.get("/", tags=["root"])
 async def read_root():
