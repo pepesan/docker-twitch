@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Create volumes directories with proper permissions
-mkdir -p volumes/database volumes/wordpress
+mkdir -p volumes/database volumes/html
 # Set permissions to allow Docker to read/write
 sudo chmod -R 777 volumes
 # Launch the Docker Compose services in detached mode

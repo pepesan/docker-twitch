@@ -2,7 +2,7 @@ services:
   portainer:
     restart: always
     container_name: portainer
-    image: portainer/portainer-ce:2.27.1
+    image: portainer/portainer-ce:2.33.3
     ports:
       - "9000:9000"
       - "8000:8000"
