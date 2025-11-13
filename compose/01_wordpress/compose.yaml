@@ -1,12 +1,12 @@
 services:
   db:
     container_name: wordpress-database
-    image: bitnami/mariadb:11.5.2
+    image: bitnami/mariadb:latest
     volumes:
       - ./volumes/database:/bitnami/mariadb
     restart: always
     environment:
-      - MARIADB_ROOT_PASSWORD=somewordpress
+      - MARIADB_ROOT_PASSWORD=root
       - MARIADB_DATABASE=wordpress
       - MARIADB_USER=wordpress_user
       - MARIADB_PASSWORD=wordpress_password
