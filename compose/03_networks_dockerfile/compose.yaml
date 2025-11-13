@@ -10,7 +10,7 @@ services:
   ping2:
     build: .
     hostname: ping22
-    container_name: ping2
+    container_name: ping23
     networks:
       - red_ping
     entrypoint: ["/bin/bash"]

@@ -1,0 +1,12 @@
+services:
+  app:
+    image: ghcr.io/danylo829/containery:latest
+    container_name: containery
+    restart: "always"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./volumes/data:/containery_data
+      - ./volumes/static:/containery/app/static/dist
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+

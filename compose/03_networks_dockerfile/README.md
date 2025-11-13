@@ -16,4 +16,5 @@ docker compose exec ping1 /bin/bash
 ```shell
 ping ping2
 ping ping22
+ping ping23
 ```
