@@ -1,0 +1,33 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.2-management
+    container_name: rabbitmq-server
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # Management UI
+    restart: always
+
+  celery:
+    build:
+      context: ./app
+      dockerfile: ../celery/Dockerfile
+    container_name: celery-worker
+    command: celery -A worker worker --loglevel=info
+    #ports:
+    #  - 82:80
+    depends_on:
+      - rabbitmq
+    restart: always
+  python:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: gunicorn-python
+    ports:
+      - 83:80
+    depends_on:
+      - rabbitmq
+    restart: always
