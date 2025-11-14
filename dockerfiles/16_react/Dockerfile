@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm ci --silent
 
 # Copiamos el resto del código
-COPY ../../../my-app-react .
+COPY . .
 
 # Build de producción de la app React
 RUN npm run build
