@@ -12,8 +12,8 @@ services:
 
   celery:
     build:
-      context: ./app
-      dockerfile: ../celery/Dockerfile
+      context: ./celery
+      dockerfile: Dockerfile
     container_name: celery-worker
     command: celery -A worker worker --loglevel=info
     #ports:
@@ -30,4 +30,5 @@ services:
       - 83:80
     depends_on:
       - rabbitmq
+      - celery
     restart: always
