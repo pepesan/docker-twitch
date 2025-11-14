@@ -1,0 +1,4 @@
+fastapi==0.121.1
+uvicorn[standard]
+pandas==2.3.3
+gunicorn==23.0.0
