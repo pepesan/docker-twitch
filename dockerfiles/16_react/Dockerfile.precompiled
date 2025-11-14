@@ -1,0 +1,15 @@
+# Etapa 1: imagen final con nginx sirviendo los archivos estáticos
+FROM nginx:1.29.3-alpine3.22
+
+# Copiamos el build de React a la carpeta pública de nginx
+COPY ./build /usr/share/nginx/html
+
+# Opcional pero recomendable: sustituir la config por defecto
+RUN rm /etc/nginx/conf.d/default.conf
+COPY config/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Puerto en el que escuchará nginx
+EXPOSE 80
+
+# Comando por defecto de nginx
+CMD ["nginx", "-g", "daemon off;"]
