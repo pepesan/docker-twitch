@@ -1,0 +1,53 @@
+services:
+  configsvr1:
+    image: mongo:8
+    container_name: configsvr1
+    command: ["mongod", "--configsvr", "--replSet", "csrs", "--port", "27017", "--bind_ip_all"]
+    volumes:
+      - ./data/config1:/data/db
+
+  configsvr2:
+    image: mongo:8
+    container_name: configsvr2
+    command: ["mongod", "--configsvr", "--replSet", "csrs", "--port", "27017", "--bind_ip_all"]
+    volumes:
+      - ./data/config2:/data/db
+
+  configsvr3:
+    image: mongo:8
+    container_name: configsvr3
+    command: ["mongod", "--configsvr", "--replSet", "csrs", "--port", "27017", "--bind_ip_all"]
+    volumes:
+      - ./data/config3:/data/db
+
+  shard1:
+    image: mongo:8
+    container_name: shard1
+    command: ["mongod", "--shardsvr", "--replSet", "shard1", "--port", "27017", "--bind_ip_all"]
+    volumes:
+      - ./data/shard1:/data/db
+
+  shard2:
+    image: mongo:8
+    container_name: shard2
+    command: ["mongod", "--shardsvr", "--replSet", "shard2", "--port", "27017", "--bind_ip_all"]
+    volumes:
+      - ./data/shard2:/data/db
+
+  mongos:
+    image: mongo:8
+    container_name: mongos
+    depends_on:
+      - configsvr1
+      - configsvr2
+      - configsvr3
+      - shard1
+      - shard2
+    command: [
+      "mongos",
+      "--configdb", "csrs/configsvr1:27017,configsvr2:27017,configsvr3:27017",
+      "--bind_ip_all",
+      "--port", "27017"
+    ]
+    ports:
+      - "27017:27017"
