@@ -1,0 +1,16 @@
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: mongo-inmemory
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+
+    tmpfs:
+      - /data/db:rw,noexec,nosuid,size=1G
+
+    command: >
+      mongod
+      --bind_ip_all
+      --dbpath /data/db
+
