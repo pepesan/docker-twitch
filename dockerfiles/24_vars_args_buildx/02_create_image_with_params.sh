@@ -2,7 +2,7 @@
 # definir el usuario de dockerhub
 DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
-DOCKER_HUB_REPOSITORY=alpine-var-arg-param
+DOCKER_HUB_REPOSITORY=debian-var-arg-param
 # construir la imagen en base al Dockerfile
 ## build es el comando principal
 ## -t define el tag asociado a la imagen

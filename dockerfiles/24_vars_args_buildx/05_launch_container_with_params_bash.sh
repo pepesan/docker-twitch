@@ -2,6 +2,6 @@
 # definir el usuario de dockerhub
 DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
-DOCKER_HUB_REPOSITORY=alpine-var-arg-param
+DOCKER_HUB_REPOSITORY=debian-var-arg-param
 
 docker run -it --rm -e APP_MODE=testing $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest bash
