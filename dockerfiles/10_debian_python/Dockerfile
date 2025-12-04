@@ -1,5 +1,5 @@
 # imagen basada en Ubuntu 24.04 jammy
-FROM python:3.14.0-trixie
+FROM python:3.14.1-trixie
 
 ENV PYTHON_VERSION=3.14
 

@@ -1,14 +1,15 @@
 # imagen base
-FROM rockylinux/rockylinux:10
+FROM debian:trixie
 
 # Variables de entorno
 ENV PYTHON_VERSION=3.14 \
     PATH="/root/.local/bin:$PATH"
 
 # Actualización del sistema e instalación de herramientas
-RUN dnf -y update && \
-    dnf install -y wget tar gzip && \
-    dnf clean all
+RUN apt update && \
+    apt -y upgrade && \
+    apt install -y wget tar gzip && \
+    apt clean
 
 # -----------------------------
 # Instalación de uv
