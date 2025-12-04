@@ -13,6 +13,6 @@ DOCKER_HUB_TAG=1.3.0-10.1.49-jdk21
 ## . pilla el Dockerfile que hay en el directorio actual
 docker build --no-cache -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest .
 ## define otro tag con la fecha actual
-docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20251111 .
+docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20251204 .
 ## define otro tag con la versión de nuestro software
 docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:$DOCKER_HUB_TAG .
