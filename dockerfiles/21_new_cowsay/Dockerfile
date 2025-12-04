@@ -1,0 +1,10 @@
+FROM ubuntu:latest
+
+RUN apt-get -y update && \
+    apt -y upgrade  && \
+    apt-get install -y fortunes cowsay && \
+    apt-get clean && \
+    apt-get autoclean && \
+    apt-get autoremove
+
+CMD ["sh", "-c", "/usr/games/fortune -a | /usr/games/cowsay"]
