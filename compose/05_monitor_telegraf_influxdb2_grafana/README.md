@@ -46,7 +46,11 @@ docker compose up influxdb2 grafana -d
 ```
 ó
 ```shell
-./02_launch_influxdb2_grafana.sh
+./02_launch_influxdb2.sh
+```
+y
+```shell
+./03_launch_grafana.sh
 ```
 ## URLs de acceso
 ### InfluxDB2
@@ -94,7 +98,7 @@ docker compose up telegraf
 ```
 ó 
 ```shell
-03_launch_telegraf.sh
+04_launch_telegraf.sh
 ```
 Debería darnos una salida similar a la siguiente:
 ```shell
@@ -128,7 +132,7 @@ docker compose up -d
 ```
 ó
 ```shell
-04_launch_all.sh
+05_launch_all.sh
 ```
 
 ## Crear el datasource en Grafana
