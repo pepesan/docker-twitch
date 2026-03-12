@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=sample-war
 # Definir la versión del Tag
-DOCKER_HUB_TAG=1.3.0-10.1.49-jdk21
+DOCKER_HUB_TAG=1.4.0-10.1.52-jdk21
 # crear el contenedor en base la imagen al Docker hub
 ## push es el comando principal
 ## tag: usuario/repositorio:tag

@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=tomcat
 # Definir la versión del Tag
-DOCKER_HUB_TAG=10.1.49-jdk21
+DOCKER_HUB_TAG=10.1.52-jdk21
 # Antes de hacer el push hay que hacer el login
 # el docker hub
 ## pedirá usuario y contraseña
@@ -15,6 +15,6 @@ DOCKER_HUB_TAG=10.1.49-jdk21
 ## tag: usuario/nombre_imagen:tag
 docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest
 ## define otro tag con la fecha actual
-docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20251111
+docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20260312
 ## define otro tag con la versión de nuestro software
 docker push $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:$DOCKER_HUB_TAG

@@ -4,7 +4,7 @@ DOCKER_HUB_USER=pepesan
 # Definir el nombre de la imagen o repositorio
 DOCKER_HUB_REPOSITORY=tomcat
 # Definir la versión del Tag
-DOCKER_HUB_TAG=10.1.49-jdk21
+DOCKER_HUB_TAG=10.1.52-jdk21
 # construir la imagen en base al Dockerfile
 ## build es el comando principal
 ## -t define el tag asociado a la imagen
@@ -16,6 +16,6 @@ DOCKER_HUB_TAG=10.1.49-jdk21
 # uso de build normal
 docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:latest .
 ## define otro tag con la fecha actual
-docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20251111 .
+docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:20260312 .
 ## define otro tag con la versión de nuestro software
 docker build -t $DOCKER_HUB_USER/$DOCKER_HUB_REPOSITORY:$DOCKER_HUB_TAG .

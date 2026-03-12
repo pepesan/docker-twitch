@@ -1,7 +1,7 @@
 # Imagen basada en Debian Bookworm
 FROM debian:trixie
 
-ENV TOMCAT_VERSION=10.1.49
+ENV TOMCAT_VERSION=10.1.52
 
 RUN apt update && \
     apt upgrade -y
