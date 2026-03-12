@@ -29,7 +29,7 @@ COPY requirements.txt /deploy/
 # -----------------------------
 # Creación del entorno virtual
 # -----------------------------
-# Descarga Python 3.12 y crea el venv en .venv (sin usar --path)
+# Descarga Python 3.14 y crea el venv en .venv (sin usar --path)
 RUN uv venv --python $PYTHON_VERSION .venv
 
 # Instalación de dependencias dentro del entorno
