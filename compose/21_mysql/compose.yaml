@@ -18,5 +18,5 @@ services:
       - ./data:/var/lib/mysql
       
       # Configuración personalizada
-      - ./conf.d:/etc/mysql/conf.d
+      - ./conf/my.cnf:/etc/my.cnf
 
