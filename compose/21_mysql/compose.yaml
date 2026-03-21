@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      # Datos en carpeta local
+      - ./data:/var/lib/mysql
+      
+      # Configuración personalizada
+      - ./conf.d:/etc/mysql/conf.d
+

@@ -1,0 +1,47 @@
+services:
+  mysql-source:
+    image: mysql:8.4
+    container_name: mysql-source
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      # Datos en carpeta local
+      - ./source/data:/var/lib/mysql
+      - ./source/conf.d/my.cnf:/etc/my.cnf
+      - ./source/initdb:/docker-entrypoint-initdb.d
+    networks:
+      - mysqlnet
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  mysql-replica:
+    image: mysql:8.4
+    container_name: mysql-replica
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306"
+    volumes:
+      # Datos en carpeta local
+      - ./replica/data:/var/lib/mysql
+      - ./replica/conf.d/my.cnf:/etc/my.cnf
+    networks:
+      - mysqlnet
+    depends_on:
+      mysql-source:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+networks:
+  mysqlnet:
