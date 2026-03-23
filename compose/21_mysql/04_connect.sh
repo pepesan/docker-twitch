@@ -2,5 +2,5 @@
 
 set -e
 
-mysql -h localhost -P 3306 -u root -proot
+mysql -h 127.0.0.1 -P 3306 -u root -proot
 
