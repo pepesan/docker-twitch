@@ -2,7 +2,7 @@ services:
   mysql:
     image: mysql:8.4
     container_name: mysql
-    restart: unless-stopped
+    restart: always
 
     environment:
       MYSQL_ROOT_PASSWORD: root

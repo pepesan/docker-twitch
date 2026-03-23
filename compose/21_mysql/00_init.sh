@@ -4,7 +4,6 @@ set -e
 
 # Crear carpetas si no existen
 mkdir -p data
-mkdir -p conf.d
 
 # Permisos recomendados para MySQL (UID 999 en la imagen oficial)
 sudo chown -R 999:999 data
