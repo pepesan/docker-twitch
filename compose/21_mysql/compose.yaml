@@ -16,7 +16,8 @@ services:
     volumes:
       # Datos en carpeta local
       - ./data:/var/lib/mysql
-      
+      # Carga datos iniciales
+      - ./initdb:/docker-entrypoint-initdb.d
       # Configuración personalizada
       - ./conf/my.cnf:/etc/my.cnf
 
