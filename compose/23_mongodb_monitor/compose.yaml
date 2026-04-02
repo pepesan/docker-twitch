@@ -1,0 +1,63 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    hostname: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.49.0
+    container_name: mongodb-exporter
+    restart: always
+    ports:
+      - "9216:9216"
+    command:
+      - '--mongodb.uri=mongodb://root:rootpass@mongo:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256'
+      - '--compatible-mode'
+      - '--collector.diagnosticdata'
+      - '--collector.replicasetstatus'
+    depends_on:
+      - mongo
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    hostname: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus:/prometheus
+    depends_on:
+      - node-exporter
+      - mongodb-exporter
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+
