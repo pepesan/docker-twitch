@@ -5,3 +5,8 @@ services:
     restart: always
     ports:
       - 27017:27017
+    volumes:
+      - ./config/mongod.conf.auth:/etc/mongod.conf:ro
+      # Persistencia de datos
+      - ./data:/data/db
+    command: [ "mongod", "--config", "/etc/mongod.conf" ]
