@@ -1,0 +1,6 @@
+id_venta,fecha,producto,categoria,importe,cantidad,pais
+1,2026-04-01,Portátil,Electrónica,1200.50,1,España
+2,2026-04-01,Ratón,Electrónica,25.99,2,España
+3,2026-04-01,Silla,Oficina,150.00,1,México
+4,2026-04-01,Teclado,Electrónica,45.00,1,Colombia
+5,2026-04-01,Monitor,Electrónica,300.00,2,España

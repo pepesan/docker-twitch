@@ -1,0 +1,6 @@
+id_venta,fecha,producto,categoria,importe,cantidad,pais
+6,2026-04-02,Escritorio,Oficina,250.00,1,España
+7,2026-04-02,Auriculares,Electrónica,80.00,3,Chile
+8,2026-04-02,Webcam,Electrónica,60.00,1,España
+9,2026-04-02,Lámpara,Oficina,35.50,2,Perú
+10,2026-04-02,Tablet,Electrónica,400.00,1,México

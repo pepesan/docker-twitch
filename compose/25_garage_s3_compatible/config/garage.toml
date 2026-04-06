@@ -1,0 +1,18 @@
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+
+block_size = 1048576
+replication_factor = 1
+consistency_mode = "consistent"
+
+rpc_bind_addr = "0.0.0.0:3901"
+rpc_public_addr = "garage:3901"
+# generado con `openssl rand -hex 32`
+rpc_secret = "ca1243706ddcd83a49b78ad5127fa4b86c8516510efb0821610c43c1b32667ff"
+[s3_api]
+api_bind_addr = "0.0.0.0:3900"
+s3_region = "garage"
+
+[s3_web]
+bind_addr = "0.0.0.0:3902"
+root_domain = "localhost"

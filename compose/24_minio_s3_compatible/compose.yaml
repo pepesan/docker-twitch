@@ -1,0 +1,13 @@
+services:
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    ports:
+      - "9001:9000"
+      - "9002:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin1234
+    volumes:
+      - ./data:/data
+    command: server /data --console-address ":9001"
