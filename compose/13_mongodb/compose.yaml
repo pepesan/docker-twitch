@@ -7,6 +7,7 @@ services:
       - 27017:27017
     volumes:
       - ./config/mongod.conf:/etc/mongod.conf:ro
+      - ./logs:/var/log/mongodb
       # Persistencia de datos
       - ./data:/data/db
     command: [ "mongod", "--config", "/etc/mongod.conf" ]
