@@ -20,7 +20,7 @@ services:
       - '--compatible-mode'
       - '--collector.diagnosticdata'
       - '--collector.replicasetstatus'
-      # - '--collect-all' recolectaría todas las métricas, pero puede ser excesivo para un entorno de producción
+      - '--collect-all' #recolectaría todas las métricas, pero puede ser excesivo para un entorno de producción
     depends_on:
       - mongo
   node-exporter:
