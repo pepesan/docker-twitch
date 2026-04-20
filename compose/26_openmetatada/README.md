@@ -189,6 +189,46 @@ clasificar datos
 conectar negocio
 
 ## Observabilidad
+Vamos a Observabilidad -> Test de Calidad
+
+Añadir Caso de Prueba
+Elemento que deba probarse: Nivel de Columna
+Seleccionamos la tabla clientes
+Selecionamos la columna email
+Seleccionamos el tipo de prueba Column Values to Be Not Null
+Comprobamos que ha asignado un nombre a la prueba
+Crear tubería: test_calidad_clientes
+Ejecutaba bajo demanda
+Pulsamos en crear
+
+## Casos de prueba y tuberías asignados a tabla
+Entramos a la tabla desde Explorar -> BBDD
+Buscamos tabla -> Entramos a la tabla
+Observabilidad -> Calidad de datos 
+Debería aparecer nuestro caso de prueba y la tubería
+
+Podemos ejecutar la tubería desde la pestaña Tuberías
+y desde los tres puntos seleccionar Ejecutar
+
+Podemos ver el log desde registros
+
+Y en la pestaña Casos de prueba debería aparecer como 
+Fallido
+
+# Añadir propietarios
+
+Desde la vista de tabla podemos ver los propietarios y 
+podemos añadirlos
+Selecionando el lapiz y desde la pestaña de usuarios 
+seleccionar el usuario que queremos asociar
+por ejemplo admin
+
+Ya tendríamos responsable del dato asignado
+
+# Linaje
+Desde la pantalla de tabla podemos acceder a linaje de la tabla
+Pulsando en la pestaña Linaje
+Deberíamos ver el origen de esa tabla
 
 
 
