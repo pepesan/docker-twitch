@@ -1,0 +1,12 @@
+services:
+  nifi:
+    image: apache/nifi:latest
+    container_name: nifi
+    ports:
+      - "8443:8443"
+    environment:
+      SINGLE_USER_CREDENTIALS_USERNAME: admin
+      SINGLE_USER_CREDENTIALS_PASSWORD: Admin1234567890Admin1234567890
+    volumes:
+      - ./output:/tmp/nifi-output
+    restart: unless-stopped
