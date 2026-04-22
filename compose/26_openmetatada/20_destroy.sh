@@ -5,10 +5,10 @@ docker compose down
 
 # Lista de volúmenes a eliminar
 VOLUMES=(
-  ingestion-volume-dag-airflow
-  ingestion-volume-dags
-  ingestion-volume-tmp
-  es-data
+  26_openmetatada_ingestion-volume-dag-airflow
+  26_openmetatada_ingestion-volume-dags
+  26_openmetatada_ingestion-volume-tmp
+  26_openmetatada_es-data
 )
 
 echo "Eliminando volúmenes..."

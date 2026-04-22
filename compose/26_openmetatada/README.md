@@ -11,6 +11,8 @@ Después arranca
 docker-compose up -d
 ```
 Esto iniciará los servicios necesarios para Open Metadata, incluyendo la base de datos y la aplicación web.
+Puede tardar varios minutos no te desesperes. 
+
 ## Acceso a la Interfaz de Usuario
 Una vez que los servicios estén en funcionamiento, puedes acceder a la interfaz de usuario de Open Metadata a través de tu navegador web. La URL predeterminada es:
 ```
@@ -35,12 +37,7 @@ Estas están configuradas en las variables de entorno.
 - Username: AIRFLOW_ADMIN_USER
 - Password: AIRFLOW_ADMIN_PASSWORD
 
-## Recorrer los DAG de Airflow
-En la interfaz de Airflow, 
-puedes explorar los 
-DAGs (Directed Acyclic Graphs) que 
-representan los flujos de trabajo. 
-Puedes activar, desactivar y ejecutar los DAGs según tus necesidades. Además, puedes revisar los logs y el estado de las tareas para monitorear la ejecución de tus flujos de trabajo.
+Más adelante veremos las pipelines en funcionamiento. 
 
 ## Parar los servicios
 Cuando hayas terminado de usar Open Metadata, puedes detener los servicios utilizando Docker Compose:
@@ -214,6 +211,40 @@ Podemos ver el log desde registros
 
 Y en la pestaña Casos de prueba debería aparecer como 
 Fallido
+
+## Recorrer los DAG de Airflow
+En la interfaz de Airflow,
+puedes explorar los
+DAGs (Directed Acyclic Graphs) que
+representan los flujos de trabajo.
+Puedes activar, desactivar y ejecutar los DAGs según tus necesidades. 
+Además, puedes revisar los logs y el estado de las tareas para monitorear la ejecución de tus flujos de trabajo.
+
+## Que son las pipelines
+Funcionamiento de las pipelines (Ingestión y Calidad)
+
+En OpenMetadata, las pipelines son el mecanismo que permite automatizar la ingestión de metadatos
+y la ejecución de pruebas de calidad. Internamente, estas pipelines se ejecutan mediante Apache Airflow.
+
+Una pipeline es un flujo de trabajo automatizado que puede encargarse de:
+
+- Extraer metadatos desde una fuente (por ejemplo, MySQL)
+- Actualizar el catálogo de datos
+- Ejecutar tests de calidad
+- Generar métricas y observabilidad
+
+El flujo real es el siguiente:
+
+- Configuras una ingestión o un test desde la UI de OpenMetadata
+- OpenMetadata crea una pipeline
+- Esa pipeline se registra como un DAG en Airflow
+- Airflow es quien ejecuta realmente el proceso
+- Los resultados se reflejan de nuevo en OpenMetadata
+
+Las pipelines pueden ejecutarse de dos formas:
+
+- Ejecución automática
+- Según una frecuencia configurada (schedule)
 
 # Añadir propietarios
 
