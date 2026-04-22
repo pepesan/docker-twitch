@@ -83,6 +83,11 @@ INSERT INTO clientes VALUES
 
 Nos salimos de la consola de mysql (exit) y del contenedor (exit).
 
+O podemos ejecutar el 
+```shell
+./06_create_clientes_table.sh
+```
+
 
 ## Conexión a la base de datos
 Open Metadata permite la ingestión de metadatos desde diversas fuentes, incluyendo bases de datos. Para conectar una base de datos a Open Metadata, puedes seguir estos pasos:
@@ -101,6 +106,13 @@ vacío para que incluya todo.
 10. Pulsamos en Save
 11. Debería aparecer una perspectiva y un agente en estado pendiente. 
 12. Deberían de ir apareciendo los datos de la base de datos de opendata 
+
+En airflow debería aparecer la pipeline en funcionamiento dentro de los Dags.
+- Si pulsamos en ella veremos una pestaña con las ejecuciones. 
+- Si entramos a la ejecución veremos las instancias de las tareas, ingestion_task.
+- Si entramos debería parecer el log de la tarea
+
+No terminará hasta que ponga Done 
 
 ## Práctica de Gobierno de Datos
 ### Exploración
@@ -150,7 +162,7 @@ Ese tag permite:
 Gobernar -> Glosario
 
 Añadir
-Nombre :Glosario Comercial
+Nombre: Glosario Comercial
 Descripción: Descripción del Glosario Comercial
 Guardar
 
@@ -171,9 +183,10 @@ Guardar
 
 ## Asociamos términos y datos
 Nos vamos a la tabla de clientes
-En la pestaña de productos en el apartado derecho viene
+En la pestaña en el apartado derecho viene Productos de Datos y debajo 
 un Término de glosario con un +
-Silo pulsas puedes asociar el término cliente a la tabla
+Si lo pulsas puedes asociar el término cliente a la tabla
+
 Si seleccionamos el nombre de la columna email, 
 podemos ver también los términos de glosario y podemos 
 asociar al del Email 
@@ -194,7 +207,9 @@ Seleccionamos la tabla clientes
 Selecionamos la columna email
 Seleccionamos el tipo de prueba Column Values to Be Not Null
 Comprobamos que ha asignado un nombre a la prueba
-Crear tubería: test_calidad_clientes
+
+En el apartado Crear tubería:
+Nombre: test_calidad_clientes
 Ejecutaba bajo demanda
 Pulsamos en crear
 
