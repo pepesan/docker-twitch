@@ -23,6 +23,7 @@ Run Schedule: 10 sec
 Properties
 Custom Text: hola desde nifi
 Unique FlowFiles: false
+Apply
 
 Arrastra un Procesor al canvas
 Selecciona
@@ -53,4 +54,23 @@ Con el GenerateFlowFile selecionado pulsa el botón de play
 Con el PutFile selecionado pulsa el botón de play
 
 ## Comprueba que se están escribiendo los datos
-revisa los ficheros output/ para ver si tienen los datos colocados 
+revisa los ficheros output/ para ver si tienen los datos colocados
+
+## Selecciona elementos
+Shift + Arrastrar con el raton
+
+## Copiar el flujo
+
+Control + C
+
+## Exportar FLujo
+
+Pega el contenido del Control + C de antes a un fichero JSON
+Y guardalo
+
+## Importar el Flujo
+
+Copia el contenido del fichero de antes
+Pega con Control + V dentro del canvas de Nifi
+
+
