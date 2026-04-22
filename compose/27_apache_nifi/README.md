@@ -8,7 +8,7 @@
 https://localhost:8443/nifi
 
 usuario: admin
-contraseña: Admin1234
+contraseña: Admin1234567890Admin1234567890
 
 Dentro del canvas principal sigue los siguientes pasos:
 
