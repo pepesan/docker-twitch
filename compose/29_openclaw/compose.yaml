@@ -1,0 +1,20 @@
+services:
+  openclaw:
+    image: alpine/openclaw:latest
+    container_name: openclaw
+    restart: always
+    ports:
+      - "18789:18789"   # Control UI / gateway
+    volumes:
+      - config/openclaw.json:/home/node/.openclaw/openclaw.json
+      - ~/openclaw/workspace:/home/node/.openclaw/workspace
+    environment:
+      - OPENCLAW_GATEWAY_TOKEN=${GATEWAY_TOKEN}
+    extra_hosts:
+      # Necesario en Linux para acceder al host
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
