@@ -1,0 +1,58 @@
+services:
+
+  namenode:
+    image: apache/hadoop:3
+    container_name: namenode
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    env_file:
+      - ./hadoop.env
+    environment:
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+    ports:
+      - "9870:9870"
+      - "8020:8020"
+    networks:
+      - hadoop-net
+
+  datanode:
+    image: apache/hadoop:3
+    container_name: datanode
+    hostname: datanode
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./hadoop.env
+    networks:
+      - hadoop-net
+    depends_on:
+      - namenode
+
+  resourcemanager:
+    image: apache/hadoop:3
+    container_name: resourcemanager
+    hostname: resourcemanager
+    command: ["yarn", "resourcemanager"]
+    env_file:
+      - ./hadoop.env
+    ports:
+      - "8088:8088"
+    networks:
+      - hadoop-net
+    depends_on:
+      - namenode
+
+  nodemanager:
+    image: apache/hadoop:3
+    container_name: nodemanager
+    hostname: nodemanager
+    command: ["yarn", "nodemanager"]
+    env_file:
+      - ./hadoop.env
+    networks:
+      - hadoop-net
+    depends_on:
+      - resourcemanager
+
+networks:
+  hadoop-net:
+    driver: bridge
