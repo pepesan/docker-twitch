@@ -1,0 +1,61 @@
+services:
+
+  # ─── Spark Master ──────────────────────────────────────────────────────────
+  spark-master:
+    image: spark:python3
+    container_name: spark-master
+    hostname: spark-master
+    user: root
+    entrypoint: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    networks:
+      - spark-net
+
+  # ─── Spark Worker ──────────────────────────────────────────────────────────
+  spark-worker:
+    image: spark:python3
+    container_name: spark-worker
+    hostname: spark-worker
+    user: root
+    entrypoint:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.worker.Worker
+      - spark://spark-master:7077
+    environment:
+      - SPARK_WORKER_MEMORY=1g
+      - SPARK_WORKER_CORES=1
+    ports:
+      - "8081:8081"
+    networks:
+      - spark-net
+    depends_on:
+      - spark-master
+
+  # ─── Jupyter + PySpark ─────────────────────────────────────────────────────
+  jupyter:
+    image: spark:python3
+    container_name: jupyter
+    hostname: jupyter
+    user: root
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_HOME=/opt/spark
+      - PYTHONPATH=/opt/spark/python:/opt/spark/python/lib/py4j-0.10.9.9-src.zip
+      - PYSPARK_PYTHON=python3
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - "pip install jupyter notebook --quiet && jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password='' --notebook-dir=/work"
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/work
+    networks:
+      - spark-net
+    depends_on:
+      - spark-master
+
+networks:
+  spark-net:
+    driver: bridge
