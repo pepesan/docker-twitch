@@ -1,0 +1,34 @@
+services:
+
+  # ─── JobManager (coordinador) ──────────────────────────────────────────────
+  jobmanager:
+    image: flink:2.2.0
+    container_name: jobmanager
+    hostname: jobmanager
+    command: jobmanager
+    environment:
+      FLINK_PROPERTIES: "jobmanager.rpc.address: jobmanager"
+    ports:
+      - "8081:8081"   # Flink UI → http://localhost:8081
+    networks:
+      - flink-net
+
+  # ─── TaskManager (worker) ──────────────────────────────────────────────────
+  taskmanager:
+    image: flink:2.2.0
+    container_name: taskmanager
+    hostname: taskmanager
+    command: taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        parallelism.default: 2
+    networks:
+      - flink-net
+    depends_on:
+      - jobmanager
+
+networks:
+  flink-net:
+    driver: bridge
