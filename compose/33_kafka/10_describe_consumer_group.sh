@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONSUMER_GROUP_NAME=console-consumer-26547
+CONSUMER_GROUP_NAME=console-consumer-67579
 docker exec kafka /opt/kafka/bin/kafka-consumer-groups.sh \
   --bootstrap-server localhost:9092 \
   --describe --group ${CONSUMER_GROUP_NAME}

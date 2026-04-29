@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JOB_ID=a498148331be087bf1e747d1ee0ed618
+JOB_ID=e89fa783987ab33f044df1e488b8a19b
 # Obtener el job ID desde la UI o con flink list
 docker exec jobmanager /opt/flink/bin/flink cancel $JOB_ID
 

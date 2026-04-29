@@ -40,6 +40,7 @@ hdfs dfs -cat /user/demo/hosts.txt
 # Ver uso del sistema de ficheros
 hdfs dfs -df -h
 ```
+Nos salimos con exit
 
 ## Ejecutar un job MapReduce de ejemplo (WordCount)
 
@@ -58,7 +59,7 @@ hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar \
 # Ver resultado
 hdfs dfs -cat /user/demo/output/part-r-00000
 ```
-
+Nos salimos con exit
 ## Parar el clúster
 
 ```bash

@@ -32,6 +32,9 @@ Cuando aparezca `Jupyter Server ... is running`, abrir http://localhost:8888
 El notebook de demo está en `demo_spark.ipynb`.
 
 ## Contenido del notebook
+Cuando entres tendrás que seleccionar el kernel "Python 3 (ipykernel)" para ejecutar las celdas.
+
+Para ejecutar una celda, seleccionarla y pulsar Shift + Enter.
 
 1. **RDD — WordCount** — `flatMap → map → reduceByKey` (paradigma MapReduce a bajo nivel)
 2. **DataFrame API** — agregación de ventas con `groupBy`, `agg`, `avg`
