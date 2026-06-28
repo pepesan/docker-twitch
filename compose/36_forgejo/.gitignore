@@ -1,0 +1,9 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Datos de volúmenes (no commitear)
+data/
+
+# Variables de entorno con credenciales
+.env

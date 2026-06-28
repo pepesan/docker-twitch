@@ -1,0 +1,45 @@
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:15
+    container_name: forgejo
+    restart: always
+    environment:
+      - USER_UID=${USER_UID:-1000}
+      - USER_GID=${USER_GID:-1000}
+      - FORGEJO__database__DB_TYPE=postgres
+      - FORGEJO__database__HOST=db:5432
+      - FORGEJO__database__NAME=${POSTGRES_DB:-forgejo}
+      - FORGEJO__database__USER=${POSTGRES_USER:-forgejo}
+      - FORGEJO__database__PASSWD=${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "${HTTP_PORT:-3000}:3000"
+      - "${SSH_PORT:-222}:22"
+    volumes:
+      - ./data/forgejo:/data
+    networks:
+      - forgejo_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    container_name: forgejo_db
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-forgejo}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - POSTGRES_DB=${POSTGRES_DB:-forgejo}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - forgejo_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forgejo} -d ${POSTGRES_DB:-forgejo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  forgejo_net:
+    driver: bridge
