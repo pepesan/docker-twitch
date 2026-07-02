@@ -1,0 +1,29 @@
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:15
+    environment:
+      - FORGEJO__database__DB_TYPE=postgres
+      - FORGEJO__database__HOST=db:5432
+    ports:
+      - "3001:3000"
+    volumes:
+      - forgejo_data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=forgejo
+      - POSTGRES_PASSWORD=changeme
+    volumes:
+      - forgejo_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forgejo"]
+      interval: 10s
+      retries: 5
+
+volumes:
+  forgejo_data:
+  forgejo_db_data:
