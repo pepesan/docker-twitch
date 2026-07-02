@@ -1,0 +1,22 @@
+---
+# Conexión: todos los nodos se administran por SSH con la clave ya incluida
+# en la imagen ubuntu-2404-ssh-template (root, sin contraseña).
+ansible_user: root
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+
+# Imagen y red LXD locales (ver ../swarm/README.md para crear la imagen si falta)
+lxd_image: ubuntu-2404-ssh-template
+lxd_network: lxdbr0
+
+# Módulos de kernel que necesita Docker Swarm dentro de un contenedor LXD
+# (routing mesh vía IPVS, redes overlay VXLAN, NAT) — ver README.md de esta
+# carpeta, sección "Requisitos especiales de LXD con Ansible".
+lxd_kernel_modules: "ip_vs,ip_vs_rr,ip_vs_wrr,ip_vs_sh,ip_tables,ip6_tables,netlink_diag,nf_nat,overlay,br_netfilter"
+
+swarm_manager1: manager1
+swarm_manager1_ip: "{{ hostvars['manager1']['ansible_host'] }}"
+
+swarm_service_name: web-demo
+target_node: worker2 # nodo a derribar en 10_probar_caida_nodo.yml; -e target_node=X lo sobrescribe
+portainer_node: portainer-server
+portainer_ip: "{{ hostvars['portainer-server']['ansible_host'] }}"

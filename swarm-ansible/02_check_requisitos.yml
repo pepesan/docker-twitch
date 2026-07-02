@@ -1,0 +1,52 @@
+---
+# Comprueba que el host de control tiene lo mínimo para levantar el
+# laboratorio: LXD, la imagen base con la clave SSH ya incluida, y la red
+# gestionada donde vivirán los nodos. No crea nada, solo valida.
+- name: Comprobar requisitos del laboratorio
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Asegurar que las colecciones necesarias de Ansible Galaxy estén instaladas
+      community.general.ansible_galaxy_install:
+        name: "{{ item }}"
+        type: collection
+      loop:
+        - community.general
+        - community.docker
+        - bgtor.portainer
+
+    - name: Comprobar que existe el comando lxc
+      ansible.builtin.command: which lxc
+      register: lxc_check
+      changed_when: false
+      failed_when: false
+
+    - name: Fallar si no existe el comando lxc
+      ansible.builtin.fail:
+        msg: "Falta el comando 'lxc' (LXD) en este host."
+      when: lxc_check.rc != 0
+
+    - name: Listar imágenes LXD locales
+      ansible.builtin.command: lxc image list -f csv -c l
+      register: image_list
+      changed_when: false
+
+    - name: Fallar si no existe la imagen base
+      ansible.builtin.fail:
+        msg: "No existe la imagen local '{{ lxd_image }}'. Ver README.md, sección 'Crear la imagen'."
+      when: lxd_image not in image_list.stdout_lines
+
+    - name: Listar redes LXD
+      ansible.builtin.command: lxc network list -f csv
+      register: network_list
+      changed_when: false
+
+    - name: Fallar si no existe la red gestionada
+      ansible.builtin.fail:
+        msg: "No existe la red '{{ lxd_network }}' (lxc network list)."
+      when: lxd_network not in (network_list.stdout_lines | map('split', ',') | map('first') | list)
+
+    - name: Requisitos OK
+      ansible.builtin.debug:
+        msg: "LXD, imagen '{{ lxd_image }}' y red '{{ lxd_network }}' disponibles."

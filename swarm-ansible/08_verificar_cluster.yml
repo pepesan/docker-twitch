@@ -1,0 +1,17 @@
+---
+# 'docker node ls' solo se puede ejecutar desde un manager (aquí manager1):
+# los workers no tienen visión del estado global del cluster. Los 5 nodos
+# deben aparecer en STATUS=Ready; manager1 con MANAGER STATUS=Leader y
+# manager2/manager3 con Reachable. Tarea de solo lectura: no cambia nada.
+- name: Verificar el estado del cluster
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Listar los nodos del cluster
+      ansible.builtin.command: docker node ls
+      register: node_ls
+      changed_when: false
+
+    - name: Mostrar el estado del cluster
+      ansible.builtin.debug:
+        msg: "{{ node_ls.stdout_lines }}"

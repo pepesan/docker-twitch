@@ -1,0 +1,69 @@
+---
+# Crea los 6 contenedores LXD del laboratorio (5 del cluster Swarm + el nodo
+# de Portainer) a partir del inventario: cada host define su propia IP fija
+# y sus recursos (lxd_cpu/lxd_mem/lxd_disk) en inventory.ini.
+#
+# community.general.lxd_container ya es idempotente por sí mismo: si el
+# contenedor existe y su configuración coincide, no hace nada (changed=false).
+#
+# Igual que en ../swarm/01_crear_nodos.sh, aplicamos aquí los tres ajustes
+# imprescindibles para que Docker Swarm funcione dentro de un contenedor LXD
+# (ver README.md, "Requisitos especiales de LXD con Ansible"):
+#   - security.nesting=true
+#   - security.privileged=true
+#   - linux.kernel_modules=...
+- name: Crear los nodos LXD del laboratorio
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Crear/actualizar cada contenedor LXD
+      community.general.lxd_container:
+        name: "{{ item }}"
+        state: started
+        source:
+          type: image
+          alias: "{{ lxd_image }}"
+        config:
+          # LXD exige que todos los valores de 'config' sean strings; el
+          # inventario INI interpreta lxd_cpu como número, así que hay que
+          # forzarlo con el filtro 'string' o la API de LXD rechaza la petición.
+          limits.cpu: "{{ hostvars[item].lxd_cpu | string }}"
+          limits.memory: "{{ hostvars[item].lxd_mem }}"
+          security.nesting: "true"
+          security.privileged: "true"
+          linux.kernel_modules: "{{ lxd_kernel_modules }}"
+        devices:
+          eth0:
+            type: nic
+            network: "{{ lxd_network }}"
+            name: eth0
+            "ipv4.address": "{{ hostvars[item].ansible_host }}"
+          root:
+            type: disk
+            path: /
+            pool: default
+            size: "{{ hostvars[item].lxd_disk }}"
+        wait_for_ipv4_addresses: true
+        timeout: 90
+      # groups['cluster'] es la lista de nombres de host del grupo [cluster:children]
+      # definido en inventory.ini (managers + workers + portainer). Ansible la
+      # rellena solo al leer el inventario, no hace falta declararla en ningún sitio.
+      # 'item' toma, en cada vuelta del bucle, uno de esos nombres (p. ej. "worker1"),
+      # y 'hostvars[item]' da acceso a las variables de ESE host concreto tal como
+      # están escritas en su línea de inventory.ini (ansible_host, lxd_cpu, lxd_mem,
+      # lxd_disk) — así una sola tarea sirve para los 6 nodos, cada uno con su IP y
+      # sus recursos, sin repetir la tarea a mano por nodo.
+      loop: "{{ groups['cluster'] }}"
+
+    - name: Esperar a que SSH esté disponible en cada nodo
+      ansible.builtin.wait_for:
+        host: "{{ hostvars[item].ansible_host }}"
+        port: 22
+        delay: 2
+        timeout: 60
+      loop: "{{ groups['cluster'] }}"
+
+    - name: Nodos creados y accesibles
+      ansible.builtin.debug:
+        msg: "{{ groups['cluster'] | map('extract', hostvars, 'ansible_host') | list }}"

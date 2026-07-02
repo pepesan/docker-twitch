@@ -1,0 +1,43 @@
+---
+# Reequilibra las réplicas del servicio 'web-demo' después de una simulación de caída de nodo
+# (paso 10). Docker Swarm no redistribuye automáticamente las tareas al recuperar un nodo
+# para evitar cortes de servicio. Este playbook fuerza un rolling update del servicio
+# para que se vuelvan a repartir de forma balanceada entre los workers activos.
+- name: Recuperar y reequilibrar el cluster Swarm
+  hosts: manager1
+  gather_facts: false
+  vars:
+    swarm_service_name: web-demo
+  tasks:
+    - name: Comprobar el estado actual de las réplicas antes de reequilibrar
+      ansible.builtin.command: docker service ps {{ swarm_service_name }}
+      register: service_ps_before
+      changed_when: false
+
+    - name: Mostrar estado antes de la recuperación
+      ansible.builtin.debug:
+        msg: "{{ service_ps_before.stdout_lines }}"
+
+    - name: Forzar actualización del servicio para reequilibrar réplicas
+      ansible.builtin.command: docker service update --force {{ swarm_service_name }}
+      register: service_update
+      changed_when: true
+
+    - name: Esperar a que las réplicas converjan (realmente en ejecución y reequilibradas)
+      ansible.builtin.command: >-
+        docker service ps {{ swarm_service_name }}
+        --filter "desired-state=running" --format '{{ "{{" }}.CurrentState{{ "}}" }}'
+      register: service_ps
+      changed_when: false
+      until: (service_ps.stdout_lines | select('search', '^Running') | list | length) == 3
+      retries: 30
+      delay: 5
+
+    - name: Obtener el estado final detallado del servicio
+      ansible.builtin.command: docker service ps {{ swarm_service_name }}
+      register: service_ps_after
+      changed_when: false
+
+    - name: Mostrar estado después de la recuperación
+      ansible.builtin.debug:
+        msg: "{{ service_ps_after.stdout_lines }}"

@@ -1,0 +1,38 @@
+---
+# Convierte manager1 en el primer nodo del cluster Swarm. --advertise-addr
+# (aquí 'advertise_addr') es obligatorio porque el contenedor tiene varias
+# interfaces (eth0, docker0, docker_gwbridge...); sin indicarlo, Swarm podría
+# anunciar la IP equivocada.
+#
+# community.docker.docker_swarm con state: present es idempotente de forma
+# NATIVA (habla con la API de Docker vía el SDK de Python, no hace falta la
+# comprobación manual de 'docker info' que se usaba antes con 'command'):
+# si este nodo ya es manager de un swarm, no hace nada (changed=false) y aun
+# así devuelve los tokens de unión actuales.
+- name: Inicializar el cluster Swarm en manager1
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Inicializar (o confirmar) el cluster Swarm
+      community.docker.docker_swarm:
+        state: present
+        advertise_addr: "{{ swarm_manager1_ip }}"
+      register: swarm_result
+
+    - name: Guardar el token de manager en el nodo de control
+      ansible.builtin.copy:
+        content: "{{ swarm_result.swarm_facts.JoinTokens.Manager }}\n"
+        dest: "{{ playbook_dir }}/manager.token"
+        mode: "0600"
+      delegate_to: localhost
+
+    - name: Guardar el token de worker en el nodo de control
+      ansible.builtin.copy:
+        content: "{{ swarm_result.swarm_facts.JoinTokens.Worker }}\n"
+        dest: "{{ playbook_dir }}/worker.token"
+        mode: "0600"
+      delegate_to: localhost
+
+    - name: Cluster inicializado
+      ansible.builtin.debug:
+        msg: "{{ swarm_manager1 }} es el líder del cluster."

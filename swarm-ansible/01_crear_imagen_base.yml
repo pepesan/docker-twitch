@@ -1,0 +1,122 @@
+---
+# Playbook para crear la imagen base ubuntu-2404-ssh-template de forma automatizada.
+# Equivale al procedimiento manual descrito en el README.md del laboratorio de bash:
+# 1. Levanta un contenedor temporal de Ubuntu 24.04.
+# 2. Inyecta la clave pública local del usuario (id_ed25519 o id_rsa).
+# 3. Actualiza el sistema (apt update && upgrade).
+# 4. Detiene el contenedor y lo publica como la imagen local 'ubuntu-2404-ssh-template'.
+# 5. Borra el contenedor temporal.
+
+- name: Validar y preparar la creación de la imagen base
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    lxd_image_template: ubuntu-2404-ssh-template
+    builder_container_name: base-ssh-builder
+    force_recreate: false # Cambiar a true si se quiere forzar la reconstrucción de la imagen
+
+  tasks:
+    - name: Comprobar si la imagen base ya existe
+      ansible.builtin.command: lxc image list -f csv -c l
+      register: image_list
+      changed_when: false
+      check_mode: false
+
+    - name: Determinar si la imagen base existe
+      ansible.builtin.set_fact:
+        image_exists: "{{ lxd_image_template in image_list.stdout_lines }}"
+
+    - name: Preparar entorno de creación si es necesario
+      block:
+        - name: Determinar la ruta de la clave pública SSH local
+          ansible.builtin.set_fact:
+            ssh_pub_key_path: "{{ lookup('first_found', list_of_keys) }}"
+          vars:
+            list_of_keys:
+              - "~/.ssh/id_ed25519.pub"
+              - "~/.ssh/id_rsa.pub"
+
+        - name: Mostrar clave pública seleccionada
+          ansible.builtin.debug:
+            msg: "Se inyectará la clave pública SSH: {{ ssh_pub_key_path }}"
+
+        - name: Lanzar el contenedor temporal base-ssh-builder
+          community.general.lxd_container:
+            name: "{{ builder_container_name }}"
+            state: started
+            source:
+              type: image
+              mode: pull
+              server: https://cloud-images.ubuntu.com/releases/
+              protocol: simplestreams
+              alias: "24.04"
+            wait_for_ipv4_addresses: true
+            timeout: 90
+
+        - name: Registrar dinámicamente el contenedor en el inventario
+          ansible.builtin.add_host:
+            name: "{{ builder_container_name }}"
+            ansible_connection: community.general.lxd
+
+      when: not image_exists or force_recreate
+
+- name: Configurar e inyectar SSH en el contenedor constructor
+  hosts: base-ssh-builder
+  gather_facts: false
+  tasks:
+    - name: Asegurar que el directorio /root/.ssh existe
+      ansible.builtin.file:
+        path: /root/.ssh
+        state: directory
+        mode: "0700"
+
+    - name: Inyectar la clave pública autorizada en root
+      ansible.builtin.copy:
+        content: "{{ lookup('file', hostvars['localhost']['ssh_pub_key_path']) }}"
+        dest: /root/.ssh/authorized_keys
+        mode: "0600"
+
+    - name: Actualizar el listado de paquetes y actualizar sistema
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+
+- name: Publicar y limpiar el contenedor constructor
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    lxd_image_template: ubuntu-2404-ssh-template
+    builder_container_name: base-ssh-builder
+    force_recreate: false
+
+  tasks:
+    - name: Determinar si se debe publicar la imagen
+      ansible.builtin.set_fact:
+        should_publish: "{{ not image_exists or force_recreate }}"
+
+    - name: Ejecutar publicación y eliminación del constructor
+      block:
+        - name: Detener el contenedor constructor temporal
+          community.general.lxd_container:
+            name: "{{ builder_container_name }}"
+            state: stopped
+            timeout: 30
+
+        - name: Borrar la imagen existente si forzamos la recreación
+          ansible.builtin.command: "lxc image delete {{ lxd_image_template }}"
+          when: image_exists and force_recreate
+          changed_when: true
+          failed_when: false
+
+        - name: Publicar el contenedor como nueva imagen local
+          ansible.builtin.command: "lxc publish {{ builder_container_name }} --alias {{ lxd_image_template }}"
+          changed_when: true
+
+        - name: Eliminar el contenedor constructor temporal
+          community.general.lxd_container:
+            name: "{{ builder_container_name }}"
+            state: absent
+            timeout: 30
+      when: should_publish

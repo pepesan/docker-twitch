@@ -1,0 +1,79 @@
+---
+# Despliega un servicio replicado real para tener algo que romper en
+# 10_probar_caida_nodo.yml. placement.constraints: node.role == worker
+# fuerza a que las réplicas caigan SOLO en workers: los managers quedan
+# libres para el quórum Raft, sin competir con la carga de aplicación.
+#
+# community.docker.docker_swarm_service es idempotente de forma nativa: si
+# el servicio ya existe con la misma spec, no hace nada; si algo cambió
+# (réplicas, imagen, constraint...), lo actualiza sin recrearlo desde cero.
+- name: Desplegar el servicio de prueba
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Crear o actualizar el servicio (3 réplicas, solo en workers)
+      community.docker.docker_swarm_service:
+        name: "{{ swarm_service_name }}"
+        image: nginx:stable-alpine
+        replicas: 3
+        placement:
+          constraints:
+            - node.role == worker
+        publish:
+          - published_port: 8080
+            target_port: 80
+      register: service_result
+
+    - name: Esperar a que las réplicas converjan (realmente en ejecución)
+      ansible.builtin.command: >-
+        docker service ps {{ swarm_service_name }}
+        --filter "desired-state=running" --format '{{ "{{" }}.CurrentState{{ "}}" }}'
+      register: service_ps
+      changed_when: false
+      until: (service_ps.stdout_lines | select('search', '^Running') | list | length) == 3
+      retries: 30
+      delay: 5
+
+    - name: Obtener el estado detallado del servicio
+      ansible.builtin.command: docker service ps {{ swarm_service_name }}
+      register: service_ps_full
+      changed_when: false
+
+    - name: Mostrar el estado del servicio
+      ansible.builtin.debug:
+        msg: "{{ service_ps_full.stdout_lines }}"
+
+    - name: Extraer los nodos donde corren las réplicas
+      ansible.builtin.command: >-
+        docker service ps {{ swarm_service_name }}
+        --filter "desired-state=running" --format '{{ "{{" }}.Node{{ "}}" }}'
+      register: replica_nodes
+      changed_when: false
+
+    - name: Validar que ninguna réplica corre en un manager
+      ansible.builtin.assert:
+        that: item not in groups['managers']
+        fail_msg: "Hay una réplica de {{ swarm_service_name }} corriendo en el manager {{ item }}"
+        success_msg: "OK: {{ item }} es un worker"
+      loop: "{{ replica_nodes.stdout_lines }}"
+
+# Routing mesh: la misma petición debe funcionar desde CUALQUIER nodo del
+# cluster, tenga o no una réplica corriendo — Swarm la enruta internamente.
+# ansible.builtin.uri es idempotente (GET, no modifica nada).
+- name: Comprobar el routing mesh desde los 5 nodos del cluster
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Petición HTTP a cada nodo del cluster en el puerto 8080
+      ansible.builtin.uri:
+        url: "http://{{ hostvars[item].ansible_host }}:8080/"
+        status_code: 200
+        timeout: 5
+      loop: "{{ groups['swarm'] }}"
+      register: mesh_check
+
+    - name: Resultado del routing mesh
+      ansible.builtin.debug:
+        msg: "{{ item.item }} ({{ hostvars[item.item].ansible_host }}) -> HTTP {{ item.status }}"
+      loop: "{{ mesh_check.results }}"

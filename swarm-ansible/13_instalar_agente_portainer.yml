@@ -1,0 +1,99 @@
+---
+# Despliega Portainer Agent dentro del cluster Swarm y lo registra automáticamente
+# en la instancia de Portainer Server (paso 12).
+#
+# Todo con módulos community.docker.*, idempotentes de forma nativa.
+#
+# Referencia: https://docs.portainer.io/start/install-ce/server/swarm/docker
+- name: Desplegar el Portainer Agent dentro del cluster (modo global)
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Crear la red overlay del agente
+      community.docker.docker_network:
+        name: portainer_agent_net
+        driver: overlay
+        attachable: true
+        state: present
+
+    - name: "Desplegar el Portainer Agent (modo global: un agente por nodo)"
+      community.docker.docker_swarm_service:
+        name: portainer_agent
+        image: portainer/agent:2.41.1
+        mode: global
+        networks:
+          - portainer_agent_net
+        publish:
+          - published_port: 9001
+            target_port: 9001
+            mode: host
+        mounts:
+          - source: /var/run/docker.sock
+            target: /var/run/docker.sock
+            type: bind
+          - source: /var/lib/docker/volumes
+            target: /var/lib/docker/volumes
+            type: bind
+
+- name: Registrar el entorno Swarm en Portainer Server automáticamente
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Esperar a que el Portainer Agent esté listo en el puerto 9001
+      ansible.builtin.wait_for:
+        host: "{{ swarm_manager1_ip }}"
+        port: 9001
+        delay: 2
+        timeout: 60
+        state: started
+
+    - name: Obtener JWT token de Portainer (esperando a que inicie el servicio)
+      ansible.builtin.uri:
+        url: "https://{{ portainer_ip }}:9443/api/auth"
+        method: POST
+        body_format: json
+        body:
+          Username: admin
+          Password: mipass12345678
+        validate_certs: false
+      register: auth_result
+      until: auth_result.status == 200
+      retries: 20
+      delay: 5
+
+    - name: Verificar si el entorno Swarm ya está registrado
+      ansible.builtin.uri:
+        url: "https://{{ portainer_ip }}:9443/api/endpoints"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ auth_result.json.jwt }}"
+        validate_certs: false
+      register: endpoints_result
+
+    - name: Registrar entorno Swarm Agent en Portainer si no existe
+      ansible.builtin.shell: |
+        curl -k -s -f -X POST https://{{ portainer_ip }}:9443/api/endpoints \
+          -H "Authorization: Bearer {{ auth_result.json.jwt }}" \
+          -F "Name=Swarm Cluster" \
+          -F "EndpointCreationType=2" \
+          -F "URL=tcp://{{ swarm_manager1_ip }}:9001" \
+          -F "TLS=true" \
+          -F "TLSSkipVerify=true" \
+          -F "TLSSkipClientVerify=true"
+      changed_when: true
+      when: >
+        endpoints_result.json | selectattr('Name', 'equalto', 'Swarm Cluster') | list | length == 0
+
+- name: Resumen de conexión
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Cómo conectar Portainer al cluster
+      ansible.builtin.debug:
+        msg:
+          - "Portainer Server: https://{{ portainer_ip }}:9443"
+          - "Credenciales: Usuario: admin | Contraseña: mipass12345678"
+          - "════════════════════════════════════════════════════════════════"
+          - "¡ÉXITO!: El cluster Swarm ha sido registrado automáticamente en Portainer."
+          - "Ya puedes acceder directamente y ver el entorno 'Swarm Cluster'."

@@ -1,0 +1,17 @@
+---
+# Une manager2 y manager3 al cluster ya creado por 05_swarm_init.yml, usando
+# el token de manager guardado en manager.token. Con 3 managers, el cluster
+# tolera la caída de 1 sin perder el quórum Raft (mayoría = 2 de 3).
+#
+# community.docker.docker_swarm con state: join es idempotente de forma
+# nativa: si el nodo ya pertenece a un swarm, no intenta unirse de nuevo.
+- name: Unir manager2 y manager3 al cluster
+  hosts: managers:!manager1
+  gather_facts: false
+  tasks:
+    - name: Unirse al cluster como manager
+      community.docker.docker_swarm:
+        state: join
+        advertise_addr: "{{ ansible_host }}"
+        join_token: "{{ lookup('file', playbook_dir + '/manager.token') }}"
+        remote_addrs: ["{{ swarm_manager1_ip }}:2377"]

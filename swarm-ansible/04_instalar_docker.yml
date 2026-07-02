@@ -1,0 +1,92 @@
+---
+# Instala Docker Engine en los 6 nodos siguiendo el procedimiento oficial
+# (repositorio + GPG de Docker), el mismo que enseña la Unidad 00 del curso
+# y que usa ../swarm/02_instalar_docker.sh. Aquí, en vez de un heredoc de
+# shell, cada paso es un módulo idempotente: apt/get_url/file/systemd no
+# reinstalan ni repiten nada si ya está en el estado deseado — se puede
+# relanzar este playbook las veces que haga falta sin efectos secundarios.
+- name: Instalar Docker Engine en todos los nodos del cluster
+  hosts: cluster
+  gather_facts: true
+  tasks:
+    # NOTA DE DISEÑO / LABORATORIO: Detenemos y deshabilitamos unattended-upgrades y los
+    # timers de APT automáticos en el entorno de desarrollo/laboratorio. Al ser contenedores
+    # de usar y tirar recién arrancados, unattended-upgrades se activa de inmediato para
+    # buscar actualizaciones, bloqueando la base de datos de dpkg (/var/lib/dpkg/lock-frontend)
+    # y haciendo que fallen las tareas de instalación de Ansible.
+    #
+    # EN PRODUCCIÓN: Es recomendable QUITAR o comentar esta tarea, ya que en producción
+    # es una buena práctica de seguridad mantener el sistema con las actualizaciones automáticas
+    # de seguridad activas (unattended-upgrades habilitado). En esos entornos, para evitar fallos
+    # de concurrencia en Ansible se utiliza el parámetro 'lock_timeout' de los módulos 'apt'.
+    - name: Parar y deshabilitar unattended-upgrades y timers de APT automáticos
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      loop:
+        - unattended-upgrades
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
+      failed_when: false
+
+    - name: Instalar paquetes previos (ca-certificates, curl)
+      ansible.builtin.apt:
+        name: [ca-certificates, curl]
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+        lock_timeout: 300
+
+    - name: Crear el directorio de claves APT
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Descargar la clave GPG de Docker
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Añadir el repositorio oficial de Docker
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else ansible_facts['architecture'] }}
+          signed-by=/etc/apt/keyrings/docker.asc]
+          https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable
+        filename: docker
+        state: present
+        update_cache: true
+
+    - name: Instalar Docker Engine, Buildx y el plugin de Compose
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+          - docker-buildx-plugin
+        state: present
+        lock_timeout: 300
+
+    - name: Habilitar y arrancar los servicios de Docker y Containerd
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop:
+        - containerd
+        - docker
+
+    - name: Instalar el SDK de Docker para Python
+      ansible.builtin.apt:
+        name: python3-docker
+        state: present
+        lock_timeout: 300
+      # Lo necesitan los módulos community.docker.* (docker_swarm,
+      # docker_swarm_service...) usados en 03/04/05/07 y 09: hablan con la
+      # API de Docker vía este SDK, no ejecutando 'docker' por línea de
+      # comandos. Verificado: la versión de Ubuntu (5.0.3) funciona bien
+      # contra Docker Engine 29.6.1 pese a la diferencia de años entre ambos.

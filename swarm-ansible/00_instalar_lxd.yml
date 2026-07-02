@@ -1,0 +1,85 @@
+---
+# Playbook para instalar y configurar LXD con ZFS en local.
+# Pensado para preparar un host Ubuntu limpio desde cero.
+# Si LXD, el storage pool 'default' (zfs) y la red 'lxdbr0' ya existen,
+# el playbook es completamente idempotente y no altera la instalación existente.
+#
+# NOTA DE DISEÑO: No se instala 'zfsutils-linux' en el host porque el snap de
+# LXD es autocontenido y empaqueta sus propias herramientas userland de ZFS
+# para crear y administrar los pools (incluidos archivos loopback de default).
+# Con que el kernel de Ubuntu soporte ZFS (nativo), LXD funciona sin tener
+# las herramientas instaladas a nivel de sistema host.
+
+- name: Instalar y configurar LXD en local
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  tasks:
+    - name: Comprobar si LXD ya está instalado mediante snap
+      ansible.builtin.command: snap list lxd
+      register: snap_check
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Instalar LXD mediante snap
+      community.general.snap:
+        name: lxd
+        state: present
+      become: true
+      when: snap_check.rc != 0
+
+    - name: Comprobar si el storage pool 'default' ya existe
+      ansible.builtin.command: lxc storage show default
+      register: storage_check
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Comprobar si la red gestionada 'lxdbr0' ya existe
+      ansible.builtin.command: lxc network show lxdbr0
+      register: network_check
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Inicializar LXD con preseed si falta storage o red
+      ansible.builtin.command: lxd init --preseed
+      args:
+        stdin: |
+          config: {}
+          networks:
+          - config:
+              ipv4.address: 10.207.154.1/24
+              ipv4.nat: "true"
+              ipv6.address: none
+            description: "Red gestionada para el laboratorio Swarm"
+            name: lxdbr0
+            type: bridge
+          storage_pools:
+          - config:
+              size: 20GiB
+            description: "Storage pool por defecto para el laboratorio"
+            name: default
+            driver: zfs
+          profiles:
+          - config: {}
+            description: "Perfil default con red y disco"
+            devices:
+              eth0:
+                name: eth0
+                network: lxdbr0
+                type: nic
+              root:
+                path: /
+                pool: default
+                type: disk
+            name: default
+      become: true
+      when: storage_check.rc != 0 or network_check.rc != 0
+
+    - name: Mostrar estado de la inicialización de LXD
+      ansible.builtin.debug:
+        msg: "LXD ya estaba inicializado con storage 'default' y red 'lxdbr0'. No se realizaron cambios."
+      when: storage_check.rc == 0 and network_check.rc == 0

@@ -1,0 +1,95 @@
+---
+# Reproduce en vivo los diagramas "qué ocurre si cae un nodo" de la unidad
+# de Swarm. Parar el contenedor LXD (state: stopped) simula un apagón real
+# — a diferencia de 'docker node update --availability drain', que sería una
+# salida ordenada: el resto del cluster deja de recibir heartbeats sin aviso.
+#
+# Nodo a derribar configurable con: ansible-playbook 10_probar_caida_nodo.yml -e target_node=manager1
+# (las extra-vars de la línea de comandos siempre pisan el 'vars:' de abajo,
+# y son globales para TODOS los plays de este fichero, no solo el primero)
+#
+# Nota de diseño: son 4 plays en vez de uno con 'delegate_to', porque
+# 'delegate_to' hereda la conexión del play (aquí 'connection: local' para
+# poder manejar LXD) en vez de usar SSH hacia manager1 — probado y confirmado:
+# con delegate_to, "docker service ps" se ejecutaba contra el Docker LOCAL
+# de este mismo host de control (que no es parte del swarm), no contra
+# manager1. Con un play por host, cada uno usa su propia conexión del
+# inventario (SSH para manager1, local para las tareas de LXD).
+- name: Estado del servicio ANTES de la caída
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Ver las réplicas en ejecución
+      ansible.builtin.command: docker service ps {{ swarm_service_name }} --filter "desired-state=running"
+      register: before
+      changed_when: false
+
+    - name: Mostrar estado antes de la caída
+      ansible.builtin.debug:
+        msg: "{{ before.stdout_lines }}"
+
+- name: "Derribar el nodo objetivo"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: "Simular la caída de {{ target_node }} (parar el contenedor LXD)"
+      community.general.lxd_container:
+        name: "{{ target_node }}"
+        state: stopped
+        timeout: 30
+
+    - name: Esperar a que Swarm detecte el fallo y reprograme la tarea perdida
+      ansible.builtin.pause:
+        seconds: 25
+
+- name: Estado del cluster y del servicio DESPUÉS de la caída
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Ver los nodos del cluster
+      ansible.builtin.command: docker node ls
+      register: after_nodes
+      changed_when: false
+
+    - name: Mostrar nodos tras la caída
+      ansible.builtin.debug:
+        msg: "{{ after_nodes.stdout_lines }}"
+
+    - name: Ver las tareas del servicio
+      ansible.builtin.command: docker service ps {{ swarm_service_name }}
+      register: after_ps
+      changed_when: false
+
+    - name: Mostrar tareas tras la caída (una debería reaparecer en otro nodo)
+      ansible.builtin.debug:
+        msg: "{{ after_ps.stdout_lines }}"
+
+- name: Restaurar el nodo objetivo
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: "Restaurar {{ target_node }}"
+      community.general.lxd_container:
+        name: "{{ target_node }}"
+        state: started
+        wait_for_ipv4_addresses: true
+        timeout: 60
+
+    - name: "Esperar a que {{ target_node }} vuelva a Ready"
+      ansible.builtin.pause:
+        seconds: 15
+
+- name: Estado final del cluster
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Ver el estado final
+      ansible.builtin.command: docker node ls
+      register: final_nodes
+      changed_when: false
+
+    - name: Mostrar estado final
+      ansible.builtin.debug:
+        msg: "{{ final_nodes.stdout_lines }}"

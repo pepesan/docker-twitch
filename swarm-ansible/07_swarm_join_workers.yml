@@ -1,0 +1,14 @@
+---
+# Une worker1 y worker2 al cluster con el token de worker (worker.token):
+# solo pueden ejecutar las tareas que les asignen los managers, no
+# participan en el quórum Raft ni pueden gestionar el estado del cluster.
+- name: Unir los workers al cluster
+  hosts: workers
+  gather_facts: false
+  tasks:
+    - name: Unirse al cluster como worker
+      community.docker.docker_swarm:
+        state: join
+        advertise_addr: "{{ ansible_host }}"
+        join_token: "{{ lookup('file', playbook_dir + '/worker.token') }}"
+        remote_addrs: ["{{ swarm_manager1_ip }}:2377"]

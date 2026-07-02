@@ -1,0 +1,36 @@
+---
+# Instala Portainer Server para gestionar el cluster Swarm DESDE FUERA de él.
+#
+# El nodo 'portainer-server' y su Docker YA se crearon en 01/02 (el grupo
+# 'portainer' forma parte de 'cluster'); aquí solo falta: arrancar Portainer
+# Server como contenedor suelto (no se une al Swarm).
+#
+# Todo con módulos community.docker.*, idempotentes de forma nativa:
+# no hace falta comprobar "¿existe ya?" a mano.
+#
+# Referencia: https://docs.portainer.io/start/install-ce/server/swarm/docker
+- name: Arrancar Portainer Server (fuera del cluster Swarm)
+  hosts: portainer
+  gather_facts: false
+  tasks:
+    - name: Crear el volumen de datos de Portainer
+      community.docker.docker_volume:
+        name: portainer_data
+        state: present
+
+    - name: Arrancar Portainer Server
+      community.docker.docker_container:
+        name: portainer
+        image: portainer/portainer-ce:2.41.1
+        state: started
+        restart_policy: always
+        published_ports:
+          - "8000:8000"
+          - "9000:9000"
+          - "9443:9443"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - portainer_data:/data
+        # Preconfiguramos la contraseña del administrador a 'mipass12345678' (min. 12 caracteres por política de Portainer).
+        # De esta forma evitamos el timeout de seguridad y la pantalla inicial de configuración.
+        command: --admin-password='$2a$12$lfEiEOhk979d7QF6maztLOnBU0Y4db1lBnCvcBUUE9Dy/U4zrZwcy'
