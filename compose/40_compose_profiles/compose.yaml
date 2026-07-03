@@ -1,0 +1,14 @@
+services:
+  web:
+    image: nginx:alpine
+    container_name: web
+    ports:
+      - "8080:80"
+
+  # Servicio opcional: solo se levanta si se activa el perfil "monitoring"
+  monitor:
+    profiles: ["monitoring"]
+    image: nginx:alpine
+    container_name: monitor
+    ports:
+      - "8091:80"
