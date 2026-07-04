@@ -1,0 +1,38 @@
+// Cada stage con "agent { docker {...} }" es un CONTENEDOR NUEVO y un
+// workspace nuevo, aunque el pipeline entero use agentes Docker. Sin
+// stash/unstash, el fichero generado en el primer contenedor no existiria
+// en el segundo.
+pipeline {
+  agent none
+
+  stages {
+    stage('Generar version con Maven') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-21'
+          label 'built-in'
+        }
+      }
+      steps {
+        sh 'mvn --version > version-maven.txt'
+        stash name: 'version-info', includes: 'version-maven.txt'
+      }
+    }
+
+    stage('Empaquetar con Node') {
+      agent {
+        docker {
+          image 'node:22'
+          label 'built-in'
+        }
+      }
+      steps {
+        // Sin este unstash, este fichero no existiria: es un contenedor
+        // (y workspace) distinto al del stage anterior
+        unstash 'version-info'
+        sh 'echo "Version de Node:" && node --version'
+        sh 'echo "Fichero recibido del stage anterior:" && cat version-maven.txt'
+      }
+    }
+  }
+}

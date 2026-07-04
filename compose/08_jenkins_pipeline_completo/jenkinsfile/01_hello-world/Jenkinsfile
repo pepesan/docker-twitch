@@ -1,0 +1,13 @@
+// Pipeline mínimo posible: un único stage, un único paso. Es la base de
+// la que parten todos los demás ejemplos de esta carpeta.
+pipeline {
+  agent any
+
+  stages {
+    stage('Hola Jenkins') {
+      steps {
+        sh 'echo "Hola desde el primer pipeline"'
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+// Build + push de una imagen al registro Docker de Nexus (docker-hosted),
+// con dos tags: uno de version concreta (BUILD_NUMBER) y "latest".
+// Requiere 06_launch_nexus.sh + 07_setup_nexus.sh ya ejecutados (crean el
+// repositorio docker-hosted y la credencial Jenkins 'nexus-creds').
+//
+// Dos nombres distintos para el mismo Nexus, y no es intercambiable:
+// - REGISTRY (localhost:8084): lo usan docker build/push/login, que van
+//   por el socket al daemon del HOST (docker-outside-of-docker) — para el
+//   daemon, "localhost" es el host.
+// - REGISTRY_INTERNO (nexus:8084): lo usa curl, que corre DENTRO del propio
+//   contenedor del controller — ahi "localhost" seria el propio contenedor,
+//   no el host, asi que hace falta el nombre de servicio de Compose.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    REGISTRY = 'localhost:8084'
+    REGISTRY_INTERNO = 'nexus:8084'
+    IMAGE = "${REGISTRY}/demo-app"
+  }
+
+  stages {
+    stage('Build de la imagen') {
+      steps {
+        writeFile file: 'Dockerfile', text: '''FROM alpine:3.20
+CMD ["echo", "hola desde demo-app"]
+'''
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Publicar en Nexus') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'nexus-creds',
+          usernameVariable: 'NEXUS_USER',
+          passwordVariable: 'NEXUS_PASS'
+        )]) {
+          sh 'echo "$NEXUS_PASS" | docker login "$REGISTRY" -u "$NEXUS_USER" --password-stdin'
+          sh "docker push ${IMAGE}:${BUILD_NUMBER}"
+          sh "docker push ${IMAGE}:latest"
+        }
+      }
+    }
+
+    stage('Verificar en el catalogo') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'nexus-creds',
+          usernameVariable: 'NEXUS_USER',
+          passwordVariable: 'NEXUS_PASS'
+        )]) {
+          sh "curl -sf -u \$NEXUS_USER:\$NEXUS_PASS http://${REGISTRY_INTERNO}/v2/demo-app/tags/list"
+        }
+      }
+    }
+  }
+}

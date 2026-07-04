@@ -1,0 +1,67 @@
+// Publica el .jar de un proyecto Maven real en el repositorio Maven de
+// Nexus (maven-hosted), sin tocar el pom.xml del proyecto: genera un
+// settings.xml con las credenciales y usa -DaltDeploymentRepository para
+// indicar el destino en la propia llamada a "mvn deploy".
+// Requiere 06_launch_nexus.sh + 07_setup_nexus.sh ya ejecutados.
+pipeline {
+  // --network conecta el contenedor efimero del agente a la misma red de
+  // Docker Compose donde vive "nexus" — sin esto, el contenedor del agente
+  // no podria resolver ese nombre de host (red aislada por defecto)
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'
+      args  '-v $HOME/.m2:/root/.m2 --network jenkins_docker_pipeline_default'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'mvn -B clean package -DskipTests'
+      }
+    }
+
+    stage('Publicar en Nexus') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'nexus-creds',
+          usernameVariable: 'NEXUS_USER',
+          passwordVariable: 'NEXUS_PASS'
+        )]) {
+          sh '''
+            cat > settings-nexus.xml <<EOF
+<settings>
+  <servers>
+    <server>
+      <id>nexus-maven-hosted</id>
+      <username>${NEXUS_USER}</username>
+      <password>${NEXUS_PASS}</password>
+    </server>
+  </servers>
+</settings>
+EOF
+            mvn -B -s settings-nexus.xml deploy -DskipTests \
+              -DaltDeploymentRepository=nexus-maven-hosted::http://nexus:8081/repository/maven-hosted/
+          '''
+        }
+      }
+      post {
+        always {
+          // settings-nexus.xml lleva la contraseña de Nexus en claro. La
+          // consola de Jenkins la enmascara (sale como ${NEXUS_PASS} solo
+          // en el log), pero el FICHERO en si queda en el workspace sin
+          // enmascarar, y "Workspaces" en la consola web permite
+          // navegarlo y leerlo -- hay que borrarlo explicitamente.
+          sh 'rm -f settings-nexus.xml'
+        }
+      }
+    }
+  }
+}

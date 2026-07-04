@@ -1,0 +1,27 @@
+// args monta un volumen del host dentro del contenedor del agente, para
+// cachear dependencias (aqui, el repositorio local de Maven) entre builds
+// en vez de descargarlas de cero cada vez. Lanza este job dos veces
+// seguidas (02_build.sh) y compara el tiempo: el primer build (cache
+// vacia) tarda mas que el segundo (cache ya poblada).
+pipeline {
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'
+      args  '-v jenkins_maven_cache_demo:/root/.m2'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Descargar una dependencia de ejemplo') {
+      steps {
+        sh '''
+          START=$(date +%s)
+          mvn -q dependency:get -Dartifact=org.apache.commons:commons-lang3:3.16.0
+          END=$(date +%s)
+          echo "Tiempo de descarga/resolucion: $((END-START)) segundos"
+        '''
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+// when {} decide en tiempo de ejecución si un stage se ejecuta o se omite,
+// según una condición (aquí, el valor del parámetro DESPLEGAR).
+pipeline {
+  agent any
+
+  parameters {
+    booleanParam(name: 'DESPLEGAR', defaultValue: true, description: 'Ejecutar el despliegue')
+  }
+
+  stages {
+    stage('Test') {
+      steps {
+        sh 'echo "Ejecutando tests"'
+      }
+    }
+
+    stage('Deploy') {
+      when {
+        expression { params.DESPLEGAR }
+      }
+      steps {
+        sh 'echo "Desplegando la aplicacion (DESPLEGAR=true)"'
+      }
+    }
+
+    stage('Deploy omitido a proposito') {
+      when {
+        expression { !params.DESPLEGAR }
+      }
+      steps {
+        sh 'echo "Esto no se vera con DESPLEGAR=true"'
+      }
+    }
+  }
+}

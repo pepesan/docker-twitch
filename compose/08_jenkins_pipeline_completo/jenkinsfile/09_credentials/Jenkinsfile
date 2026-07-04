@@ -1,0 +1,45 @@
+// Requiere haber ejecutado antes 00_create_credentials.sh de esta misma
+// carpeta, que da de alta 4 credenciales de demostración en Jenkins:
+// demo-user-pass, demo-secret-text, demo-ssh-key, demo-config-file.
+pipeline {
+  agent any
+
+  stages {
+    stage('Usuario y contraseña') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'demo-user-pass',
+          usernameVariable: 'DEMO_USER',
+          passwordVariable: 'DEMO_PASS'
+        )]) {
+          // Jenkins enmascara el valor de DEMO_PASS en la consola (****)
+          sh 'echo "Usuario: $DEMO_USER, password: $DEMO_PASS"'
+        }
+      }
+    }
+
+    stage('Texto secreto') {
+      steps {
+        withCredentials([string(credentialsId: 'demo-secret-text', variable: 'DEMO_SECRET')]) {
+          sh 'echo "El secreto (enmascarado) es: $DEMO_SECRET"'
+        }
+      }
+    }
+
+    stage('Clave SSH') {
+      steps {
+        withCredentials([sshUserPrivateKey(credentialsId: 'demo-ssh-key', keyFileVariable: 'DEMO_KEY')]) {
+          sh 'echo "Fichero de clave privada disponible en: $DEMO_KEY" && ssh-keygen -lf "$DEMO_KEY"'
+        }
+      }
+    }
+
+    stage('Fichero secreto') {
+      steps {
+        withCredentials([file(credentialsId: 'demo-config-file', variable: 'DEMO_FILE')]) {
+          sh 'echo "Contenido del fichero secreto:" && cat "$DEMO_FILE"'
+        }
+      }
+    }
+  }
+}

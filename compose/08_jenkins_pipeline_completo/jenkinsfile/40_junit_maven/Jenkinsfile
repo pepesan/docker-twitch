@@ -1,0 +1,34 @@
+// Ejecuta los tests reales (JUnit 5) de spring-boot-30-demo-maven con
+// Maven, y publica los resultados en Jenkins con el step "junit" (lee los
+// XML que Surefire genera en target/surefire-reports/). Sus tests son
+// slice tests (@WebMvcTest) y de contexto (@SpringBootTest): no necesitan
+// Docker dentro del propio agente.
+pipeline {
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'
+      args  '-v $HOME/.m2:/root/.m2'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        sh 'mvn -B test'
+      }
+    }
+  }
+
+  post {
+    always {
+      junit 'target/surefire-reports/*.xml'
+    }
+  }
+}

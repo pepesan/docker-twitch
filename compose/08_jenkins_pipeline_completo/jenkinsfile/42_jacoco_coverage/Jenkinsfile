@@ -1,0 +1,41 @@
+// Ejecuta los tests reales de spring-boot-30-demo-maven con el agente
+// jacoco-maven-plugin enganchado (prepare-agent), genera el informe XML de
+// cobertura y lo publica en Jenkins con el step "recordCoverage" (plugin
+// "coverage"). No se toca el pom.xml del proyecto: el plugin se invoca
+// directamente en la linea de comandos de "mvn", igual que se hizo con
+// -DaltDeploymentRepository en 32_maven_deploy_nexus.
+pipeline {
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'
+      args  '-v $HOME/.m2:/root/.m2'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+      }
+    }
+
+    stage('Test + cobertura') {
+      steps {
+        sh '''
+          mvn -B \
+            org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent \
+            test \
+            org.jacoco:jacoco-maven-plugin:0.8.12:report
+        '''
+      }
+    }
+  }
+
+  post {
+    always {
+      junit 'target/surefire-reports/*.xml'
+      recordCoverage tools: [[parser: 'JACOCO', pattern: 'target/site/jacoco/jacoco.xml']]
+    }
+  }
+}

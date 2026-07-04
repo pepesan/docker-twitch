@@ -1,0 +1,117 @@
+// Cierre de ciclo de la serie 30: construye la imagen real de
+// spring-boot-30-demo-maven (usa su propio Dockerfile), la publica en
+// Nexus, y la despliega con "docker compose up" comprobando que arranca
+// de verdad — puente directo hacia el pipeline real (90+).
+// El despliegue queda VIVO tras el build (no se destruye aqui): un deploy
+// que se autodestruye al terminar no tendria sentido. Destruirlo es
+// siempre un paso manual, de dos formas posibles:
+// - Desde fuera de Jenkins: ./04_stop_deploy.sh (docker rm -f por label).
+// - Desde el propio pipeline: la ultima stage se para en un "input" con
+//   un booleanParam a false por defecto. build_job.sh aprueba solo
+//   cualquier input pendiente (para poder probar ejemplos con aprobacion
+//   manual sin intervencion), pero al aprobar sin marcar el checkbox se
+//   usa el defaultValue (false) y el despliegue sobrevive. Solo se
+//   destruye si un humano lo aprueba desde la UI marcando la casilla.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    REGISTRY = 'localhost:8084'
+    IMAGE = "${REGISTRY}/spring-demo"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+      }
+    }
+
+    stage('Build de la imagen') {
+      steps {
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Publicar en Nexus') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'nexus-creds',
+          usernameVariable: 'NEXUS_USER',
+          passwordVariable: 'NEXUS_PASS'
+        )]) {
+          sh 'echo "$NEXUS_PASS" | docker login "$REGISTRY" -u "$NEXUS_USER" --password-stdin'
+          sh "docker push ${IMAGE}:${BUILD_NUMBER}"
+          sh "docker push ${IMAGE}:latest"
+        }
+      }
+    }
+
+    stage('Desplegar con docker compose') {
+      steps {
+        // "app" se conecta a la red de Compose del propio laboratorio
+        // (jenkins_docker_pipeline_default) para que el controller pueda
+        // comprobar el despliegue por nombre de servicio, sin publicar
+        // puertos al host
+        writeFile file: 'compose.yaml', text: """services:
+  app:
+    image: ${IMAGE}:${BUILD_NUMBER}
+    networks:
+      - labnet
+
+networks:
+  labnet:
+    external: true
+    name: jenkins_docker_pipeline_default
+"""
+        sh 'docker compose -p demo-deploy up -d'
+      }
+    }
+
+    stage('Verificar el despliegue') {
+      steps {
+        sh '''
+          for i in $(seq 1 30); do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" http://app:8080/actuator/health || echo 000)
+            if [ "$CODE" = "200" ]; then
+              echo "Aplicacion arrancada y respondiendo correctamente"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "La aplicacion no respondio a tiempo"
+          exit 1
+        '''
+      }
+    }
+
+    // SIMPLIFICACION DIDACTICA: esta stage mezcla deploy y destroy en el
+    // mismo Jenkinsfile para poder enseñar el mecanismo entero de un
+    // vistazo. En produccion NO se hace asi: dejar un build parado en un
+    // "input" ocupa un executor y un workspace indefinidamente, y no da
+    // control fino sobre quien puede destruir. El patron real es un JOB
+    // DE DESTRUCCION SEPARADO del de deploy, parametrizado, con el
+    // aprobador restringido (input ..., submitter: 'equipo-ops') — ver
+    // 08_input para la restriccion por submitter.
+    stage('Destruir despliegue (manual)') {
+      steps {
+        script {
+          def destruir = input(
+            message: '¿Destruir el despliegue de prueba (demo-deploy)?',
+            ok: 'Continuar',
+            parameters: [
+              booleanParam(name: 'DESTRUIR', defaultValue: false,
+                description: 'Marca esta casilla para destruir el despliegue; sin marcar, se conserva vivo')
+            ]
+          )
+          if (destruir) {
+            sh 'docker compose -p demo-deploy down --remove-orphans'
+            echo 'Despliegue destruido desde el propio pipeline.'
+          } else {
+            echo 'Despliegue conservado (casilla no marcada).'
+          }
+        }
+      }
+    }
+  }
+}

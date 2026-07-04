@@ -1,0 +1,78 @@
+// Separa los tests de spring-boot-30-demo-maven en dos stages: unitarios
+// (rapidos, MainControllerTest @WebMvcTest, mockea la capa web) primero, e
+// integracion (lento, SpringBoot30DemoMavenApplicationTests @SpringBootTest,
+// levanta el contexto Spring completo) despues. Fail-fast: si la stage de
+// unitarios falla, Jenkins no llega a ejecutar la de integracion -- es el
+// comportamiento por defecto de una stage fallida en Declarative Pipeline,
+// no hace falta configuracion extra.
+// No se modifica el repo real: las clases de test se seleccionan con
+// -Dtest (igual que -DaltDeploymentRepository en 32_maven_deploy_nexus),
+// y con FORZAR_FALLO_UNITARIO=true se escribe un test adicional que falla
+// de verdad SOLO en el workspace efimero del build (igual que el XML
+// sintetico de 41_test_trend) -- un -Dtest con un metodo inexistente NO
+// sirve para esto: Surefire lo trata como "0 tests" y no falla el build.
+pipeline {
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'
+      args  '-v $HOME/.m2:/root/.m2'
+      label 'built-in'
+    }
+  }
+
+  parameters {
+    booleanParam(name: 'FORZAR_FALLO_UNITARIO', defaultValue: false,
+      description: 'Forzar que el test unitario falle, para comprobar que la stage de integracion no llega a ejecutarse')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+        // "git url:" no borra ficheros sin versionar entre builds (el
+        // workspace se reutiliza) -- sin esto, un ForzarFalloTest.java o
+        // un target/surefire-reports/ de un build anterior con
+        // FORZAR_FALLO_UNITARIO=true seguirian ahi, y el "junit" del
+        // post{always{}} los recogeria tambien, marcando UNSTABLE un
+        // build que en realidad paso todos sus tests.
+        sh 'git clean -fdx'
+      }
+    }
+
+    stage('Tests unitarios (rapidos)') {
+      steps {
+        script {
+          def filtro = 'MainControllerTest'
+          if (params.FORZAR_FALLO_UNITARIO) {
+            filtro = 'MainControllerTest,ForzarFalloTest'
+            writeFile file: 'src/test/java/com/cursosdedesarrollo/demomaven/ForzarFalloTest.java', text: '''package com.cursosdedesarrollo.demomaven;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class ForzarFalloTest {
+    @Test
+    public void testForzado() {
+        fail("Fallo forzado por el parametro FORZAR_FALLO_UNITARIO");
+    }
+}
+'''
+          }
+          sh "mvn -B test -Dtest=${filtro}"
+        }
+      }
+    }
+
+    stage('Tests de integracion (lentos)') {
+      steps {
+        sh 'mvn -B test -Dtest=SpringBoot30DemoMavenApplicationTests'
+      }
+    }
+  }
+
+  post {
+    always {
+      junit 'target/surefire-reports/*.xml'
+    }
+  }
+}

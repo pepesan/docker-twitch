@@ -1,0 +1,16 @@
+// archiveArtifacts guarda ficheros junto al build en Jenkins (descargables
+// desde la UI/API), sin necesidad de un repositorio externo.
+pipeline {
+  agent any
+
+  stages {
+    stage('Generar artefacto') {
+      steps {
+        sh 'echo "resultado de la build $BUILD_NUMBER" > resultado.txt'
+        // Guarda el fichero junto al build en Jenkins (descargable desde
+        // la UI) y calcula su fingerprint (huella) para rastrearlo entre builds
+        archiveArtifacts artifacts: 'resultado.txt', fingerprint: true
+      }
+    }
+  }
+}

@@ -1,0 +1,115 @@
+// Build de la imagen real del frontend Astro, segundo paso del pipeline
+// "90+" (Spring Boot + Astro): checkout del repo PRIVADO
+// gitlab.com/cursosdedesarrollo/blog (credencial 'gitlab-blog-token' de
+// 90_gitlab_token_credential) + "docker build" directo con el Dockerfile
+// propio del repo -- mismo patron que 33_build_publish_deploy y
+// 91_build_spring_boot_real, no hace falta reimplementar los pasos de
+// build de Astro (pnpm install/build) a mano: ya estan en su Dockerfile
+// multi-stage (node:22-alpine + pnpm build -> nginx-unprivileged
+// sirviendo dist/).
+// El repo no define ningun test propio (package.json sin script "test";
+// .gitlab-ci.yml es la plantilla generica de GitLab sin personalizar, lo
+// dice literalmente en su cabecera) -- no hay dependencias/secretos/
+// licencia/unitarios/e2e que reutilizar. Lo unico que se añade sin
+// depender del proyecto es un escaneo de la imagen con Trivy (mismo
+// patron que 46_trivy_security_scans).
+// Si la verificacion pasa, se publica en Nexus (mismo patron que
+// 31_docker_push_nexus) y se hace un despliegue de prueba -- que queda
+// VIVO tras el build (mismo criterio que toda la serie 50): destruirlo
+// es un paso manual, ./04_stop_deploy.sh.
+pipeline {
+  agent none
+
+  environment {
+    IMAGE = 'blog-astro'
+    REGISTRY = 'localhost:8084'
+    DEPLOY_CONTAINER = 'blog-astro-deploy'
+  }
+
+  stages {
+    stage('Checkout del repo privado') {
+      agent { label 'built-in' }
+      steps {
+        git url: 'https://gitlab.com/cursosdedesarrollo/blog.git',
+          branch: 'master',
+          credentialsId: 'gitlab-blog-token'
+      }
+    }
+
+    stage('Build de la imagen') {
+      agent { label 'built-in' }
+      steps {
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Escaneo de vulnerabilidades (Trivy)') {
+      agent {
+        docker {
+          image 'aquasec/trivy:latest'
+          args '-v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+          label 'built-in'
+        }
+      }
+      steps {
+        sh 'rm -f trivy-report.xml'
+        sh "trivy image --format template --template '@/contrib/junit.tpl' ${IMAGE}:${BUILD_NUMBER} > trivy-report.xml"
+      }
+      post {
+        always {
+          junit testResults: 'trivy-report.xml', allowEmptyResults: true
+        }
+      }
+    }
+
+    stage('Verificar la imagen') {
+      agent { label 'built-in' }
+      steps {
+        // Sin "-p": "localhost" desde dentro del controller NO es el
+        // mismo "localhost" que el host real (docker-outside-of-docker,
+        // mismo gotcha que en 33_build_publish_deploy). Se conecta el
+        // contenedor a la red de Compose y se le llama por NOMBRE, no
+        // por localhost+puerto publicado.
+        sh """
+          docker run -d --name ${IMAGE}-verify --network jenkins_docker_pipeline_default ${IMAGE}:${BUILD_NUMBER}
+          sleep 2
+          CODE=\$(curl -s -o /dev/null -w '%{http_code}' http://${IMAGE}-verify:8080/)
+          docker rm -f ${IMAGE}-verify
+          echo "HTTP recibido: \$CODE"
+          [ "\$CODE" = "200" ]
+        """
+      }
+    }
+
+    stage('Publicar en Nexus') {
+      agent { label 'built-in' }
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'nexus-creds',
+          usernameVariable: 'NEXUS_USER',
+          passwordVariable: 'NEXUS_PASS'
+        )]) {
+          sh """
+            docker tag ${IMAGE}:${BUILD_NUMBER} ${REGISTRY}/${IMAGE}:${BUILD_NUMBER}
+            docker tag ${IMAGE}:latest ${REGISTRY}/${IMAGE}:latest
+            echo "\$NEXUS_PASS" | docker login ${REGISTRY} -u "\$NEXUS_USER" --password-stdin
+            docker push ${REGISTRY}/${IMAGE}:${BUILD_NUMBER}
+            docker push ${REGISTRY}/${IMAGE}:latest
+          """
+        }
+      }
+    }
+
+    stage('Desplegar de prueba') {
+      agent { label 'built-in' }
+      steps {
+        sh """
+          docker rm -f ${DEPLOY_CONTAINER} 2>/dev/null || true
+          docker run -d --name ${DEPLOY_CONTAINER} -p 8098:8080 ${REGISTRY}/${IMAGE}:${BUILD_NUMBER}
+          sleep 2
+          docker ps --filter name=${DEPLOY_CONTAINER} --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
+        """
+      }
+    }
+  }
+}

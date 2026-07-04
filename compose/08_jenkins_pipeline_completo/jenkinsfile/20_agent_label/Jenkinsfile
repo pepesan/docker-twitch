@@ -1,0 +1,14 @@
+// Dirige el pipeline al agente SSH registrado (ver 04_launch_agent.sh /
+// config/init.groovy.d/configure-agent.groovy), en vez de al controller.
+pipeline {
+  agent { label 'agent1' }
+
+  stages {
+    stage('Ejecutar en el agente') {
+      steps {
+        sh 'echo "Ejecutando en el nodo:" && hostname'
+        sh 'echo "Workspace:" && pwd'
+      }
+    }
+  }
+}

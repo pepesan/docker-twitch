@@ -1,0 +1,37 @@
+// En vez de tirar de una imagen publica de Docker Hub como agente, aqui
+// Jenkins CONSTRUYE su propia imagen desde un Dockerfile ("agent {
+// dockerfile {...} }") — control total del entorno de build.
+//
+// Nota: en un proyecto real el Dockerfile viviria en el repo (checkout via
+// SCM) junto al Jenkinsfile. Como este laboratorio da de alta el job con
+// un Jenkinsfile "Pipeline script" suelto (sin checkout de ningun repo,
+// ver scripts/create_job.sh), el primer stage escribe el Dockerfile en el
+// workspace para que el segundo stage pueda usarlo.
+pipeline {
+  agent none
+
+  stages {
+    stage('Preparar el Dockerfile del agente') {
+      agent { label 'built-in' }
+      steps {
+        writeFile file: 'Dockerfile.agent', text: '''FROM alpine:3.20
+RUN apk add --no-cache curl jq bash
+'''
+      }
+    }
+
+    stage('Build en el agente a medida') {
+      agent {
+        dockerfile {
+          filename 'Dockerfile.agent'
+          label 'built-in'
+        }
+      }
+      steps {
+        sh 'echo "Herramientas instaladas en esta imagen a medida:"'
+        sh 'curl --version | head -1'
+        sh 'jq --version'
+      }
+    }
+  }
+}

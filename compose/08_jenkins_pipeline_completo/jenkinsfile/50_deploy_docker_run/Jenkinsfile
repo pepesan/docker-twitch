@@ -1,0 +1,45 @@
+// Despliegue simple con "docker run -d": construye una imagen y la
+// despliega como un contenedor con nombre fijo (CONTAINER_NAME), parando
+// y sustituyendo el contenedor anterior si ya existe -- idempotente,
+// relanzar el build no acumula contenedores ni falla por "name already
+// in use". El despliegue queda vivo tras el build (mismo criterio que
+// 33_build_publish_deploy): destruirlo es un paso manual,
+// ./04_stop_deploy.sh.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    IMAGE = 'demo-run-app'
+    CONTAINER_NAME = 'demo-run-app'
+  }
+
+  stages {
+    stage('Build de la imagen') {
+      steps {
+        writeFile file: 'Dockerfile', text: '''FROM alpine:3.20
+CMD ["sh", "-c", "i=0; while true; do i=$((i+1)); echo \\"vivo desde hace ${i}0s\\"; sleep 10; done"]
+'''
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Desplegar con docker run (idempotente)') {
+      steps {
+        sh """
+          docker rm -f ${CONTAINER_NAME} 2>/dev/null || true
+          docker run -d --name ${CONTAINER_NAME} ${IMAGE}:${BUILD_NUMBER}
+        """
+      }
+    }
+
+    stage('Verificar el despliegue') {
+      steps {
+        sh """
+          sleep 2
+          docker ps --filter name=${CONTAINER_NAME} --format '{{.Names}}\t{{.Status}}\t{{.Image}}'
+          docker logs ${CONTAINER_NAME}
+        """
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+// Ejemplo real de "agent { docker {...} }" (a diferencia de 21_docker-test,
+// que solo comprobaba 'mvn --version'): clona un proyecto Spring Boot real
+// y hace un build Maven de verdad, archivando el .jar resultante.
+//
+// -DskipTests: el proyecto usa Testcontainers en sus tests, que necesitaría
+// acceso al socket de Docker DENTRO del propio contenedor del agente
+// (docker-in-docker anidado) — fuera del alcance de este ejemplo. El
+// testing real (JUnit, cobertura) se cubre en la serie 40.
+pipeline {
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'
+      args  '-v $HOME/.m2:/root/.m2'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'mvn -B clean package -DskipTests'
+      }
+    }
+
+    stage('Archivar el jar') {
+      steps {
+        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+      }
+    }
+  }
+}

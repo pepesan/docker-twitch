@@ -1,0 +1,18 @@
+// Verifica que el controller puede alcanzar Nexus por la red interna de
+// Docker Compose (nombre de servicio "nexus", puerto interno 8081, no el
+// 8083 publicado al host) — paso previo a publicar de verdad artefactos
+// (31_docker_push_nexus, 32_maven_deploy_nexus).
+//
+// Requiere haber ejecutado antes 06_launch_nexus.sh y 07_setup_nexus.sh
+// (carpeta principal de compose/), que levantan y configuran Nexus.
+pipeline {
+  agent { label 'built-in' }
+
+  stages {
+    stage('Comprobar conectividad con Nexus') {
+      steps {
+        sh 'curl -sf http://nexus:8081/service/rest/v1/status && echo "Nexus responde correctamente"'
+      }
+    }
+  }
+}

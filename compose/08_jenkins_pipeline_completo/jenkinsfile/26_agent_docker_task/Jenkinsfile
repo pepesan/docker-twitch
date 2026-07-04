@@ -1,0 +1,17 @@
+// Dirige el pipeline al agente SSH "agent2" (con Docker CLI + socket del
+// host, ver 06_launch_agent_docker.sh) y ejecuta una tarea sencilla sobre
+// una imagen Docker DESDE el propio agente — a diferencia de agent1
+// (20_agent_label), que no tiene Docker CLI instalado a proposito.
+pipeline {
+  agent { label 'agent2' }
+
+  stages {
+    stage('Tarea Docker en el agente') {
+      steps {
+        sh 'echo "Ejecutando en el nodo:" && hostname'
+        sh 'docker version'
+        sh 'docker run --rm alpine:3.20 echo "Hola desde una imagen Docker, ejecutada en agent2"'
+      }
+    }
+  }
+}

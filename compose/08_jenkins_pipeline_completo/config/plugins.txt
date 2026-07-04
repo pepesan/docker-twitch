@@ -1,0 +1,8 @@
+git
+workflow-aggregator
+docker-workflow
+configuration-as-code
+ssh-slaves
+junit
+coverage
+pipeline-graph-view

@@ -1,0 +1,41 @@
+// Verifica que el controller puede hablar con el Docker del host
+// (docker-outside-of-docker) de dos formas: ejecutando 'docker' directamente
+// en un stage, y dejando que Jenkins levante un contenedor efímero como
+// agente ("agent { docker {...} }") para otro. label 'built-in' es
+// necesario en los tres porque, si existe el agente SSH (agent1), Jenkins
+// podría programar el stage ahí y ese nodo no tiene Docker CLI instalado.
+pipeline {
+  agent none
+
+  stages {
+    stage('Docker CLI directo en el controller') {
+      agent { label 'built-in' }
+      steps {
+        sh 'docker version'
+        sh 'docker run --rm hello-world'
+      }
+    }
+
+    stage('Agente Maven en contenedor') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-21'
+          args  '-v $HOME/.m2:/root/.m2'
+          label 'built-in'
+        }
+      }
+      steps {
+        sh 'mvn --version'
+      }
+    }
+
+    stage('Agente Node en contenedor') {
+      agent {
+        docker { image 'node:22'; label 'built-in' }
+      }
+      steps {
+        sh 'node --version'
+      }
+    }
+  }
+}

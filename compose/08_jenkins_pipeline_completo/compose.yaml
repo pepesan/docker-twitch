@@ -1,0 +1,59 @@
+services:
+  jenkins_controller:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jenkins_docker_pipeline
+    user: root
+    environment:
+      JENKINS_ADMIN_ID: ${JENKINS_ADMIN_ID:-admin}
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+    ports:
+      - 8082:8080
+      - 50001:50000
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/ssh:/var/jenkins_home/ssh:ro
+
+  # Servicio opcional (perfil "agent"): no se levanta con "docker compose up"
+  # normal, solo con --profile agent (ver 04_launch_agent.sh)
+  jenkins_agent:
+    profiles: ["agent"]
+    image: jenkins/ssh-agent:jdk21
+    container_name: jenkins_docker_pipeline_agent
+    environment:
+      JENKINS_AGENT_SSH_PUBKEY: ${AGENT_SSH_PUBLIC_KEY:-}
+    expose:
+      - "22"
+
+  # Servicio opcional (perfil "agent-docker"): SEGUNDO agente SSH, con
+  # Docker CLI + socket del host (docker-outside-of-docker), para tareas
+  # que sí necesiten imágenes Docker sin tocar el agente SSH "puro" de
+  # arriba (ver 06_launch_agent_docker.sh)
+  jenkins_agent_docker:
+    profiles: ["agent-docker"]
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: jenkins_docker_pipeline_agent_docker
+    environment:
+      JENKINS_AGENT_SSH_PUBKEY: ${AGENT2_SSH_PUBLIC_KEY:-}
+    expose:
+      - "22"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Servicio opcional (perfil "nexus"): registro Docker + repositorio Maven
+  # en un único Nexus OSS (ver 08_launch_nexus.sh / 09_setup_nexus.sh)
+  nexus:
+    profiles: ["nexus"]
+    image: sonatype/nexus3:latest
+    container_name: jenkins_docker_pipeline_nexus
+    environment:
+      INSTALL4J_ADD_VM_PARAMS: "-Xms512m -Xmx1024m -XX:MaxDirectMemorySize=1024m"
+    ports:
+      - "8083:8081"   # UI + API REST de Nexus
+      - "8084:8084"   # conector del repositorio Docker (hosted)
+    volumes:
+      - ./nexus_data:/nexus-data

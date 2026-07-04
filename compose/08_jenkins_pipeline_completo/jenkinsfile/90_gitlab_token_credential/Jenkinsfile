@@ -1,0 +1,25 @@
+// Verifica que la credencial 'gitlab-blog-token' (dada de alta por
+// 00_create_credentials.sh) funciona de verdad: clona el repo PRIVADO
+// gitlab.com/cursosdedesarrollo/blog usando esa credencial. Bloqueante
+// para 91/92_build_astro_real: sin esto no se puede hacer checkout del
+// frontend Astro.
+pipeline {
+  agent { label 'built-in' }
+
+  stages {
+    stage('Checkout del repo privado') {
+      steps {
+        git url: 'https://gitlab.com/cursosdedesarrollo/blog.git',
+          branch: 'master',
+          credentialsId: 'gitlab-blog-token'
+      }
+    }
+
+    stage('Verificar el checkout') {
+      steps {
+        sh 'ls -la'
+        sh 'test -f package.json && echo "package.json encontrado: checkout OK"'
+      }
+    }
+  }
+}

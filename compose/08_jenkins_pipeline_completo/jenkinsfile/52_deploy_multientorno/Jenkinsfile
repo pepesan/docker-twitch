@@ -1,0 +1,61 @@
+// Despliegue a distintos entornos (staging/produccion) elegidos por
+// parametro "choice" -- conecta con 04_parameters y 06_when. Cada entorno
+// usa su propio nombre de proyecto Compose (demo-multientorno-staging /
+// -produccion), asi que ambos pueden coexistir desplegados a la vez sin
+// chocar entre si, y su propio fichero .env (APP_ENV), demostrando
+// configuracion distinta por entorno sin duplicar el compose.yaml.
+// El despliegue queda vivo tras el build (mismo criterio que el resto de
+// la serie 50): destruirlo es un paso manual, ./04_stop_deploy.sh
+// <entorno>.
+pipeline {
+  agent { label 'built-in' }
+
+  parameters {
+    choice(name: 'ENTORNO', choices: ['staging', 'produccion'],
+      description: 'Entorno de despliegue')
+  }
+
+  environment {
+    PROJECT = "demo-multientorno-${params.ENTORNO}"
+  }
+
+  stages {
+    stage('Aviso si es produccion') {
+      when { expression { params.ENTORNO == 'produccion' } }
+      steps {
+        echo "ATENCION: desplegando en PRODUCCION (proyecto ${PROJECT})"
+      }
+    }
+
+    stage('Desplegar') {
+      steps {
+        writeFile file: '.env', text: "APP_ENV=${params.ENTORNO}\n"
+        writeFile file: 'compose.yaml', text: '''services:
+  app:
+    image: alpine:3.20
+    environment:
+      - APP_ENV=${APP_ENV}
+    command: ["sh", "-c", "echo \\"desplegado en entorno $$APP_ENV\\" && sleep 3600"]
+'''
+        sh "docker compose -p ${PROJECT} up -d"
+      }
+    }
+
+    stage('Verificar') {
+      steps {
+        sh """
+          docker compose -p ${PROJECT} ps
+          for i in \$(seq 1 10); do
+            if docker compose -p ${PROJECT} logs app 2>/dev/null | grep -q "desplegado en entorno ${params.ENTORNO}"; then
+              echo "Verificado: contenedor de ${PROJECT} confirma su propio entorno (${params.ENTORNO})"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "No se confirmo el entorno a tiempo"
+          exit 1
+        """
+      }
+    }
+  }
+}

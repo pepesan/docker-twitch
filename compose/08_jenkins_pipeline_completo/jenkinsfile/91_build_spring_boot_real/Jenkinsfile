@@ -1,0 +1,76 @@
+// Ciclo completo del backend real, primer paso del pipeline "90+"
+// (Spring Boot + Astro): tests reales (mismo repo y tecnica que
+// 40_junit_maven/43_unit_vs_integration) y, por separado, build de la
+// imagen real con el Dockerfile propio del repo (mismo patron que
+// 33_build_publish_deploy). Publicar en Nexus es OPCIONAL aqui (parametro
+// PUBLICAR_EN_NEXUS, false por defecto) -- eso ya se enseño a fondo en la
+// serie 30 por separado; el foco de este ejemplo es dejar la imagen
+// construida y probada como base para 92_build_astro_real.
+//
+// Dos checkouts, uno por stage: cada "agent { docker {...} }" es un
+// contenedor y workspace NUEVO (ver 23_docker_agent_multistage) -- no
+// vale re-usar los ficheros de la stage de tests en la de build sin
+// stash/unstash, y aqui es mas simple repetir el checkout (barato) que
+// mover ficheros entre agentes.
+pipeline {
+  agent none
+
+  environment {
+    IMAGE = 'spring-boot-30-demo-maven'
+    REGISTRY = 'localhost:8084'
+  }
+
+  parameters {
+    booleanParam(name: 'PUBLICAR_EN_NEXUS', defaultValue: false,
+      description: 'Publicar la imagen en el registro Docker de Nexus tras construirla (requiere Nexus levantado, ver 30_nexus)')
+  }
+
+  stages {
+    stage('Tests reales') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-21'
+          args '-v $HOME/.m2:/root/.m2'
+          label 'built-in'
+        }
+      }
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+        sh 'mvn -B test'
+      }
+      post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+        }
+      }
+    }
+
+    stage('Build de la imagen') {
+      agent { label 'built-in' }
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Publicar en Nexus (opcional)') {
+      agent { label 'built-in' }
+      when { expression { params.PUBLICAR_EN_NEXUS } }
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'nexus-creds',
+          usernameVariable: 'NEXUS_USER',
+          passwordVariable: 'NEXUS_PASS'
+        )]) {
+          sh """
+            docker tag ${IMAGE}:${BUILD_NUMBER} ${REGISTRY}/${IMAGE}:${BUILD_NUMBER}
+            docker tag ${IMAGE}:latest ${REGISTRY}/${IMAGE}:latest
+            echo "\$NEXUS_PASS" | docker login ${REGISTRY} -u "\$NEXUS_USER" --password-stdin
+            docker push ${REGISTRY}/${IMAGE}:${BUILD_NUMBER}
+            docker push ${REGISTRY}/${IMAGE}:latest
+          """
+        }
+      }
+    }
+  }
+}

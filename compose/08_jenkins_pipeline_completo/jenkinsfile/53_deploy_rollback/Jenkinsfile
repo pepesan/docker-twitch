@@ -1,0 +1,99 @@
+// Estrategia de actualizacion con rollback: antes de desplegar la imagen
+// nueva, se taggea la que estaba corriendo (si habia alguna) como
+// <IMAGE>:previous. Tras desplegar, se comprueba que el contenedor sigue
+// vivo unos segundos despues -- si no (simulado con FORZAR_FALLO_SALUD),
+// se ofrece un rollback manual con "input" (booleanParam ROLLBACK a false
+// por defecto, mismo patron que 33_build_publish_deploy): solo si un
+// humano lo aprueba marcando la casilla se vuelve al tag ":previous".
+// Conecta con 08_input y el tagging semantico de la serie 30.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    IMAGE = 'demo-rollback-app'
+    CONTAINER_NAME = 'demo-rollback-app'
+  }
+
+  parameters {
+    booleanParam(name: 'FORZAR_FALLO_SALUD', defaultValue: false,
+      description: 'Simular que la nueva version se cae nada mas arrancar, para probar el rollback')
+  }
+
+  stages {
+    stage('Guardar version anterior') {
+      steps {
+        script {
+          def actual = sh(script: "docker inspect -f '{{.Config.Image}}' ${CONTAINER_NAME} 2>/dev/null || true", returnStdout: true).trim()
+          if (actual) {
+            sh "docker tag ${actual} ${IMAGE}:previous"
+            echo "Version anterior (${actual}) guardada como ${IMAGE}:previous"
+          } else {
+            echo 'No habia ningun despliegue anterior que guardar'
+          }
+        }
+      }
+    }
+
+    stage('Build de la nueva version') {
+      steps {
+        script {
+          def comando = params.FORZAR_FALLO_SALUD
+            ? 'echo "simulando fallo al arrancar" && exit 1'
+            : "i=0; while true; do i=\$((i+1)); echo 'version ${env.BUILD_NUMBER} viva desde hace '\$i'0s'; sleep 10; done"
+          writeFile file: 'Dockerfile', text: """FROM alpine:3.20
+CMD [\"sh\", \"-c\", \"${comando}\"]
+"""
+        }
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Desplegar la nueva version') {
+      steps {
+        sh """
+          docker rm -f ${CONTAINER_NAME} 2>/dev/null || true
+          docker run -d --name ${CONTAINER_NAME} ${IMAGE}:${BUILD_NUMBER}
+        """
+      }
+    }
+
+    stage('Verificar salud') {
+      steps {
+        script {
+          sleep 3
+          def vivo = sh(script: "docker inspect -f '{{.State.Running}}' ${CONTAINER_NAME}", returnStdout: true).trim()
+          env.DESPLIEGUE_SALUDABLE = (vivo == 'true') ? 'true' : 'false'
+          echo "Contenedor corriendo: ${vivo}"
+        }
+      }
+    }
+
+    stage('Rollback (si hace falta)') {
+      when { expression { env.DESPLIEGUE_SALUDABLE == 'false' } }
+      steps {
+        script {
+          def hacerRollback = input(
+            message: 'La nueva version no arranco correctamente. ¿Hacer rollback a la version anterior?',
+            ok: 'Continuar',
+            parameters: [
+              booleanParam(name: 'ROLLBACK', defaultValue: false,
+                description: 'Marca esta casilla para volver a la version anterior; sin marcar, se deja como esta (caido)')
+            ]
+          )
+          def existeAnterior = sh(script: "docker image inspect ${IMAGE}:previous > /dev/null 2>&1", returnStatus: true) == 0
+          if (hacerRollback && existeAnterior) {
+            sh """
+              docker rm -f ${CONTAINER_NAME} 2>/dev/null || true
+              docker run -d --name ${CONTAINER_NAME} ${IMAGE}:previous
+            """
+            echo 'Rollback realizado a la version anterior.'
+          } else if (hacerRollback) {
+            echo 'No hay version anterior guardada, no se puede hacer rollback.'
+          } else {
+            echo 'Rollback no confirmado (casilla no marcada): se deja el contenedor tal cual (caido).'
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+// parallel {} ejecuta varias stages a la vez en vez de una tras otra.
+// En la consola se ve la salida de las tres intercalada, prueba de que
+// corren de verdad al mismo tiempo (no en secuencia).
+pipeline {
+  agent any
+
+  stages {
+    stage('Comprobaciones en paralelo') {
+      parallel {
+        stage('Lint') {
+          steps {
+            sh 'echo "Ejecutando lint..." && sleep 2 && echo "Lint OK"'
+          }
+        }
+        stage('Tests unitarios') {
+          steps {
+            sh 'echo "Ejecutando tests unitarios..." && sleep 2 && echo "Tests OK"'
+          }
+        }
+        stage('Analisis de seguridad') {
+          steps {
+            sh 'echo "Ejecutando analisis de seguridad..." && sleep 2 && echo "Analisis OK"'
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+// retry(N) repite un bloque hasta N veces si falla; timeout() lo aborta si
+// tarda más del límite indicado.
+pipeline {
+  agent any
+
+  stages {
+    stage('Operacion con reintentos') {
+      steps {
+        // Simula una operacion que falla las 2 primeras veces y triunfa
+        // a la tercera, para demostrar que retry() repite el bloque
+        sh 'rm -f intento.txt'
+        retry(3) {
+          sh '''
+            intento=$(( $(cat intento.txt 2>/dev/null || echo 0) + 1 ))
+            echo $intento > intento.txt
+            echo "Intento numero $intento"
+            if [ "$intento" -lt 3 ]; then
+              echo "Fallando a proposito para forzar un reintento"
+              exit 1
+            fi
+            echo "Exito en el intento $intento"
+          '''
+        }
+      }
+    }
+
+    stage('Paso con limite de tiempo') {
+      steps {
+        // Si tardara mas de 10 segundos, timeout() abortaria el step
+        timeout(time: 10, unit: 'SECONDS') {
+          sh 'echo "Operacion rapida dentro del timeout" && sleep 2'
+        }
+      }
+    }
+  }
+}

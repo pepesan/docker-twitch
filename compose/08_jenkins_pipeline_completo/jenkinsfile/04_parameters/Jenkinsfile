@@ -1,0 +1,33 @@
+// parameters {} define los parámetros de entrada del build. Si se lanza
+// sin especificar valores (como hace scripts/build_job.sh), se usan los
+// defaultValue de cada uno.
+pipeline {
+  agent any
+
+  parameters {
+    string(name: 'VERSION', defaultValue: '1.0.0', description: 'Version a desplegar')
+    booleanParam(name: 'EJECUTAR_TESTS', defaultValue: true, description: 'Ejecutar tests antes de desplegar')
+    choice(name: 'ENTORNO', choices: ['staging', 'produccion'], description: 'Entorno de despliegue')
+  }
+
+  stages {
+    stage('Mostrar parametros recibidos') {
+      steps {
+        echo "Version: ${params.VERSION}"
+        echo "Entorno: ${params.ENTORNO}"
+      }
+    }
+
+    stage('Tests (condicionales por parametro)') {
+      steps {
+        script {
+          if (params.EJECUTAR_TESTS) {
+            sh 'echo "Ejecutando tests..."'
+          } else {
+            sh 'echo "Tests omitidos (EJECUTAR_TESTS=false)"'
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+jenkins:
+  systemMessage: "Jenkins configurado automáticamente vía JCasC (laboratorio temario-docker)"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID:-admin}"
+          password: "${JENKINS_ADMIN_PASSWORD:-admin}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false

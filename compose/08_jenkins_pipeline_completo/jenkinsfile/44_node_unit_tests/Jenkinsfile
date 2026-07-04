@@ -1,0 +1,47 @@
+// Tests unitarios reales de un proyecto frontend Vue 3 + Vite con Vitest
+// (github.com/pepesan/ejemplos-vue3-vite, rama master). vitest.config.ts
+// ya genera JUnit XML en coverage/junit.xml (reporters: ['default',
+// 'junit','json']) -- se publica con el mismo step "junit" que
+// 40_junit_maven, sin tocar el repo.
+pipeline {
+  agent {
+    docker {
+      image 'node:22'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://github.com/pepesan/ejemplos-vue3-vite.git', branch: 'master'
+        sh 'git clean -fdx'
+      }
+    }
+
+    stage('Instalar dependencias') {
+      steps {
+        // El repo no lleva package-lock.json comiteado -- "npm ci" exige
+        // uno existente y falla con EUSAGE; "npm install" no lo necesita.
+        sh 'npm install'
+      }
+    }
+
+    stage('Tests unitarios') {
+      steps {
+        // --allowOnly: el repo tiene un test con ".only" a proposito,
+        // como ejemplo pedagogico de esa funcionalidad de Vitest (aislar
+        // un test). Vitest bloquea ".only" en modo CI por defecto (para
+        // detectar un ".only" olvidado por error) -- aqui es intencional,
+        // no un descuido, asi que se permite explicitamente.
+        sh 'npm run test:run -- --allowOnly'
+      }
+    }
+  }
+
+  post {
+    always {
+      junit 'coverage/junit.xml'
+    }
+  }
+}

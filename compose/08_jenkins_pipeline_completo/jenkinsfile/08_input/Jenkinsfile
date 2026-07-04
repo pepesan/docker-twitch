@@ -1,0 +1,33 @@
+// input pausa el pipeline hasta que alguien lo aprueba o lo aborta desde
+// la UI. scripts/build_job.sh detecta este input pendiente vía la API de
+// Jenkins y lo aprueba solo, para poder verificar este ejemplo sin
+// intervención manual.
+pipeline {
+  agent any
+
+  stages {
+    stage('Preparacion') {
+      steps {
+        sh 'echo "Preparando el despliegue..."'
+      }
+    }
+
+    stage('Aprobacion manual') {
+      steps {
+        // submitter restringe quien puede aprobar a un usuario/grupo
+        // concreto (aqui "admin", el unico que existe en este laboratorio
+        // de un solo usuario). Es el mecanismo real de produccion para
+        // limitar quien puede dar luz verde a una accion sensible (ver
+        // README: caveat sobre administradores y submitter).
+        input message: '¿Aprobar el despliegue a produccion?', ok: 'Desplegar',
+          submitter: 'admin'
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        sh 'echo "Desplegando tras la aprobacion manual"'
+      }
+    }
+  }
+}

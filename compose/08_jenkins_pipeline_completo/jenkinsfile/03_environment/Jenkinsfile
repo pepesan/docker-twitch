@@ -1,0 +1,33 @@
+// Bloque environment {} a nivel de pipeline (global) y a nivel de stage
+// (solo aplica ahí, y solo mientras dura ese stage).
+pipeline {
+  agent any
+
+  environment {
+    APP_NAME = 'mi-aplicacion'
+    APP_ENV  = 'staging'
+  }
+
+  stages {
+    stage('Usar el entorno global') {
+      steps {
+        sh 'echo "Desplegando $APP_NAME en el entorno: $APP_ENV"'
+      }
+    }
+
+    stage('Sobrescribir el entorno en un stage') {
+      environment {
+        APP_ENV = 'produccion'
+      }
+      steps {
+        sh 'echo "Este stage ve APP_ENV=$APP_ENV (sobrescrito, solo aqui)"'
+      }
+    }
+
+    stage('El entorno global no cambia') {
+      steps {
+        sh 'echo "De vuelta al global: APP_ENV=$APP_ENV"'
+      }
+    }
+  }
+}

@@ -1,0 +1,116 @@
+// Tres escaneos de seguridad con Trivy (Aqua Security), en PARALELO
+// (igual que 07_parallel), cada uno publicado como su propio resultado
+// JUnit con la plantilla que el propio Trivy incluye (/contrib/junit.tpl):
+// 1. Imagen construida aqui mismo (debian:10, antigua a proposito: 68
+//    CVEs reales garantizados -- alpine:3.14, tambien EOL, da CERO, ver
+//    README).
+// 2. Imagen real ya construida en otro ejemplo (localhost:8084/spring-demo,
+//    de 33_build_publish_deploy): requiere haberlo ejecutado antes.
+// 3. Dependencias npm del proyecto ejemplos-vue3-vite (de 44/45), con
+//    "trivy fs" en vez de "trivy image".
+//
+// La propia imagen aquasec/trivy es el AGENTE de cada rama del parallel
+// (no un "docker run" anidado desde dentro de otra stage): trae shell y
+// git (es Alpine), asi que puede hacer checkout y ejecutar trivy
+// directamente, igual que agent { docker {...} } en el resto del
+// laboratorio (22, 32, 40...). Monta el socket del host para que "trivy
+// image" vea las imagenes ya construidas alli, sin necesitar el CLI de
+// Docker.
+pipeline {
+  agent none
+
+  environment {
+    IMAGE = 'demo-scan-app:latest'
+  }
+
+  stages {
+    stage('Build de la imagen a escanear') {
+      agent { label 'built-in' }
+      steps {
+        writeFile file: 'Dockerfile', text: '''FROM debian:10
+CMD ["echo", "hola desde la imagen escaneada"]
+'''
+        sh "docker build -t ${IMAGE} ."
+      }
+    }
+
+    stage('Escaneos con Trivy (en paralelo)') {
+      parallel {
+        stage('Imagen generada aqui') {
+          agent {
+            docker {
+              image 'aquasec/trivy:latest'
+              args '-v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+              label 'built-in'
+            }
+          }
+          steps {
+            // el workspace se reutiliza entre builds (mismo host,
+            // docker-outside-of-docker) -- sin esto, un informe de un
+            // build anterior seguiria ahi (mismo gotcha que en 43)
+            sh 'rm -f trivy-report-demo.xml'
+            sh "trivy image --format template --template '@/contrib/junit.tpl' ${IMAGE} > trivy-report-demo.xml"
+          }
+          post {
+            always {
+              junit testResults: 'trivy-report-demo.xml', allowEmptyResults: true
+            }
+          }
+        }
+
+        stage('Imagen real ya construida (spring-demo)') {
+          agent {
+            docker {
+              image 'aquasec/trivy:latest'
+              args '-v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+              label 'built-in'
+            }
+          }
+          steps {
+            sh 'rm -f trivy-report-spring-demo.xml'
+            sh '''
+              trivy image --format template --template '@/contrib/junit.tpl' \
+                localhost:8084/spring-demo:latest > trivy-report-spring-demo.xml
+            '''
+          }
+          post {
+            always {
+              junit testResults: 'trivy-report-spring-demo.xml', allowEmptyResults: true
+            }
+          }
+        }
+
+        stage('Dependencias del proyecto Vite') {
+          agent {
+            docker {
+              image 'aquasec/trivy:latest'
+              args '--entrypoint=""'
+              label 'built-in'
+            }
+          }
+          steps {
+            sh 'rm -f trivy-report-deps.xml'
+            dir('vue-project') {
+              git url: 'https://github.com/pepesan/ejemplos-vue3-vite.git', branch: 'master'
+              // "trivy fs" necesita un lockfile para resolver versiones
+              // exactas -- un package.json suelto (con rangos tipo
+              // "^3.5.32") no le vale, lo ignora entero ("Supported
+              // files for scanner(s) not found"). El repo no lleva
+              // package-lock.json comiteado (mismo gotcha que en 44),
+              // asi que se genera aqui. aquasec/trivy es Alpine: node/npm
+              // se instalan al vuelo con apk.
+              sh 'apk add --no-cache nodejs npm'
+              sh 'npm install --package-lock-only'
+            }
+            sh "trivy fs --format template --template '@/contrib/junit.tpl' vue-project > trivy-report-deps.xml"
+          }
+          post {
+            always {
+              junit testResults: 'trivy-report-deps.xml', allowEmptyResults: true
+            }
+          }
+        }
+      }
+    }
+  }
+}

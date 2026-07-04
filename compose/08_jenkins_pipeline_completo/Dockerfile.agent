@@ -1,0 +1,31 @@
+FROM jenkins/ssh-agent:jdk21
+USER root
+
+# Instala Docker CLI (docker-outside-of-docker, vía socket) para que el
+# agente SSH también pueda ejecutar tareas contra imágenes Docker
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      ca-certificates \
+      curl \
+      gnupg \
+      lsb-release && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+    https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" \
+    > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends docker-ce-cli && \
+    rm -rf /var/lib/apt/lists/*
+
+# El agente SSH ejecuta los steps como usuario "jenkins" (no root, a
+# diferencia del controller). Para que pueda usar /var/run/docker.sock
+# (montado desde el host) hace falta que pertenezca a un grupo con el
+# mismo GID que el grupo "docker" del host (999 aquí; ajustar si difiere:
+# `stat -c '%g' /var/run/docker.sock` en el host)
+RUN usermod -aG 999 jenkins
+
+# Sin "USER jenkins" al final: el entrypoint setup-sshd de la imagen base
+# necesita arrancar como root (crea el usuario SSH, ajusta permisos, y solo
+# luego arranca sshd) — igual que el Dockerfile del controller.

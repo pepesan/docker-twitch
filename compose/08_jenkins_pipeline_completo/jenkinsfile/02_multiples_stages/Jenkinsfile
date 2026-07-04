@@ -1,0 +1,28 @@
+// Varias stages secuenciales: Jenkins las ejecuta en el orden en que
+// aparecen (Build -> Test -> Deploy), cada una tras terminar la anterior.
+pipeline {
+  agent any
+
+  stages {
+    stage('Build') {
+      steps {
+        echo 'Compilando la aplicación...'
+        sh 'echo "Build completado"'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        echo 'Ejecutando tests...'
+        sh 'echo "Tests completados"'
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        echo 'Desplegando la aplicación...'
+        sh 'echo "Deploy completado"'
+      }
+    }
+  }
+}

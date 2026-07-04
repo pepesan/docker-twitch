@@ -1,0 +1,36 @@
+// Genera un resultado de test (JUnit XML) que falla o no segun el
+// parametro FORZAR_FALLO, para ver como Jenkins construye el historico de
+// tendencia de tests (Test Result Trend) entre varios builds: unos verdes,
+// otros con el test fallido marcado.
+pipeline {
+  agent { label 'built-in' }
+
+  parameters {
+    booleanParam(name: 'FORZAR_FALLO', defaultValue: false, description: 'Forzar que el test falle, para variar la tendencia')
+  }
+
+  stages {
+    stage('Generar resultado de test') {
+      steps {
+        script {
+          def failureBlock = params.FORZAR_FALLO
+            ? '<failure message="Fallo forzado por el parametro FORZAR_FALLO">AssertionError: se esperaba true pero se forzo el fallo</failure>'
+            : ''
+          writeFile file: 'target/surefire-reports/TEST-demo.xml', text: """<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="demo.TendenciaTest" tests="1" failures="${params.FORZAR_FALLO ? 1 : 0}" errors="0" skipped="0" time="0.01">
+  <testcase name="testTendencia" classname="demo.TendenciaTest" time="0.01">
+    ${failureBlock}
+  </testcase>
+</testsuite>
+"""
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      junit 'target/surefire-reports/*.xml'
+    }
+  }
+}

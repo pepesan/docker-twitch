@@ -1,0 +1,60 @@
+// Despliegue de una app multicontenedor (app + base de datos) con
+// "docker compose up -d", referenciando un compose.yaml escrito en el
+// propio workspace -- conecta con lo visto en la unidad de Stacks
+// (Docker Compose), ahora disparado desde Jenkins. "app" depende de que
+// "db" este saludable (depends_on: condition: service_healthy), no solo
+// arrancada -- se verifica comprobando el log de "app", que solo escribe
+// su mensaje una vez que Compose ha esperado el healthcheck de "db".
+// El despliegue queda vivo tras el build (mismo criterio que
+// 33_build_publish_deploy y 50_deploy_docker_run): destruirlo es un paso
+// manual, ./04_stop_deploy.sh.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    PROJECT = 'demo-compose-app'
+  }
+
+  stages {
+    stage('Desplegar con docker compose up') {
+      steps {
+        writeFile file: 'compose.yaml', text: '''services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: demo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  app:
+    image: alpine:3.20
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "echo \\"app arrancada: la base de datos ya estaba healthy\\" && sleep 3600"]
+'''
+        sh "docker compose -p ${PROJECT} up -d"
+      }
+    }
+
+    stage('Verificar el despliegue') {
+      steps {
+        sh """
+          docker compose -p ${PROJECT} ps
+          for i in \$(seq 1 20); do
+            if docker compose -p ${PROJECT} logs app 2>/dev/null | grep -q "app arrancada"; then
+              echo "app confirmo que la base de datos estaba healthy antes de arrancar"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "app no llego a arrancar a tiempo"
+          exit 1
+        """
+      }
+    }
+  }
+}

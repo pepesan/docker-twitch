@@ -1,0 +1,29 @@
+// post {} define acciones según el resultado final del build. Como este
+// pipeline siempre termina bien, solo se disparan always y success; los
+// bloques failure/unstable existen para dejar claro cuándo se ejecutarían.
+pipeline {
+  agent any
+
+  stages {
+    stage('Build') {
+      steps {
+        sh 'echo "Build ejecutado"'
+      }
+    }
+  }
+
+  post {
+    always {
+      echo 'always: esto se ejecuta pase lo que pase'
+    }
+    success {
+      echo 'success: el pipeline ha terminado bien'
+    }
+    failure {
+      echo 'failure: el pipeline ha fallado (no se ve en esta ejecucion)'
+    }
+    unstable {
+      echo 'unstable: el pipeline ha terminado inestable (no se ve en esta ejecucion)'
+    }
+  }
+}
