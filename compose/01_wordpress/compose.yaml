@@ -1,7 +1,7 @@
 services:
   db:
     container_name: wordpress-database
-    image: bitnami/mariadb:latest
+    image: docker.io/bitnami/mariadb:latest
     volumes:
       - ./volumes/database:/bitnami/mariadb
     restart: always
@@ -15,7 +15,7 @@ services:
 #      - 33060:33060
   wordpress:
     container_name: wordpress-web-server
-    image: wordpress:latest
+    image: docker.io/library/wordpress:latest
     depends_on:
       - db
     ports:
