@@ -1,7 +1,7 @@
 services:
   web:
     container_name: nginx-compose
-    image: nginx:latest
+    image: docker.io/library/nginx:latest
     ports:
       - "81:80"
     volumes:
@@ -11,4 +11,4 @@ services:
 #  --name nginx-compose \
 #  -p 81:80 \
 #  -v $(pwd)/html:/usr/share/nginx/html \
-#  nginx:latest
+#  docker.io/library/nginx:latest
