@@ -1,20 +1,6 @@
 ---
-# Desinstala y limpia Portainer Server y Portainer Agent del laboratorio
-- name: Desinstalar Portainer Agent del cluster Swarm
-  hosts: manager1
-  gather_facts: false
-  tasks:
-    - name: Eliminar el servicio Portainer Agent de Swarm
-      community.docker.docker_swarm_service:
-        name: portainer_agent
-        state: absent
-
-    - name: Eliminar la red overlay del agente
-      community.docker.docker_network:
-        name: portainer_agent_network
-        state: absent
-        driver: overlay
-
+# Desinstala y limpia Portainer Server (nodo portainer-server).
+# El Portainer Agent se desinstala antes, en el paso 18.
 - name: Desinstalar Portainer Server (nodo portainer-server)
   hosts: portainer
   gather_facts: false

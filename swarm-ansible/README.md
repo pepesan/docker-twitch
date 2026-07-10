@@ -206,10 +206,13 @@ Para realizar una limpieza completa y ordenada de forma automática (desinstalar
 O si prefieres realizar el proceso paso a paso de forma manual:
 
 ```bash
-# 1. Elimina Portainer Server, Agent, red y volumen
+# 1. Elimina Portainer Agent y su red overlay del cluster Swarm
+ansible-playbook 18_desinstalar_agente_portainer.yml
+
+# 2. Elimina Portainer Server y su volumen de datos
 ansible-playbook 19_desinstalar_portainer.yml
 
-# 2. Destruye los nodos LXD y limpia tokens
+# 3. Destruye los nodos LXD y limpia tokens
 ansible-playbook 20_destroy.yml
 ```
 

@@ -8,7 +8,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo "════════════════════════════════════════════════════════════════"
-echo "  [19] Desinstalar Portainer (Server y Agents)"
+echo "  [18] Desinstalar Portainer Agent del cluster Swarm"
+echo "════════════════════════════════════════════════════════════════"
+ansible-playbook 18_desinstalar_agente_portainer.yml
+
+echo ""
+echo "════════════════════════════════════════════════════════════════"
+echo "  [19] Desinstalar Portainer Server"
 echo "════════════════════════════════════════════════════════════════"
 ansible-playbook 19_desinstalar_portainer.yml
 
