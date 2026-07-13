@@ -13,7 +13,8 @@ También se hace uso del bloque `excludes` para evitar combinaciones incompatibl
 ```shell
 ./01_create.sh   # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh    # lo lanza y espera el resultado
-./03_delete.sh   # lo borra
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # lo borra
 ```
 
 Resultado esperado: `SUCCESS`. En los logs de Jenkins podrás ver cómo se ejecutan de manera independiente y paralela las diferentes combinaciones válidas:

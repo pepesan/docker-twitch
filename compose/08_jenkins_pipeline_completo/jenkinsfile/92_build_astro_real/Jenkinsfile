@@ -16,7 +16,7 @@
 // Si la verificacion pasa, se publica en Nexus (mismo patron que
 // 31_docker_push_nexus) y se hace un despliegue de prueba -- que queda
 // VIVO tras el build (mismo criterio que toda la serie 50): destruirlo
-// es un paso manual, ./04_stop_deploy.sh.
+// es un paso manual, ./05_stop_deploy.sh.
 pipeline {
   agent none
 

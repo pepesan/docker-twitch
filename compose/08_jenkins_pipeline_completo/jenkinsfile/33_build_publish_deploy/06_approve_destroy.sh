@@ -5,7 +5,7 @@
 # pendiente con sus valores por defecto (DESTRUIR=false), asi que nunca
 # destruye el despliegue. Este script hace lo contrario a proposito: para
 # destruir el despliegue DESDE EL PROPIO PIPELINE, no con docker directo
-# (eso es lo que hace 04_stop_deploy.sh).
+# (eso es lo que hace 05_stop_deploy.sh).
 set -e
 cd "$(dirname "$0")"
 NAME="$(basename "$(pwd)")"

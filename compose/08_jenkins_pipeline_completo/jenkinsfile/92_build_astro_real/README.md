@@ -34,8 +34,9 @@ Trivy** (mismo patrón que `46_trivy_security_scans`).
 ```shell
 ./01_create.sh      # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh        # lo lanza y espera el resultado (build de Astro, tarda)
-./04_stop_deploy.sh  # último paso del ejercicio: para el despliegue de prueba
-./03_delete.sh       # borra el job de Jenkins
+./05_stop_deploy.sh  # último paso del ejercicio: para el despliegue de prueba
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # borra el job de Jenkins
 ```
 
 Resultado esperado: `SUCCESS`. Verificado: 528 páginas construidas por
@@ -57,7 +58,7 @@ Dockerfile ya corregido en origen, el escaneo da 0 vulnerabilidades sin
 necesitar ninguna stage adicional en este pipeline.
 
 El despliegue **queda vivo tras el build** — mismo criterio que toda la
-serie 50. Pararlo es un paso manual explícito: `./04_stop_deploy.sh` —
+serie 50. Pararlo es un paso manual explícito: `./05_stop_deploy.sh` —
 **último paso del ejercicio**, no opcional: no dejarlo para "cuando ya no
 haga falta", para no acumular contenedores de pruebas anteriores.
 `100_destroy.sh` también lo para por si acaso, pero lo correcto es no

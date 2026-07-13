@@ -7,7 +7,8 @@
 ```shell
 ./01_create.sh   # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh    # lo lanza y espera el resultado
-./03_delete.sh   # lo borra
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # lo borra
 ```
 
 **Requiere el agente SSH levantado** (`./04_launch_agent.sh` + `./05_check_agent.sh` desde la carpeta principal de `compose/`).

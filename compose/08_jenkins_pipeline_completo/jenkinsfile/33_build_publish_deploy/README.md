@@ -10,9 +10,10 @@ verdad (`/actuator/health`) — puente directo hacia el pipeline real (`90+`).
 ```shell
 ./01_create.sh          # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh           # lo lanza y espera el resultado
-./04_stop_deploy.sh     # último paso del ejercicio: para el despliegue de prueba
-./05_approve_destroy.sh # alternativa: lo destruye desde el propio pipeline (ver más abajo)
-./03_delete.sh          # borra el job de Jenkins
+./05_stop_deploy.sh     # último paso del ejercicio: para el despliegue de prueba
+./06_approve_destroy.sh # alternativa: lo destruye desde el propio pipeline (ver más abajo)
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # borra el job de Jenkins
 ```
 
 **Requiere Nexus levantado y configurado** (`./08_launch_nexus.sh` +
@@ -23,7 +24,7 @@ build** — el pipeline no se autodestruye lo que acaba de desplegar, sería
 absurdo (un "deploy" que desaparece solo no sirve para nada). Relanzar
 `02_build.sh` simplemente recrea el contenedor con la imagen nueva
 (mismo nombre de proyecto Compose). Pararlo es un paso manual explícito:
-`./04_stop_deploy.sh` — **último paso del ejercicio**, no opcional: si se
+`./05_stop_deploy.sh` — **último paso del ejercicio**, no opcional: si se
 deja corriendo, sigue conectado a la red compartida del laboratorio
 (`jenkins_docker_pipeline_default`) y `100_destroy.sh` no podrá borrarla
 (avisa `Resource is still in use`). `100_destroy.sh` también lo para por
@@ -55,7 +56,7 @@ Verificado: `{"status":"UP",...}`.
 ## Cómo destruir el despliegue manualmente
 
 ```shell
-./04_stop_deploy.sh
+./05_stop_deploy.sh
 ```
 
 Qué hace exactamente:
@@ -76,7 +77,7 @@ Verificado:
 ```shell
 docker ps --filter "label=com.docker.compose.project=demo-deploy"
 # antes: demo-deploy-app-1   Up 11 minutes
-./04_stop_deploy.sh
+./05_stop_deploy.sh
 # f6f3aeb2ab35
 # Despliegue 'demo-deploy' parado y eliminado.
 docker ps -a --filter "label=com.docker.compose.project=demo-deploy"
@@ -87,7 +88,7 @@ El script es idempotente: si no hay nada desplegado, lo detecta y sale sin
 error (`No hay ningun contenedor del proyecto 'demo-deploy' en marcha.`) —
 se puede ejecutar de más sin miedo a que falle.
 
-## Cómo destruir el despliegue desde el propio pipeline (`05_approve_destroy.sh`)
+## Cómo destruir el despliegue desde el propio pipeline (`06_approve_destroy.sh`)
 
 La última stage del Jenkinsfile ("Destruir despliegue (manual)") se para
 en un `input` con un `booleanParam DESTRUIR` a `false` por defecto.
@@ -96,16 +97,16 @@ en un `input` con un `booleanParam DESTRUIR` a `false` por defecto.
 despliegue por esa vía — es la manera segura de verificar el ejemplo sin
 intervención manual.
 
-`05_approve_destroy.sh` es el script complementario, deliberadamente
+`06_approve_destroy.sh` es el script complementario, deliberadamente
 distinto: lanza un build nuevo, espera a que llegue al `input` y lo
 aprueba marcando `DESTRUIR=true`, para probar la destrucción **desde
-dentro del propio pipeline** (a diferencia de `04_stop_deploy.sh`, que
+dentro del propio pipeline** (a diferencia de `05_stop_deploy.sh`, que
 para el despliegue con `docker` directo desde fuera de Jenkins):
 
 ```shell
-./05_approve_destroy.sh
+./06_approve_destroy.sh
 ```
 
 Resultado esperado: `SUCCESS`, con el despliegue (`demo-deploy`)
 eliminado por la propia stage (`docker compose -p demo-deploy down
---remove-orphans`) en vez de por `04_stop_deploy.sh`.
+--remove-orphans`) en vez de por `05_stop_deploy.sh`.

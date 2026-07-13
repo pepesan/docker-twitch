@@ -15,6 +15,7 @@ services:
       - ./jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/ssh:/var/jenkins_home/ssh:ro
+      - ./config/certs:/var/jenkins_home/certs:ro
 
   # Servicio opcional (perfil "agent"): no se levanta con "docker compose up"
   # normal, solo con --profile agent (ver 04_launch_agent.sh)

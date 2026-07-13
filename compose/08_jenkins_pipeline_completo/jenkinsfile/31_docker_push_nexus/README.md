@@ -8,7 +8,8 @@ con dos tags: uno de versión concreta (`BUILD_NUMBER`) y `latest`.
 ```shell
 ./01_create.sh   # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh    # lo lanza y espera el resultado
-./03_delete.sh   # lo borra
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # lo borra
 ```
 
 **Requiere Nexus levantado y configurado** (`./08_launch_nexus.sh` +

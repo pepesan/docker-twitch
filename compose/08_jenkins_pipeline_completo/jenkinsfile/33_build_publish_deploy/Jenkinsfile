@@ -5,7 +5,7 @@
 // El despliegue queda VIVO tras el build (no se destruye aqui): un deploy
 // que se autodestruye al terminar no tendria sentido. Destruirlo es
 // siempre un paso manual, de dos formas posibles:
-// - Desde fuera de Jenkins: ./04_stop_deploy.sh (docker rm -f por label).
+// - Desde fuera de Jenkins: ./05_stop_deploy.sh (docker rm -f por label).
 // - Desde el propio pipeline: la ultima stage se para en un "input" con
 //   un booleanParam a false por defecto. build_job.sh aprueba solo
 //   cualquier input pendiente (para poder probar ejemplos con aprobacion

@@ -1,0 +1,17 @@
+// Ejemplo básico de uso del Docker Plugin para Jenkins.
+// Dirige el pipeline al agente efímero 'docker-agent-efimero' configurado en JCasC.
+// Este agente se creará al vuelo como un contenedor Docker independiente y se destruirá al acabar.
+pipeline {
+  agent { label 'docker-agent-efimero' }
+
+  stages {
+    stage('Hola Mundo Efímero') {
+      steps {
+        sh 'echo "Ejecutando dentro de un contenedor Docker efímero!"'
+        sh 'echo "Hostname del contenedor:" && hostname'
+        sh 'echo "Usuario actual:" && whoami'
+        sh 'echo "Directorio de trabajo:" && pwd'
+      }
+    }
+  }
+}

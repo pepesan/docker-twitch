@@ -5,7 +5,7 @@
 // chocar entre si, y su propio fichero .env (APP_ENV), demostrando
 // configuracion distinta por entorno sin duplicar el compose.yaml.
 // El despliegue queda vivo tras el build (mismo criterio que el resto de
-// la serie 50): destruirlo es un paso manual, ./04_stop_deploy.sh
+// la serie 50): destruirlo es un paso manual, ./05_stop_deploy.sh
 // <entorno>.
 pipeline {
   agent { label 'built-in' }

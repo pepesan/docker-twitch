@@ -24,7 +24,8 @@ de Docker.
 ```shell
 ./01_create.sh   # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh    # lo lanza (tarda: descarga la base de datos de Trivy)
-./03_delete.sh   # lo borra
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # lo borra
 ```
 
 **Requiere haber ejecutado `33_build_publish_deploy` antes**, al menos una

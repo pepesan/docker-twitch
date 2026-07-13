@@ -11,7 +11,8 @@ otros con el test marcado como fallido (build `UNSTABLE`, no `FAILURE` —
 ```shell
 ./01_create.sh   # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh    # 1er build: usa el valor por defecto (FORZAR_FALLO=false)
-./03_delete.sh   # lo borra
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # lo borra
 ```
 
 **Nota:** la primera vez hay que lanzarlo con `02_build.sh` (sin

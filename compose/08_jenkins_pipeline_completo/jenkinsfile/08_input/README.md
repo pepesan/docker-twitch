@@ -11,7 +11,8 @@ verificar este ejemplo sin intervención manual.
 ```shell
 ./01_create.sh   # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh    # lo lanza; el input pendiente se aprueba automáticamente
-./03_delete.sh   # lo borra
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # lo borra
 ```
 
 Resultado esperado: `SUCCESS`, con "Input pendiente detectado... aprobando

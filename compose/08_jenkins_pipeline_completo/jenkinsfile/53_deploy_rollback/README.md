@@ -14,15 +14,16 @@ Conecta con `08_input` y el tagging semántico de la serie 30.
 ```shell
 ./01_create.sh      # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh        # lo lanza con el valor por defecto (despliegue sano)
-./04_stop_deploy.sh  # último paso del ejercicio: para el despliegue de prueba
-./03_delete.sh       # borra el job de Jenkins
+./05_stop_deploy.sh  # último paso del ejercicio: para el despliegue de prueba
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # borra el job de Jenkins
 ```
 
 Resultado esperado: `SUCCESS`, contenedor corriendo, stage "Rollback (si
 hace falta)" saltada (`when` no se cumple).
 
 El despliegue **queda vivo tras el build** — mismo criterio que el resto
-de la serie 50. `./04_stop_deploy.sh` es el **último paso del ejercicio**,
+de la serie 50. `./05_stop_deploy.sh` es el **último paso del ejercicio**,
 no opcional: no dejarlo para "cuando ya no haga falta", para no acumular
 contenedores de pruebas anteriores. `100_destroy.sh` también lo para por
 si acaso, pero lo correcto es no dejarlo para el final.
@@ -38,7 +39,7 @@ casilla — o vía API:
 
 ```shell
 # lanzar con FORZAR_FALLO_SALUD=true, esperar a que llegue al input,
-# y aprobarlo con ROLLBACK=true (ver 33_build_publish_deploy/05_approve_destroy.sh
+# y aprobarlo con ROLLBACK=true (ver 33_build_publish_deploy/06_approve_destroy.sh
 # para el mismo patron con un script dedicado)
 ```
 

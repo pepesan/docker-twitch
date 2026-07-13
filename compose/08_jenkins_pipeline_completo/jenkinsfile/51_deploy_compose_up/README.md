@@ -14,8 +14,9 @@ vez que Compose ha esperado el healthcheck de `db`.
 ./01_create.sh      # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh        # lo lanza y espera el resultado
 ./02_build.sh        # relanzarlo es idempotente (docker compose up -d)
-./04_stop_deploy.sh  # último paso del ejercicio: para el despliegue de prueba
-./03_delete.sh       # borra el job de Jenkins
+./05_stop_deploy.sh  # último paso del ejercicio: para el despliegue de prueba
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # borra el job de Jenkins
 ```
 
 Resultado esperado: `SUCCESS`. Verificado en consola:
@@ -30,7 +31,7 @@ app confirmo que la base de datos estaba healthy antes de arrancar
 
 El despliegue **queda vivo tras el build** — mismo criterio que
 `33_build_publish_deploy`/`50_deploy_docker_run`. Pararlo es un paso
-manual explícito: `./04_stop_deploy.sh` (localiza por el label de Compose
+manual explícito: `./05_stop_deploy.sh` (localiza por el label de Compose
 `com.docker.compose.project=demo-compose-app`, sin necesitar el
 `compose.yaml`, que solo existe dentro del workspace del job) —
 **último paso del ejercicio**, no opcional: no dejarlo para "cuando ya no

@@ -6,3 +6,4 @@ ssh-slaves
 junit
 coverage
 pipeline-graph-view
+docker-plugin

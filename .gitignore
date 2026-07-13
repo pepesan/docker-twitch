@@ -1,1 +1,8 @@
 .idea/*
+
+# Python bytecode
+**/__pycache__/
+*.pyc
+
+# Local TLS certificates and private keys for the Jenkins lab
+compose/08_jenkins_pipeline_completo/config/certs/

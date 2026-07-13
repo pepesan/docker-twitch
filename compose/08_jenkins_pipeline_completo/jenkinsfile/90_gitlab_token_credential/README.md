@@ -53,7 +53,8 @@ cp .env.example .env    # copia la plantilla
 ./00_create_credentials.sh   # da de alta la credencial en Jenkins
 ./01_create.sh                # da de alta (o actualiza) el job
 ./02_build.sh                  # lo lanza y espera el resultado
-./03_delete.sh                 # borra el job (la credencial se queda)
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # borra el job (la credencial se queda)
 ```
 
 `.env` **nunca se comitea** (está en el `.gitignore` de esta carpeta) —

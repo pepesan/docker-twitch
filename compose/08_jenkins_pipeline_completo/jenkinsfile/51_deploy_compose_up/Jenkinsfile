@@ -7,7 +7,7 @@
 // su mensaje una vez que Compose ha esperado el healthcheck de "db".
 // El despliegue queda vivo tras el build (mismo criterio que
 // 33_build_publish_deploy y 50_deploy_docker_run): destruirlo es un paso
-// manual, ./04_stop_deploy.sh.
+// manual, ./05_stop_deploy.sh.
 pipeline {
   agent { label 'built-in' }
 

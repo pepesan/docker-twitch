@@ -1,0 +1,17 @@
+// Ejemplo de uso del Docker Plugin con una nube Docker externa en LXC.
+// Dirige el pipeline al agente efímero 'docker-agent-externo' de la nube externa.
+pipeline {
+  agent { label 'docker-agent-externo' }
+
+  stages {
+    stage('Verificación del Entorno Externo') {
+      steps {
+        sh 'echo "=== Ejecutando en Contenedor Efímero en Host LXC Externo ==="'
+        sh 'echo "Hostname del contenedor:" && hostname'
+        sh 'echo "Usuario actual:" && whoami'
+        sh 'echo "Direcciones IP del contenedor:" && ip a'
+        sh 'echo "Comprobando red interna:" && ping -c 3 10.207.154.1 || true'
+      }
+    }
+  }
+}

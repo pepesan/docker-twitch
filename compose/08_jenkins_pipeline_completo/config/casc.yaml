@@ -1,12 +1,120 @@
+# Configuración principal de Jenkins mediante el plugin Configuration as Code (JCasC)
+unclassified:
+  location:
+    url: "http://localhost:8082/"
+    adminAddress: "admin@example.com"
+
 jenkins:
+  # Banner/Mensaje de bienvenida que se muestra en la página de inicio de Jenkins
   systemMessage: "Jenkins configurado automáticamente vía JCasC (laboratorio temario-docker)"
+
+  # Número de ejecutores concurrentes permitidos en el propio nodo Controller (built-in)
   numExecutors: 2
+
+  # Realm de seguridad para la gestión de usuarios
   securityRealm:
+    # Utiliza la base de datos interna local de Jenkins para las cuentas de usuario
     local:
+      # Desactiva la posibilidad de que usuarios anónimos se registren por su cuenta
       allowsSignup: false
+      # Definición de la lista de usuarios pre-creados en el arranque
       users:
-        - id: "${JENKINS_ADMIN_ID:-admin}"
-          password: "${JENKINS_ADMIN_PASSWORD:-admin}"
+        # Define el primer usuario administrador
+        - id: "${JENKINS_ADMIN_ID:-admin}" # ID de usuario, toma la variable de entorno o usa 'admin' por defecto
+          password: "${JENKINS_ADMIN_PASSWORD:-admin}" # Contraseña, toma la variable de entorno o usa 'admin' por defecto
+
+  # Estrategia de autorización para delimitar los permisos en Jenkins
   authorizationStrategy:
+    # Cualquier usuario autenticado (que haya iniciado sesión) tiene permisos de administración completos
     loggedInUsersCanDoAnything:
+      # Prohíbe a los usuarios anónimos (sin autenticar) leer o ver cualquier parte de Jenkins
       allowAnonymousRead: false
+
+  # Configuración de nubes externas para aprovisionamiento dinámico de agentes
+  clouds:
+    # Declaración de un proveedor tipo Docker (Jenkins Docker Plugin) para el socket local
+    - docker:
+        # Nombre único asignado a este proveedor de nube local
+        name: "docker-local"
+
+        # Configuración de conexión a la API del demonio Docker local
+        dockerApi:
+          dockerHost:
+            # Ruta de conexión al socket de UNIX de Docker, compartido desde el host
+            uri: "unix:///var/run/docker.sock"
+
+        # Lista de plantillas de contenedores dinámicos disponibles para aprovisionamiento
+        templates:
+          # Primera plantilla: definición del agente dinámico efímero local
+          - labelString: "docker-agent-efimero" # Etiqueta/Tag que los pipelines usarán (agent { label 'docker-agent-efimero' })
+
+            # Directorio raíz de trabajo para el agente dentro del contenedor
+            remoteFs: "/home/jenkins/agent"
+
+            # Modo de uso del nodo: EXCLUSIVE obliga a que solo ejecute trabajos que pidan esta etiqueta explícitamente
+            mode: EXCLUSIVE
+
+            # Método de conexión del Controller con el Agente
+            connector:
+              # Conexión directa mediante comandos 'attach' al contenedor (sin usar SSH ni claves adicionales)
+              attach: {}
+
+            # Configuración base del contenedor que se instanciará al vuelo
+            dockerTemplateBase:
+              # Imagen Docker oficial ligera utilizada para arrancar el agente inbound de Jenkins
+              image: "jenkins/inbound-agent:alpine"
+
+            # Estrategia de retención del contenedor agente (DockerOnceRetentionStrategy de tipo homogéneo)
+            retentionStrategy:
+              # Tiempo máximo en minutos que el agente puede permanecer inactivo antes de ser destruido (y removido del listado)
+              idleMinutes: 1
+
+    # Declaración de un proveedor tipo Docker para el nodo externo en LXC
+    - docker:
+        # Nombre único asignado a este proveedor de nube externa
+        name: "docker-external"
+
+        # Configuración de conexión a la API del demonio Docker remoto
+        dockerApi:
+          dockerHost:
+            # Ruta de conexión TCP segura expuesta por la máquina Docker externa (LXC)
+            uri: "tcp://10.207.154.80:2376"
+            credentialsId: "docker-external-tls-creds"
+
+        # Plantillas de agentes dinámicos para la nube externa
+        templates:
+          # Segunda plantilla: definición del agente dinámico efímero en LXC
+          - labelString: "docker-agent-externo" # Etiqueta/Tag que el pipeline remoto usará (agent { label 'docker-agent-externo' })
+
+            # Directorio raíz de trabajo para el agente dentro del contenedor remoto
+            remoteFs: "/home/jenkins/agent"
+
+            # Modo de uso del nodo: exclusivo
+            mode: EXCLUSIVE
+
+            # Método de conexión del Controller con el Agente
+            connector:
+              # Conector attach (directo vía socket expuesto en la API TCP)
+              attach: {}
+
+            # Configuración base del contenedor que se instanciará en el LXC
+            dockerTemplateBase:
+              # Imagen oficial del agente inbound de Jenkins
+              image: "jenkins/inbound-agent:alpine"
+
+             # Estrategia de retención
+            retentionStrategy:
+              # Destrucción rápida tras finalizar la build
+              idleMinutes: 1
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - x509ClientCert:
+              scope: GLOBAL
+              id: "docker-external-tls-creds"
+              description: "Credenciales TLS de cliente para LXC externo"
+              clientKeySecret: "${readFile:/var/jenkins_home/certs/key.pem}"
+              clientCertificate: "${readFile:/var/jenkins_home/certs/cert.pem}"
+              serverCaCertificate: "${readFile:/var/jenkins_home/certs/ca.pem}"

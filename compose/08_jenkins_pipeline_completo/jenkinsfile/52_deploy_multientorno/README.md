@@ -12,9 +12,10 @@ configuración distinta por entorno sin duplicar el `compose.yaml`.
 ```shell
 ./01_create.sh          # da de alta (o actualiza) el job en Jenkins
 ./02_build.sh            # lo lanza con el valor por defecto (staging)
-./04_stop_deploy.sh              # último paso del ejercicio: para 'staging'
-./04_stop_deploy.sh produccion    # y también 'produccion' si se llegó a desplegar
-./03_delete.sh           # borra el job de Jenkins
+./05_stop_deploy.sh              # último paso del ejercicio: para 'staging'
+./05_stop_deploy.sh produccion    # y también 'produccion' si se llegó a desplegar
+./03_check.sh    # consulta el estado y log completo del último build
+./04_delete.sh    # borra el job de Jenkins
 ```
 
 Para lanzarlo con `ENTORNO=produccion` por script (vía API):
@@ -49,7 +50,7 @@ Verificado: la página del formulario muestra literalmente
 
 El despliegue **queda vivo tras el build** — mismo criterio que el resto
 de la serie 50. Pararlo es un paso manual explícito:
-`./04_stop_deploy.sh [staging|produccion]` (por defecto `staging` si no se
+`./05_stop_deploy.sh [staging|produccion]` (por defecto `staging` si no se
 indica) — **último paso del ejercicio**, no opcional: no dejarlo para
 "cuando ya no haga falta", para no acumular contenedores de pruebas
 anteriores. `100_destroy.sh` también los para por si acaso (los dos

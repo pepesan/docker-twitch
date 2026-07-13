@@ -23,13 +23,13 @@ fi
 
 # La contraseña inicial (aleatoria) solo existe la primera vez que arranca
 if [ -f ./nexus_data/admin.password ]; then
-  INITIAL_PW=$(cat ./nexus_data/admin.password)
+  INITIAL_PW=$(cat ./nexus_data/admin.password 2>/dev/null || sudo cat ./nexus_data/admin.password)
   echo "Cambiando la contraseña inicial de Nexus..."
   curl -sf -u "admin:$INITIAL_PW" -X PUT -H "Content-Type: text/plain" \
     --data "$NEXUS_ADMIN_PASSWORD" \
     "$NEXUS_URL/service/rest/v1/security/users/admin/change-password" -o /dev/null
 else
-  echo "La contraseña de admin ya se había configurado antes."
+  echo "La contraseña de admin ya se había configurado antes o no se pudo acceder al archivo."
 fi
 
 AUTH="admin:$NEXUS_ADMIN_PASSWORD"
