@@ -1,0 +1,26 @@
+// stash/unstash mueve ficheros entre stages aunque corran en workspaces
+// o nodos distintos. Con agent none a nivel de pipeline, cada stage elige
+// su propio nodo. En este caso, demostramos la transferencia de archivos
+// entre el controlador (built-in) y el agente (agent1).
+pipeline {
+  agent none
+
+  stages {
+    stage('Generar en el built-in') {
+      agent { label 'built-in' }
+      steps {
+        sh 'echo "datos generados en built-in para agent1" > datos.txt'
+        stash name: 'mis-datos', includes: 'datos.txt'
+      }
+    }
+
+    stage('Usar en el agente agent1') {
+      agent { label 'agent1' }
+      steps {
+        // El fichero no existe en el workspace del agente hasta hacer unstash
+        unstash 'mis-datos'
+        sh 'echo "Ejecutando en el nodo:" && hostname && echo "Contenido de datos.txt:" && cat datos.txt'
+      }
+    }
+  }
+}
