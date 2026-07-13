@@ -1,6 +1,6 @@
 services:
   jenkins_controller:
-    build:
+    build: # docker build -f Dockerfile .
       context: .
       dockerfile: Dockerfile
     container_name: jenkins_docker_pipeline

@@ -221,6 +221,7 @@ en vez de fallar.
 | `jenkinsfile/10_retry_timeout/` | `retry(3)` sobre una operación que falla las 2 primeras veces, y `timeout()` sobre un paso rápido. |
 | `jenkinsfile/11_archive_artifacts/` | `archiveArtifacts` + `fingerprint`, artefacto descargable tras el build. |
 | `jenkinsfile/12_stash_unstash/` | `stash`/`unstash` moviendo un fichero entre el controller y `agent1` (nodos distintos). |
+| `jenkinsfile/13_matrix/` | `matrix {}` ejecutando dinámicamente una stage variando parámetros (navegadores/SO) y excluyendo combinaciones. |
 | `jenkinsfile/20_agent_label/` | Pipeline dirigido a `agent { label 'agent1' }`, usando el agente SSH registrado. |
 | `jenkinsfile/21_docker-test/` | Que el controller puede ejecutar `docker` directamente y levantar agentes Docker efímeros (Maven, Node) — pipeline de verificación de la infraestructura base. |
 | `jenkinsfile/22_docker_agent_build_real/` | Checkout real de un proyecto Spring Boot + `agent { docker {...} }` ejecutando `mvn clean package` de verdad, con el `.jar` archivado. |

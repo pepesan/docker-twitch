@@ -1,0 +1,50 @@
+// matrix {} permite ejecutar dinámicamente un conjunto de stages variando
+// parámetros definidos en múltiples ejes (axes). Es ideal para pruebas multi-navegador,
+// compilaciones multi-plataforma, o pruebas en múltiples versiones de lenguajes.
+pipeline {
+  agent any
+
+  stages {
+    stage('Pruebas en Matriz') {
+      matrix {
+        agent any
+
+        axes {
+          axis {
+            name 'BROWSER'
+            values 'Chrome', 'Firefox', 'Safari'
+          }
+          axis {
+            name 'OS'
+            values 'Linux', 'Windows'
+          }
+        }
+
+        // Se pueden excluir combinaciones específicas (por ejemplo, Safari no corre en Linux)
+        excludes {
+          exclude {
+            axis {
+              name 'BROWSER'
+              values 'Safari'
+            }
+            axis {
+              name 'OS'
+              values 'Linux'
+            }
+          }
+        }
+
+        stages {
+          stage('Pruebas E2E') {
+            steps {
+              echo "Iniciando suite de pruebas en ${BROWSER} ejecutando sobre ${OS}..."
+              sh "echo 'Ejecutando tests para ${BROWSER} en ${OS}...'"
+              sleep 2
+              echo "Pruebas finalizadas con éxito para ${BROWSER} en ${OS}"
+            }
+          }
+        }
+      }
+    }
+  }
+}
