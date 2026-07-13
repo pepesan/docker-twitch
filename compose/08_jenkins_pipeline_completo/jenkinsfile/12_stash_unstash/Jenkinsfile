@@ -1,11 +1,11 @@
 // stash/unstash mueve ficheros entre stages aunque corran en workspaces
 // (o nodos) distintos. agent none: cada stage elige su propio nodo, para
-// demostrarlo de verdad entre el controller y el agente SSH.
+// demostrarlo de verdad entre dos workspaces aislados del built-in.
 pipeline {
   agent none
 
   stages {
-    stage('Generar en el controller') {
+    stage('Generar en el built-in') {
       agent { label 'built-in' }
       steps {
         sh 'echo "datos generados en built-in" > datos.txt'
@@ -13,8 +13,8 @@ pipeline {
       }
     }
 
-    stage('Usar en el agente') {
-      agent { label 'agent1' }
+    stage('Usar en el built-in (otro workspace)') {
+      agent { label 'built-in' }
       steps {
         // El fichero no existe en este workspace hasta el unstash
         unstash 'mis-datos'
@@ -23,3 +23,4 @@ pipeline {
     }
   }
 }
+

@@ -2,8 +2,11 @@
 
 `stash`/`unstash` mueve ficheros entre stages aunque corran en workspaces
 (o nodos) distintos. `agent none` a nivel de pipeline: cada stage elige su
-propio nodo, para demostrarlo de verdad entre el controller (`built-in`) y
-el agente SSH (`agent1`).
+propio nodo. Para demostrarlo de forma sencilla sin requerir agentes externos,
+ambos stages se ejecutan en el controller (`built-in`). Dado que se declaran en
+stages diferentes, Jenkins les asigna workspaces aislados distintos (ej. `workspace` y
+`workspace@2`), por lo que el segundo stage no ve los ficheros del primero
+hasta hacer `unstash`.
 
 ## Cómo probarlo
 
@@ -13,7 +16,7 @@ el agente SSH (`agent1`).
 ./03_delete.sh   # lo borra
 ```
 
-**Requiere el agente SSH levantado** (`./04_launch_agent.sh` +
-`./05_check_agent.sh` desde la carpeta principal de `compose/`).
+**No requiere de ningún agente externo levantado** (se ejecuta por completo en el nodo `built-in` de Jenkins).
 
 Resultado esperado: `SUCCESS`.
+
