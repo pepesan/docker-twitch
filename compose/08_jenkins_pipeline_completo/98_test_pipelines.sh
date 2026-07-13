@@ -60,13 +60,15 @@ ensure_nexus() {
 }
 
 ensure_external_docker() {
-  # Comprobar si el contenedor LXC no existe o no está RUNNING
-  if ! lxc info "jenkins-external-docker" &>/dev/null || [ "$(lxc info "jenkins-external-docker" | grep "Status:" | awk '{print $2}')" != "RUNNING" ]; then
-    echo "==> Iniciando y configurando nube externa Docker en LXC..."
-    ./10_create_lxc_docker_node.sh
-    ./11_install_docker_lxc.sh
-  fi
-  # Una vez que los certificados reales están en su sitio, levantamos el controller
+  # Ambos scripts son idempotentes. Se ejecutan siempre para cubrir también
+  # estados parciales: LXC existente sin Docker, certificados renovados o un
+  # Controller que aún conserva en memoria una CA anterior.
+  echo "==> Preparando nube externa Docker en LXC..."
+  ./10_create_lxc_docker_node.sh
+  ./11_install_docker_lxc.sh
+
+  # Si el Controller no existía, arranca después de crear los certificados
+  # reales para que JCasC cargue docker-external-tls-creds correctamente.
   ensure_controller
 }
 
