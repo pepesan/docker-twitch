@@ -58,3 +58,23 @@ services:
       - "8084:8084"   # conector del repositorio Docker (hosted)
     volumes:
       - ./nexus_data:/nexus-data
+
+  # Servicio opcional (perfil "sonar"): análisis estático con SonarQube
+  # (ver 12_launch_sonar.sh / 13_setup_sonar.sh)
+  sonarqube:
+    profiles: ["sonar"]
+    image: sonarqube:10.6-community
+    container_name: jenkins_docker_pipeline_sonar
+    ports:
+      - "9005:9000"   # Puerto 9005 expuesto en el host (evita colisión con Portainer en el 9000)
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_extensions:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
+
+volumes:
+  sonar_data:
+  sonar_extensions:
+  sonar_logs:
+
+

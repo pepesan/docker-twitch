@@ -30,7 +30,7 @@ RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
 # Jenkins Configuration as Code: se aplica sola al arrancar el controller
 COPY config/casc.yaml /usr/share/jenkins/ref/casc.yaml
 ENV CASC_JENKINS_CONFIG=/usr/share/jenkins/ref/casc.yaml
-ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.model.DirectoryBrowserSupport.CSP="
 
 # Alta automática (idempotente) de la credencial SSH y el nodo del agente
 COPY config/init.groovy.d/configure-agent.groovy /usr/share/jenkins/ref/init.groovy.d/configure-agent.groovy

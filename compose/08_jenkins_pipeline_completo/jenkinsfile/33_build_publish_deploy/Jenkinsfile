@@ -27,8 +27,33 @@ pipeline {
       }
     }
 
+    stage('Build Maven') {
+      agent {
+        docker {
+          image 'maven:3.9.9-eclipse-temurin-21'
+          args  '-v jenkins_maven_cache_demo:/root/.m2'
+          label 'built-in'
+        }
+      }
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+        sh 'mvn -B clean package -DskipTests'
+        stash name: 'target-jar', include: 'target/*.jar'
+      }
+    }
+
     stage('Build de la imagen') {
       steps {
+        unstash 'target-jar'
+        writeFile file: 'Dockerfile', text: '''FROM eclipse-temurin:21.0.3_9-jre-alpine
+WORKDIR /opt/app
+RUN addgroup --system javauser && adduser -S -s /usr/sbin/nologin -G javauser javauser
+COPY target/demo-maven-0.0.1-SNAPSHOT.jar app.jar
+RUN chown -R javauser:javauser .
+USER javauser
+HEALTHCHECK --interval=30s --timeout=3s --retries=1 CMD wget -qO- http://localhost:8080/actuator/health/ | grep UP || exit 1
+ENTRYPOINT ["java", "-jar", "app.jar"]
+'''
         sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
       }
     }

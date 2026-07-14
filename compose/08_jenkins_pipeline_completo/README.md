@@ -12,6 +12,7 @@ Este proyecto es un laboratorio de verificación y aprendizaje end-to-end para l
 | `jenkins_agent` | `agent` | Agente SSH fijo sin Docker | Ninguno; expone `22` solo en Compose | `./04_launch_agent.sh` |
 | `jenkins_agent_docker` | `agent-docker` | Agente SSH fijo con Docker CLI y socket del host | Ninguno; expone `22` solo en Compose | `./06_launch_agent_docker.sh` |
 | `nexus` | `nexus` | Repositorio Maven y registro Docker privado | `8083` (UI/API), `8084` (registro) | `./08_launch_nexus.sh` |
+| `sonarqube` | `sonar` | Servidor de análisis estático SonarQube | `9005` (web/API) | `./12_launch_sonar.sh` |
 
 Los agentes efímeros `docker-agent-efimero` y `docker-agent-externo` no son servicios de Compose: Jenkins los crea bajo demanda mediante Docker Plugin. El segundo se ejecuta en el nodo LXC externo preparado con `./10_create_lxc_docker_node.sh` y `./11_install_docker_lxc.sh`.
 
@@ -56,21 +57,27 @@ El laboratorio se gestiona por completo mediante scripts bash idempotentes (no r
 * **`./07_check_agent_docker.sh`**: Comprueba que el nodo `agent2` se encuentra activo y conectado a Jenkins.
 * **`./08_launch_nexus.sh`**: Levanta un servidor Nexus OSS que hace de registro Docker privado y repositorio Maven hosted.
 * **`./09_setup_nexus.sh`**: Realiza la autoconfiguración de Nexus. Cambia la contraseña por defecto de admin, acepta la EULA, activa el realm para permitir logins de Docker, crea los repositorios `maven-hosted` y `docker-hosted`, y registra la credencial `nexus-creds` en Jenkins de forma automatizada (usando fallbacks sin `sudo` interactivo si ya fue inicializado).
+* **`./12_launch_sonar.sh`**: Levanta un servidor SonarQube para análisis estático de código.
+* **`./13_setup_sonar.sh`**: Realiza la autoconfiguración de SonarQube. Espera a que esté listo, cambia la contraseña por defecto de admin, genera el token de análisis y lo registra en Jenkins de forma automatizada.
 * **`./99_delete_all_jobs.sh`**: Limpia rápidamente todos los trabajos creados en Jenkins (reset blando).
 
-### Datos de Conexión a Nexus
+### Datos de Conexión a Nexus y SonarQube
 
-Ejecuta primero `./08_launch_nexus.sh` y después `./09_setup_nexus.sh` para levantar y configurar el servicio.
+Ejecuta primero los scripts de lanzamiento (`./08_launch_nexus.sh` o `./12_launch_sonar.sh`) y después sus correspondientes scripts de configuración (`./09_setup_nexus.sh` o `./13_setup_sonar.sh`).
 
 | Uso | Dirección |
 |---|---|
-| Interfaz web y API desde el host | `http://localhost:8083` |
+| Interfaz web y API de Nexus desde el host | `http://localhost:8083` |
 | Repositorio Maven hosted desde el host | `http://localhost:8083/repository/maven-hosted/` |
-| Registro Docker desde el host | `localhost:8084` |
-| Interfaz, API y Maven desde la red de Compose | `http://nexus:8081` |
-| Registro Docker desde la red de Compose | `nexus:8084` |
+| Registro Docker de Nexus desde el host | `localhost:8084` |
+| Interfaz web de SonarQube desde el host | `http://localhost:9005` |
+| Interfaz, API y Maven de Nexus desde la red de Compose | `http://nexus:8081` |
+| Registro Docker de Nexus desde la red de Compose | `nexus:8084` |
+| Interfaz web y API de SonarQube desde la red de Compose | `http://sonarqube:9000` |
 
-Las credenciales predeterminadas son `admin` / `admin123`. La contraseña puede cambiarse definiendo `NEXUS_ADMIN_PASSWORD` antes de ejecutar los scripts. Jenkins almacena estas credenciales con el identificador `nexus-creds`.
+Las credenciales predeterminadas son `admin` / `admin123` (tanto para Nexus como para SonarQube).
+* **Nexus**: La contraseña se puede configurar definiendo la variable de entorno `NEXUS_ADMIN_PASSWORD` y se guarda en Jenkins bajo el ID `nexus-creds` (tipo Username/Password).
+* **SonarQube**: La contraseña de administración se puede configurar mediante `SONAR_ADMIN_PASSWORD` y Jenkins almacena el token de análisis generado bajo el ID `sonar-token` (tipo Secret Text).
 
 Ejemplo de acceso al registro Docker:
 
@@ -219,7 +226,7 @@ Los ejemplos se dividen por bandas temáticas según su complejidad:
 | **01-13** | Sintaxis y Primitivas | Hola Mundo, etapas, variables de entorno, parámetros de build, acciones `post`, condicionales `when`, paralelos, stashes, aprobación de inputs, credenciales globales y matrices de compilación. |
 | **20-27** | Agentes y Docker-in-Docker | builds en agentes fijos SSH (`agent1`), contenedores efímeros con `agent { docker }` construidos sobre el built-in o `agent2`, stashes inter-agente y Docker CLI. |
 | **30-33** | Repositorios con Nexus | Conectividad, empuje de imágenes Docker a Nexus, despliegue de artefactos Maven y ciclo completo build-push-deploy con Compose. |
-| **40-46** | Testing y Seguridad | Pruebas JUnit, métricas de cobertura JaCoCo, tests unitarios vs integración de Spring Boot, tests de Node.js en Vitest, pruebas E2E multi-navegador con Playwright y escaneos Trivy en paralelo. |
+| **40-47** | Testing, Seguridad y Calidad | Pruebas JUnit, métricas de cobertura JaCoCo, análisis estático con SonarQube, tests unitarios vs integración de Spring Boot, tests de Node.js en Vitest, pruebas E2E multi-navegador con Playwright y escaneos Trivy en paralelo. |
 | **50-53** | Estrategias de Despliegue | Despliegue idempotente con `docker run`, despliegues multicontenedor con DB mediante Docker Compose, gestión multi-entorno (`staging`/`prod`) y rollbacks dinámicos en caso de fallo. |
 | **60-69** | Integración Docker Plugin | Ejemplos que demuestran la ejecución de builds en **agentes efímeros dynamically provisioned** en la nube de Docker local (`docker-agent-efimero`, ej. `60`) y nube externa LXC (`docker-agent-externo`, ej. `61`). |
 | **90-92** | Escenarios Reales | Checkout de repositorios privados GitLab con credenciales seguras, ciclo completo del backend real Spring Boot y frontend real Astro. |
@@ -232,6 +239,7 @@ Los ejemplos se dividen por bandas temáticas según su complejidad:
 2. **Nombres de archivo Groovy con guiones**: Un script Groovy con guiones en su nombre de archivo (`configure-agent.groovy`) no debe declarar métodos con nombre (ej. `def metodo() {}`), ya que genera un ClassFormatError interno en Groovy. En su lugar se utilizan **closures** (`def metodo = { ... }`).
 3. **Aislamiento de red para agentes efímeros**: Los contenedores levantados al vuelo por Jenkins vía `agent { docker { ... } }` arrancan por defecto en la red bridge estándar de Docker y no ven el resto de servicios de Compose. Es obligatorio pasar la red en los argumentos: `args '--network jenkins_docker_pipeline_default'`.
 4. **Permisos del socket de Docker**: Los agentes que usan Docker CLI deben añadir al usuario `jenkins` en el grupo que posea el GID del `/var/run/docker.sock` del host, el cual puede cambiar entre distintas distribuciones de Linux.
+5. **Content Security Policy (CSP) y reportes HTML (Playwright/Allure)**: Por defecto, Jenkins aplica una directiva CSP sumamente restrictiva (`hudson.model.DirectoryBrowserSupport.CSP`) que bloquea la ejecución de scripts (JS) y estilos en línea (CSS) en los artefactos HTML archivados para evitar ataques XSS (Cross-Site Scripting). Como consecuencia, reportes modernos e interactivos como los de Playwright (Ejemplo 45) o Allure se cargan vacíos o sin estilos. En este laboratorio hemos desactivado la CSP pasándole una cadena vacía en las `JAVA_OPTS` del `Dockerfile`. **Importante en Producción:** Deshabilitar la CSP por completo supone un riesgo crítico de seguridad si usuarios malintencionados tienen capacidad de subir HTML/JS arbitrario. En producción, se debe relajar la política con un perfil restrictivo pero funcional (ej. `sandbox allow-scripts; default-src 'self'; style-src 'self' 'unsafe-inline';`) o delegar la visualización a un servidor externo.
 
 ---
 

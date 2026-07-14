@@ -1,3 +1,7 @@
 jenkins_home/*
 config/ssh/*
 nexus_data/*
+sonar_data/*
+sonar_extensions/*
+sonar_logs/*
+

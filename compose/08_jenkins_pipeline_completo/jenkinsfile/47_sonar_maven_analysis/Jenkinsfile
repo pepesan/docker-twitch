@@ -1,0 +1,28 @@
+// Realiza el análisis estático de código mediante SonarQube.
+// Requiere la credencial de Jenkins de tipo secret text 'sonar-token'
+// (creada automáticamente mediante ./13_setup_sonar.sh).
+pipeline {
+  agent {
+    docker {
+      image 'maven:3.9.9-eclipse-temurin-21'
+      args  '-v jenkins_maven_cache_demo:/root/.m2 --network jenkins_docker_pipeline_default'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://gitlab.com/pepesan/spring-boot-30-demo-maven.git', branch: 'main'
+      }
+    }
+
+    stage('Análisis con SonarQube') {
+      steps {
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+          sh 'mvn -B clean verify sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -Dsonar.token=${SONAR_TOKEN}'
+        }
+      }
+    }
+  }
+}

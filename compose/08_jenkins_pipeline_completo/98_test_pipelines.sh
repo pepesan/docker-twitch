@@ -59,6 +59,16 @@ ensure_nexus() {
   ./09_setup_nexus.sh
 }
 
+ensure_sonar() {
+  ensure_controller
+  if ! is_running "jenkins_docker_pipeline_sonar"; then
+    echo "==> Iniciando SonarQube..."
+    ./12_launch_sonar.sh
+  fi
+  # Ejecutar siempre el setup para garantizar que las credenciales existan en Jenkins
+  ./13_setup_sonar.sh
+}
+
 ensure_external_docker() {
   # Ambos scripts son idempotentes. Se ejecutan siempre para cubrir también
   # estados parciales: LXC existente sin Docker, certificados renovados o un
@@ -88,6 +98,8 @@ run_pipeline() {
     ensure_agent2
   elif [[ $num -ge 30 && $num -le 33 ]] || [[ $num -eq 91 ]] || [[ $num -eq 92 ]]; then
     ensure_nexus
+  elif [[ $num -eq 47 ]]; then
+    ensure_sonar
   elif [[ $num -eq 61 ]]; then
     ensure_external_docker
   else
