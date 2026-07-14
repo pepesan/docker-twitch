@@ -8,6 +8,7 @@ pipeline {
       steps {
         sh 'echo "Ejecutando en el nodo:" && hostname'
         sh 'echo "Workspace:" && pwd'
+        sh 'echo "Workspace:" >> fichero.txt'
       }
     }
   }
