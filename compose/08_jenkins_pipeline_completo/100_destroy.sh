@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 # down" no puede borrarla (avisa "Resource is still in use" y la deja
 # huérfana).
 for f in jenkinsfile/*/05_stop_deploy.sh; do
-  [ -f "$f" ] && "$f"
+  [ -f "$f" ] && "$f" || true
 done
 # 52_deploy_multientorno puede tener desplegados los dos entornos a la vez
 if [ -f jenkinsfile/52_deploy_multientorno/05_stop_deploy.sh ]; then

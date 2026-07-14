@@ -1,0 +1,60 @@
+// Despliegue en LXC externo usando la API de Docker sobre TLS (mTLS).
+// No utiliza SSH; en su lugar, se comunica directamente con el demonio de Docker remoto
+// en el puerto 2376 usando los certificados cliente/servidor del Controller.
+// Lee la IP del host LXC desde las credenciales secretas de Jenkins.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    IMAGE = 'demo-lxc-tls-app'
+    CONTAINER_NAME = 'demo-lxc-tls-app'
+    DOCKER_CERT_PATH = '/var/jenkins_home/certs'
+  }
+
+  stages {
+    stage('Build de la imagen') {
+      steps {
+        writeFile file: 'Dockerfile', text: '''FROM alpine:3.20
+CMD ["sh", "-c", "i=0; while true; do i=$((i+1)); echo \\"vivo en LXC via TLS desde hace ${i}0s\\"; sleep 10; done"]
+'''
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Transferir y Desplegar en LXC (vía TLS)') {
+      steps {
+        withCredentials([string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')]) {
+          sh '''
+            echo "==> Transfiriendo imagen y arrancando en LXC a través del socket TLS..."
+            export DOCKER_HOST="tcp://$LXC_IP:2376"
+            export DOCKER_TLS_VERIFY=1
+            
+            # Subir la imagen al Docker remoto
+            docker save $IMAGE:$BUILD_NUMBER | docker load
+            
+            # Detener el contenedor anterior si existe
+            docker rm -f $CONTAINER_NAME 2>/dev/null || true
+            
+            # Arrancar nuevo contenedor
+            docker run -d --name $CONTAINER_NAME $IMAGE:$BUILD_NUMBER
+          '''
+        }
+      }
+    }
+
+    stage('Verificar el despliegue') {
+      steps {
+        withCredentials([string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')]) {
+          sh '''
+            export DOCKER_HOST="tcp://$LXC_IP:2376"
+            export DOCKER_TLS_VERIFY=1
+            
+            sleep 2
+            docker ps --filter name=$CONTAINER_NAME --format '{{.Names}}\t{{.Status}}\t{{.Image}}'
+            docker logs $CONTAINER_NAME
+          '''
+        }
+      }
+    }
+  }
+}

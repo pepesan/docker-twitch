@@ -1,0 +1,58 @@
+// Despliegue en LXC externo vía SSH con "docker run -d".
+// Construye la imagen localmente en Jenkins, la transfiere por canal SSH/tar
+// al host LXC, y levanta el contenedor allí de forma idempotente.
+// Lee la IP del host LXC desde las credenciales secretas de Jenkins.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    IMAGE = 'demo-lxc-app'
+    CONTAINER_NAME = 'demo-lxc-app'
+  }
+
+  stages {
+    stage('Build de la imagen') {
+      steps {
+        writeFile file: 'Dockerfile', text: '''FROM alpine:3.20
+CMD ["sh", "-c", "i=0; while true; do i=$((i+1)); echo \\"vivo en LXC desde hace ${i}0s\\"; sleep 10; done"]
+'''
+        sh "docker build -t ${IMAGE}:${BUILD_NUMBER} -t ${IMAGE}:latest ."
+      }
+    }
+
+    stage('Transferir y Desplegar en LXC (vía SSH)') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          sh '''
+            echo "==> Transfiriendo imagen al host LXC..."
+            docker save $IMAGE:$BUILD_NUMBER | ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker load"
+            
+            echo "==> Parando contenedor anterior si existe..."
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker rm -f $CONTAINER_NAME 2>/dev/null || true"
+            
+            echo "==> Arrancando nuevo contenedor..."
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker run -d --name $CONTAINER_NAME $IMAGE:$BUILD_NUMBER"
+          '''
+        }
+      }
+    }
+
+    stage('Verificar el despliegue remotos') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          sh '''
+            sleep 2
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker ps --filter name=$CONTAINER_NAME --format '{{.Names}}\t{{.Status}}\t{{.Image}}'"
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker logs $CONTAINER_NAME"
+          '''
+        }
+      }
+    }
+  }
+}

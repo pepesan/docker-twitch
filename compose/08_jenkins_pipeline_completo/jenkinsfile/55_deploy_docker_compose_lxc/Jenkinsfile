@@ -1,0 +1,74 @@
+// Despliegue de una app multicontenedor en LXC externo vía SSH con "docker compose".
+// Copia el fichero compose.yaml al host LXC remoto y ejecuta el despliegue allí.
+// Lee la IP del host LXC desde las credenciales secretas de Jenkins.
+pipeline {
+  agent { label 'built-in' }
+
+  environment {
+    PROJECT = 'demo-lxc-compose'
+  }
+
+  stages {
+    stage('Preparar compose.yaml') {
+      steps {
+        writeFile file: 'compose.yaml', text: '''services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: lxc_demo_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  app:
+    image: alpine:3.20
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "echo \\"app en LXC arrancada: la base de datos ya estaba healthy\\" && sleep 3600"]
+'''
+      }
+    }
+
+    stage('Desplegar en LXC (vía SSH)') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          sh '''
+            echo "==> Copiando compose.yaml al servidor LXC..."
+            scp -i $SSH_KEY -o StrictHostKeyChecking=no compose.yaml root@$LXC_IP:/tmp/compose-lxc.yaml
+            
+            echo "==> Ejecutando docker compose up en el servidor LXC..."
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker compose -f /tmp/compose-lxc.yaml -p $PROJECT up -d"
+          '''
+        }
+      }
+    }
+
+    stage('Verificar el despliegue remotos') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          sh '''
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker compose -f /tmp/compose-lxc.yaml -p $PROJECT ps"
+            for i in $(seq 1 20); do
+              if ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker compose -f /tmp/compose-lxc.yaml -p $PROJECT logs app" 2>/dev/null | grep -q "app en LXC arrancada"; then
+                echo "app confirmo que la base de datos estaba healthy en LXC"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "app no llego a arrancar a tiempo en LXC"
+            exit 1
+          '''
+        }
+      }
+    }
+  }
+}

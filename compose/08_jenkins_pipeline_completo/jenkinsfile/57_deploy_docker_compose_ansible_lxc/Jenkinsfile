@@ -1,0 +1,109 @@
+// Despliegue de una app multicontenedor en LXC externo con Ansible y "docker compose".
+// Levanta un contenedor efímero de Alpine como agente, instala Ansible al vuelo,
+// copia compose.yaml al host LXC y ejecuta docker compose up -d usando un playbook de Ansible.
+// Lee la IP del host LXC desde las credenciales secretas de Jenkins.
+pipeline {
+  agent {
+    docker {
+      image 'alpine:3.20'
+      label 'built-in'
+    }
+  }
+
+  environment {
+    PROJECT = 'demo-ansible-compose'
+  }
+
+  stages {
+    stage('Preparar Entorno, compose.yaml y Playbook') {
+      steps {
+        // Instalar ansible, openssh-client y la coleccion community.docker al vuelo
+        sh 'apk add --no-cache ansible openssh-client && ansible-galaxy collection install community.docker'
+
+        writeFile file: 'compose.yaml', text: '''services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ansible_lxc_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  app:
+    image: alpine:3.20
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "echo \\"app en LXC via Ansible-Compose arrancada\\" && sleep 3600"]
+'''
+
+        writeFile file: 'playbook.yml', text: '''---
+- name: Desplegar stack Compose en LXC
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Crear directorio del proyecto
+      file:
+        path: /tmp/ansible-compose
+        state: directory
+        mode: '0755'
+
+    - name: Copiar compose.yaml
+      copy:
+        src: compose.yaml
+        dest: /tmp/ansible-compose/compose.yaml
+
+    - name: Lanzar docker compose up -d
+      community.docker.docker_compose_v2:
+        project_src: /tmp/ansible-compose
+        project_name: demo-ansible-compose
+        state: present
+'''
+      }
+    }
+
+    stage('Desplegar con Ansible') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          // Asegurar permisos de la clave SSH dentro del contenedor
+          sh 'chmod 600 $SSH_KEY'
+          sh '''
+            ansible-playbook -i "$LXC_IP," \
+              -u root \
+              --private-key="$SSH_KEY" \
+              --ssh-common-args="-o StrictHostKeyChecking=no" \
+              playbook.yml
+          '''
+        }
+      }
+    }
+
+    stage('Verificar el despliegue') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          sh 'chmod 600 $SSH_KEY'
+          sh '''
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker compose -f /tmp/ansible-compose/compose.yaml -p demo-ansible-compose ps"
+            for i in $(seq 1 20); do
+              if ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker compose -f /tmp/ansible-compose/compose.yaml -p demo-ansible-compose logs app" 2>/dev/null | grep -q "app en LXC via Ansible-Compose arrancada"; then
+                echo "app confirmo que la base de datos estaba healthy en LXC"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "app no llego a arrancar a tiempo en LXC"
+            exit 1
+          '''
+        }
+      }
+    }
+  }
+}

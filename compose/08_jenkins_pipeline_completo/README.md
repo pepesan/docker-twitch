@@ -90,6 +90,23 @@ docker login localhost:8084 -u admin -p admin123
 * **`./11_install_docker_lxc.sh`**: Instala y configura Docker Engine dentro del LXC, gestiona certificados mTLS reutilizables, expone la API segura en `2376`, verifica la conexión y recarga Jenkins cuando sea necesario.
 * **`./97_destroy_lxc_docker_node.sh`**: Detiene y elimina por completo el contenedor LXC `jenkins-external-docker` creado para el laboratorio.
 
+#### 📦 Pila de Software y Configuración del Nodo LXC Remoto
+
+El contenedor LXC `jenkins-external-docker` (IP `10.207.154.80`) actúa como nuestro host de producción/despliegue remoto. Para poder ser gestionado desde Jenkins mediante Docker nativo, SSH y Ansible, el script `./11_install_docker_lxc.sh` le instala y configura la siguiente pila de componentes:
+
+1. **Motor de Docker (`docker-ce`, `docker-ce-cli`, `containerd.io`)**: El motor de contenedores base para ejecutar las aplicaciones.
+2. **Docker Compose Plugin (`docker-compose-plugin`)**: Habilita la sintaxis nativa de Docker Compose (utilizado en los despliegues de los ejemplos `55` y `57`).
+3. **API Expuesta por TLS (`tcp://0.0.0.0:2376`)**:
+   * Se configura mediante `/etc/docker/daemon.json` forzando autenticación mutua TLS (`tlsverify: true`).
+   * Se copian los certificados del servidor (`ca.pem`, `server-cert.pem`, `server-key.pem`) en `/etc/docker/` generados dinámicamente en el host.
+   * Se añade un override de systemd en `/etc/systemd/system/docker.service.d/override.conf` para arrancar el demonio escuchando tanto en el socket de UNIX local como en el puerto TCP `2376`.
+4. **Acceso SSH sin Contraseña**:
+   * El servicio `openssh-server` viene preconfigurado en la imagen base.
+   * Se inyecta automáticamente la clave pública generada para Jenkins (`config/ssh/id_ed25519.pub`) en `/root/.ssh/authorized_keys` del contenedor LXC para permitir conexiones automatizadas y seguras de SSH.
+5. **Biblioteca de Docker para Python (`python3-docker`)**:
+   * Instalada vía `apt` dentro del LXC.
+   * Es una **dependencia crítica** requerida por la colección `community.docker` de Ansible para que el módulo `community.docker.docker_container` (ejemplo `56`) pueda interactuar con el demonio local de Docker a través de Python.
+
 #### Ejemplo 61: Agente Docker Efímero Externo
 
 El ejemplo `61_docker_plugin_external` ejecuta el build en un contenedor efímero creado en el motor Docker del LXC, no en el host del Controller:
@@ -227,7 +244,7 @@ Los ejemplos se dividen por bandas temáticas según su complejidad:
 | **20-27** | Agentes y Docker-in-Docker | builds en agentes fijos SSH (`agent1`), contenedores efímeros con `agent { docker }` construidos sobre el built-in o `agent2`, stashes inter-agente y Docker CLI. |
 | **30-33** | Repositorios con Nexus | Conectividad, empuje de imágenes Docker a Nexus, despliegue de artefactos Maven y ciclo completo build-push-deploy con Compose. |
 | **40-47** | Testing, Seguridad y Calidad | Pruebas JUnit, métricas de cobertura JaCoCo, análisis estático con SonarQube, tests unitarios vs integración de Spring Boot, tests de Node.js en Vitest, pruebas E2E multi-navegador con Playwright y escaneos Trivy en paralelo. |
-| **50-53** | Estrategias de Despliegue | Despliegue idempotente con `docker run`, despliegues multicontenedor con DB mediante Docker Compose, gestión multi-entorno (`staging`/`prod`) y rollbacks dinámicos en caso de fallo. |
+| **50-58** | Estrategias de Despliegue | Despliegue idempotente con `docker run`, despliegues multicontenedor con DB mediante Docker Compose, gestión multi-entorno (`staging`/`prod`), rollbacks dinámicos, y despliegues en el servidor LXC externo vía SSH, Ansible (tanto individuales como con Docker Compose) y a nivel de API Docker nativa sobre TLS, usando credenciales secretas enmascaradas. |
 | **60-69** | Integración Docker Plugin | Ejemplos que demuestran la ejecución de builds en **agentes efímeros dynamically provisioned** en la nube de Docker local (`docker-agent-efimero`, ej. `60`) y nube externa LXC (`docker-agent-externo`, ej. `61`). |
 | **90-92** | Escenarios Reales | Checkout de repositorios privados GitLab con credenciales seguras, ciclo completo del backend real Spring Boot y frontend real Astro. |
 

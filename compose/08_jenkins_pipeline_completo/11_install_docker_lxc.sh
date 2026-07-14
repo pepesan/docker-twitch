@@ -9,6 +9,13 @@ cd "$(dirname "$0")"
 NODE_NAME="jenkins-external-docker"
 FIXED_IP="10.207.154.80"
 CERT_DIR="./config/certs"
+SSH_KEY_FILE="./config/ssh/id_ed25519"
+
+if [ ! -f "$SSH_KEY_FILE" ]; then
+  echo "==> Generando clave SSH para Jenkins..."
+  mkdir -p "./config/ssh"
+  ssh-keygen -t ed25519 -N "" -C "jenkins-agent" -f "$SSH_KEY_FILE"
+fi
 
 certificates_are_valid() {
   local required=(ca-key.pem ca.pem cert.pem key.pem server-cert.pem server-key.pem)
@@ -91,12 +98,28 @@ apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plug
 EOF
 fi
 
+# Instalar dependencias de Python para soporte de módulos Ansible de Docker
+if lxc exec "$NODE_NAME" -- sh -c 'dpkg -s python3-docker >/dev/null 2>&1'; then
+  echo "==> python3-docker ya está instalado dentro del LXC."
+else
+  echo "==> Instalando python3-docker dentro del LXC..."
+  lxc exec "$NODE_NAME" -- apt-get update -qq
+  lxc exec "$NODE_NAME" -- apt-get install -y -qq python3-docker
+fi
+
 echo "==> Transfiriendo certificados del servidor al contenedor LXC..."
 lxc exec "$NODE_NAME" -- mkdir -p /etc/docker
 lxc exec "$NODE_NAME" -- bash -c 'cat > /etc/docker/ca.pem' < "$CERT_DIR/ca.pem"
 lxc exec "$NODE_NAME" -- bash -c 'cat > /etc/docker/server-cert.pem' < "$CERT_DIR/server-cert.pem"
 lxc exec "$NODE_NAME" -- bash -c 'cat > /etc/docker/server-key.pem' < "$CERT_DIR/server-key.pem"
 lxc exec "$NODE_NAME" -- chmod 0600 /etc/docker/server-key.pem
+
+echo "==> Configurando clave SSH de Jenkins en el contenedor LXC..."
+lxc exec "$NODE_NAME" -- mkdir -p /root/.ssh
+lxc exec "$NODE_NAME" -- chmod 700 /root/.ssh
+lxc exec "$NODE_NAME" -- bash -c 'cat >> /root/.ssh/authorized_keys' < "${SSH_KEY_FILE}.pub"
+lxc exec "$NODE_NAME" -- chmod 600 /root/.ssh/authorized_keys
+lxc exec "$NODE_NAME" -- bash -c 'sort -u -o /root/.ssh/authorized_keys /root/.ssh/authorized_keys'
 
 echo "==> Configurando Docker con mTLS en tcp://0.0.0.0:2376..."
 lxc exec "$NODE_NAME" -- bash -s <<'EOF'

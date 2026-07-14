@@ -1,0 +1,70 @@
+// Despliegue en LXC externo con Ansible y "docker run".
+// Levanta un contenedor efímero de Alpine como agente, instala Ansible al vuelo
+// para mantener limpio el Jenkins Controller, y ejecuta el playbook.
+// Lee la IP del host LXC desde las credenciales secretas de Jenkins.
+pipeline {
+  agent {
+    docker {
+      image 'alpine:3.20'
+      label 'built-in'
+    }
+  }
+
+  stages {
+    stage('Preparar Entorno y Playbook') {
+      steps {
+        // Instalar ansible, openssh-client y la coleccion community.docker al vuelo
+        sh 'apk add --no-cache ansible openssh-client && ansible-galaxy collection install community.docker'
+
+        writeFile file: 'playbook.yml', text: '''---
+- name: Desplegar contenedor Docker en LXC
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Asegurar despliegue del contenedor con modulo Docker
+      community.docker.docker_container:
+        name: demo-ansible-app
+        image: alpine:3.20
+        state: started
+        recreate: yes
+        command: ["sh", "-c", "i=0; while true; do i=$((i+1)); echo \\"vivo en LXC via Ansible desde hace ${i}0s\\"; sleep 10; done"]
+'''
+      }
+    }
+
+    stage('Desplegar con Ansible') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          // Asegurar permisos de la clave SSH dentro del contenedor
+          sh 'chmod 600 $SSH_KEY'
+          sh '''
+            ansible-playbook -i "$LXC_IP," \
+              -u root \
+              --private-key="$SSH_KEY" \
+              --ssh-common-args="-o StrictHostKeyChecking=no" \
+              playbook.yml
+          '''
+        }
+      }
+    }
+
+    stage('Verificar el despliegue') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'agent-ssh-key', keyFileVariable: 'SSH_KEY'),
+          string(credentialsId: 'lxc-server-ip', variable: 'LXC_IP')
+        ]) {
+          sh 'chmod 600 $SSH_KEY'
+          sh '''
+            sleep 2
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker ps --filter name=demo-ansible-app --format '{{.Names}}\t{{.Status}}'"
+            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@$LXC_IP "docker logs demo-ansible-app"
+          '''
+        }
+      }
+    }
+  }
+}

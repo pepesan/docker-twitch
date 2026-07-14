@@ -100,7 +100,7 @@ run_pipeline() {
     ensure_nexus
   elif [[ $num -eq 47 ]]; then
     ensure_sonar
-  elif [[ $num -eq 61 ]]; then
+  elif [[ $num -eq 61 ]] || [[ $num -ge 54 && $num -le 58 ]]; then
     ensure_external_docker
   else
     ensure_controller
