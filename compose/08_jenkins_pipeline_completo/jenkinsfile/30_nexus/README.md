@@ -1,5 +1,8 @@
 # 30_nexus
 
+**Requiere Nexus levantado y configurado** (`./08_launch_nexus.sh` +
+`./09_setup_nexus.sh` desde la carpeta principal de `compose/`).
+
 Verifica que el controller puede alcanzar Nexus por la red interna de
 Docker Compose (nombre de servicio `nexus`, puerto interno `8081`, no el
 `8083` publicado al host) — paso previo a publicar de verdad artefactos
@@ -14,8 +17,7 @@ Docker Compose (nombre de servicio `nexus`, puerto interno `8081`, no el
 ./04_delete.sh    # lo borra
 ```
 
-**Requiere Nexus levantado y configurado** (`./08_launch_nexus.sh` +
-`./09_setup_nexus.sh` desde la carpeta principal de `compose/`).
+
 
 Resultado esperado: `SUCCESS`.
 
