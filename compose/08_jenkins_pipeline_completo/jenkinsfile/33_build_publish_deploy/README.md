@@ -5,6 +5,8 @@ Cierre de ciclo de la serie 30: construye la imagen real de
 Nexus, y la despliega con `docker compose up`, comprobando que arranca de
 verdad (`/actuator/health`) — puente directo hacia el pipeline real (`90+`).
 
+El despliegue estaría en http://localhost:8085/actuator/health
+
 ## Cómo probarlo
 
 ```shell

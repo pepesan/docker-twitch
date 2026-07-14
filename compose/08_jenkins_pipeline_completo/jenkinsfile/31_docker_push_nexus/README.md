@@ -1,5 +1,9 @@
 # 31_docker_push_nexus
 
+**Requiere Nexus levantado y configurado** (`./08_launch_nexus.sh` +
+`./09_setup_nexus.sh` desde la carpeta principal de `compose/`, que crean
+el repositorio `docker-hosted` y la credencial Jenkins `nexus-creds`).
+
 Build + push de una imagen al registro Docker de Nexus (`docker-hosted`),
 con dos tags: uno de versión concreta (`BUILD_NUMBER`) y `latest`.
 
@@ -12,9 +16,7 @@ con dos tags: uno de versión concreta (`BUILD_NUMBER`) y `latest`.
 ./04_delete.sh    # lo borra
 ```
 
-**Requiere Nexus levantado y configurado** (`./08_launch_nexus.sh` +
-`./09_setup_nexus.sh` desde la carpeta principal de `compose/`, que crean
-el repositorio `docker-hosted` y la credencial Jenkins `nexus-creds`).
+
 
 **Nota sobre redes:** `docker build`/`push`/`login` usan `localhost:8084`
 (pasan por el socket al daemon del host); el `curl` de verificación del
