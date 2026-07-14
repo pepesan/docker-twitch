@@ -1,0 +1,107 @@
+---
+- name: Preparar binario de Promtail en localhost
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Descargar agente Promtail (versión v3.0.0)
+      ansible.builtin.get_url:
+        url: "https://github.com/grafana/loki/releases/download/v3.0.0/promtail-linux-amd64.zip"
+        dest: "/tmp/promtail-linux-amd64.zip"
+        mode: '0644'
+
+    - name: Descomprimir Promtail usando Python (libre de contraseña)
+      ansible.builtin.command:
+        cmd: python3 -c "import zipfile; zipfile.ZipFile('/tmp/promtail-linux-amd64.zip').extractall('/tmp/')"
+        creates: "/tmp/promtail-linux-amd64"
+
+- name: Desplegar Grafana Loki en el servidor Portainer
+  hosts: portainer
+  become: true
+  tasks:
+    - name: Arrancar contenedor de Loki (fuera del Swarm)
+      community.docker.docker_container:
+        name: loki
+        image: grafana/loki:3.0.0
+        state: started
+        restart_policy: always
+        published_ports:
+          - "3100:3100"
+
+    - name: Asegurar aprovisionamiento de origen de datos en Grafana (Loki)
+      ansible.builtin.template:
+        src: templates/grafana/provisioning/grafana-datasource.yml.j2
+        dest: /etc/grafana/provisioning/datasources/prometheus.yml
+        owner: root
+        group: root
+        mode: '0644'
+      register: grafana_datasource_update
+
+    - name: Reiniciar Grafana para aplicar origen de datos Loki
+      community.docker.docker_container:
+        name: grafana
+        image: grafana/grafana:10.4.1
+        state: started
+        restart: "{{ grafana_datasource_update.changed }}"
+
+- name: Desplegar agente Promtail en todos los nodos (Swarm, Balanceadores y Portainer)
+  hosts:
+    - swarm
+    - loadbalancers
+    - portainer
+  become: true
+  tasks:
+    - name: Asegurar directorio de configuración para Promtail
+      ansible.builtin.file:
+        path: /etc/promtail
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Generar configuración de Promtail
+      ansible.builtin.template:
+        src: templates/promtail/promtail-config.yml.j2
+        dest: /etc/promtail/promtail-config.yml
+        owner: root
+        group: root
+        mode: '0644'
+      register: promtail_config
+
+    - name: Copiar binario de Promtail a la máquina de destino
+      ansible.builtin.copy:
+        src: /tmp/promtail-linux-amd64
+        dest: /usr/local/bin/promtail
+        owner: root
+        group: root
+        mode: '0755'
+      register: promtail_binary
+
+    - name: Crear archivo de servicio systemd para Promtail
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/promtail.service
+        content: |
+          [Unit]
+          Description=Promtail log collector agent
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=root
+          ExecStart=/usr/local/bin/promtail -config.file=/etc/promtail/promtail-config.yml
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+        owner: root
+        group: root
+        mode: '0644'
+      register: promtail_service
+
+    - name: Asegurar que Promtail esté iniciado y habilitado
+      ansible.builtin.systemd:
+        name: promtail
+        state: started
+        daemon_reload: true
+        enabled: true

@@ -20,3 +20,6 @@ swarm_service_name: web-demo
 target_node: worker2 # nodo a derribar en 10_probar_caida_nodo.yml; -e target_node=X lo sobrescribe
 portainer_node: portainer-server
 portainer_ip: "{{ hostvars['portainer-server']['ansible_host'] }}"
+
+# IP Virtual (VIP) compartida entre los balanceadores (HAProxy/Keepalived)
+lb_vip: "10.207.154.20"

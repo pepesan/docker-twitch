@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'haproxy'
+    static_configs:
+      - targets:
+{% for host in groups['loadbalancers'] %}
+          - '{{ hostvars[host].ansible_host }}:8404'
+{% endfor %}
+
+  - job_name: 'docker'
+    static_configs:
+      - targets:
+{% for host in groups['swarm'] %}
+          - '{{ hostvars[host].ansible_host }}:9323'
+{% endfor %}
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+{% for host in groups['swarm'] %}
+          - '{{ hostvars[host].ansible_host }}:9100'
+{% endfor %}
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets:
+{% for host in groups['swarm'] %}
+          - '{{ hostvars[host].ansible_host }}:9338'
+{% endfor %}

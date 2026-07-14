@@ -1,6 +1,6 @@
 ---
-# Crea los 6 contenedores LXD del laboratorio (5 del cluster Swarm + el nodo
-# de Portainer) a partir del inventario: cada host define su propia IP fija
+# Crea los 8 contenedores LXD del laboratorio (5 nodos Swarm, Portainer y 2
+# balanceadores) a partir del inventario: cada host define su propia IP fija
 # y sus recursos (lxd_cpu/lxd_mem/lxd_disk) en inventory.ini.
 #
 # community.general.lxd_container ya es idempotente por sí mismo: si el
@@ -47,12 +47,12 @@
         wait_for_ipv4_addresses: true
         timeout: 90
       # groups['cluster'] es la lista de nombres de host del grupo [cluster:children]
-      # definido en inventory.ini (managers + workers + portainer). Ansible la
+      # definido en inventory.ini (managers + workers + portainer + balanceadores). Ansible la
       # rellena solo al leer el inventario, no hace falta declararla en ningún sitio.
       # 'item' toma, en cada vuelta del bucle, uno de esos nombres (p. ej. "worker1"),
       # y 'hostvars[item]' da acceso a las variables de ESE host concreto tal como
       # están escritas en su línea de inventory.ini (ansible_host, lxd_cpu, lxd_mem,
-      # lxd_disk) — así una sola tarea sirve para los 6 nodos, cada uno con su IP y
+      # lxd_disk) — así una sola tarea sirve para los 8 nodos, cada uno con su IP y
       # sus recursos, sin repetir la tarea a mano por nodo.
       loop: "{{ groups['cluster'] }}"
 

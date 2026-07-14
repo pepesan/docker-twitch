@@ -1,0 +1,52 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://{{ portainer_ip }}:3100/loki/api/v1/push
+
+scrape_configs:
+  # Scrape job for system syslog (HAProxy / Keepalived on Load Balancers, general logs on others)
+  - job_name: syslog
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: syslog
+          host: "{{ inventory_hostname }}"
+          __path__: /var/log/syslog
+
+  # Dedicated scrape job for HAProxy specific log file if configured
+  - job_name: haproxy
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: haproxy
+          host: "{{ inventory_hostname }}"
+          __path__: /var/log/haproxy.log
+
+  # Scrape job for Docker container logs on Swarm nodes
+  - job_name: docker
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: docker
+          host: "{{ inventory_hostname }}"
+          __path__: /var/lib/docker/containers/*/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            time: time
+      # Parse container ID from filename to enrich labels if needed
+      # e.g., /var/lib/docker/containers/<container_id>/<container_id>-json.log
+      - regex:
+          expression: "^/var/lib/docker/containers/(?P<container_id>[a-f0-9]+)/.*json.log$"
+          source: filename
+      - labels:
+          container_id:
+      - output:
+          source: output

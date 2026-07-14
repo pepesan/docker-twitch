@@ -1,0 +1,43 @@
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    user haproxy
+    group haproxy
+    daemon
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    timeout connect 5000
+    timeout client  50000
+    timeout server  50000
+
+frontend http_front
+    bind *:80
+    http-request redirect scheme https code 301 unless { ssl_fc }
+
+frontend https_front
+    bind *:443 ssl crt /etc/haproxy/certs/haproxy.pem
+    default_backend http_back
+
+backend http_back
+    balance roundrobin
+    option httpchk GET /
+    {% for host in groups['workers'] %}
+    server {{ host }} {{ hostvars[host].ansible_host }}:8080 check
+    {% endfor %}
+
+listen stats
+    bind *:1936
+    mode http
+    stats enable
+    stats uri /
+    stats refresh 5s
+
+frontend stats_prometheus
+    bind *:8404
+    http-request use-service prometheus-exporter if { path /metrics }

@@ -1,5 +1,5 @@
 ---
-# Borra los 6 contenedores LXD del laboratorio (cluster Swarm + portainer-server).
+# Borra los 8 contenedores LXD del laboratorio (Swarm, Portainer y balanceadores).
 # community.general.lxd_container con state: absent es idempotente: si un
 # nodo ya no existe (por ejemplo porque se relanza el playbook), no falla.
 - name: Destruir el laboratorio
@@ -9,12 +9,15 @@
   tasks:
     - name: Pedir confirmación
       ansible.builtin.pause:
-        prompt: "Esto eliminará los 6 contenedores LXD y todos sus datos. Escribe 'si' para confirmar"
+        prompt: "Esto eliminará los 8 contenedores LXD y todos sus datos. Escribe 'si' para confirmar"
       register: confirm
+      when: not (force | default(false) | bool)
 
     - name: Abortar si no se confirmó
       ansible.builtin.meta: end_play
-      when: confirm.user_input | lower != 'si'
+      when:
+        - not (force | default(false) | bool)
+        - confirm.user_input | lower != 'si'
 
     - name: Eliminar cada contenedor LXD
       community.general.lxd_container:

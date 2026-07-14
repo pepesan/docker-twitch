@@ -1,9 +1,87 @@
 # Laboratorio: cluster Docker Swarm sobre LXD, con Ansible
 
 Misma idea que [`../swarm/`](../swarm/README.md) — un cluster Docker Swarm
-real de 5 nodos (3 managers + 2 workers) más un nodo Portainer, todo sobre
+real de 5 nodos (3 managers + 2 workers) más un nodo Portainer y 2 balanceadores de carga en alta disponibilidad (active-passive), todo sobre
 contenedores LXD — pero orquestado con Ansible en vez de scripts de bash con
 `lxc exec` sueltos. Mismo escenario, mismas IPs, mismos recursos.
+
+## Mapa de Servidores del Laboratorio
+
+### Máquinas
+
+| Máquina / Recurso | Dirección IP | Rol / Función | Recursos (CPU/MEM/Disk) |
+|---|---|---|---|
+| **manager1** | `10.207.154.10` | Líder inicial del cluster Swarm | 2 vCPU / 4 GB / 40 GB |
+| **manager2** | `10.207.154.11` | Manager del cluster Swarm | 2 vCPU / 4 GB / 40 GB |
+| **manager3** | `10.207.154.12` | Manager del cluster Swarm | 2 vCPU / 4 GB / 40 GB |
+| **worker1** | `10.207.154.13` | Worker del cluster Swarm | 4 vCPU / 8 GB / 80 GB |
+| **worker2** | `10.207.154.14` | Worker del cluster Swarm | 4 vCPU / 8 GB / 80 GB |
+| **portainer-server** | `10.207.154.15` | Portainer y pila de observabilidad | 1 vCPU / 2 GB / 20 GB |
+| **lb1** | `10.207.154.16` | HAProxy + Keepalived (MASTER) | 1 vCPU / 2 GB / 20 GB |
+| **lb2** | `10.207.154.17` | HAProxy + Keepalived (BACKUP) | 1 vCPU / 2 GB / 20 GB |
+| **VIP** | `10.207.154.20` | IP flotante de entrada HA | N/A |
+
+### Servicios y accesos
+
+| Servicio | URL / endpoint | Credenciales |
+|---|---|---|
+| Aplicación web HA | `https://10.207.154.20/` | No requiere; certificado autofirmado |
+| Aplicación web HTTP | `http://10.207.154.20/` | No requiere; redirige a HTTPS |
+| Aplicación vía routing mesh | `http://10.207.154.10:8080/` a `http://10.207.154.14:8080/` | No requiere |
+| Portainer | `https://10.207.154.15:9443` | `admin` / `mipass12345678` |
+| Portainer (interfaz legado) | `http://10.207.154.15:9000` | `admin` / `mipass12345678` |
+| Túnel Edge de Portainer | `10.207.154.15:8000` | Endpoint de túnel, no interfaz web |
+| Grafana | `http://10.207.154.15:3000` | `admin` / `mipass12345678` |
+| Prometheus | `http://10.207.154.15:9090` | No requiere |
+| Loki API | `http://10.207.154.15:3100` | No requiere |
+| Estadísticas HAProxy | `http://10.207.154.20:1936/` | No requiere |
+| Métricas HAProxy | `http://10.207.154.16:8404/metrics` y `http://10.207.154.17:8404/metrics` | No requiere |
+| Métricas Docker | `http://10.207.154.10:9323/metrics` a `http://10.207.154.14:9323/metrics` | No requiere |
+| Node Exporter | `http://10.207.154.10:9100/metrics` a `http://10.207.154.14:9100/metrics` | No requiere |
+| cAdvisor | `http://10.207.154.10:9338/metrics` a `http://10.207.154.14:9338/metrics` | No requiere |
+| Promtail | `http://10.207.154.10:9080/metrics` a `http://10.207.154.17:9080/metrics` | No requiere |
+
+### Arquitectura
+
+```text
+                         +-----------------------+
+                         | Client / browser      |
+                         +-----------+-----------+
+                                     |
+                         HTTPS :443 | HTTP :80 -> HTTPS
+                                     |
+                    +----------------v----------------+
+                    | VIP 10.207.154.20               |
+                    +----------------+----------------+
+                                     |
+              +----------------------+----------------------+
+              |                                             |
+  +-----------v-----------+                     +-----------v-----------+
+  | lb1                    |                     | lb2                  |
+  | 10.207.154.16          |                     | 10.207.154.17        |
+  | HAProxy + Keepalived   |<----- VRRP -------->| HAProxy + Keepalived |
+  | MASTER (active)        |                     | BACKUP (standby)     |
+  +-----------+-----------+                     +-----------------------+
+              |
+              | HAProxy -> web-demo :8080
+              |
+  +-----------v-------------------------------------------------------+
+  | Docker Swarm                                                      |
+  | managers: manager1 (.10), manager2 (.11), manager3 (.12)          |
+  | workers:  worker1 (.13), worker2 (.14)                            |
+  | web-demo: 3 replicas; Node Exporter; cAdvisor; Docker metrics     |
+  +-----------+-------------------------------------------------------+
+              | metrics / logs
+              |
+  +-----------v-------------------------------------------------------+
+  | portainer-server 10.207.154.15                                    |
+  | Portainer :9443   Grafana :3000   Prometheus :9090   Loki :3100   |
+  | Prometheus scrapes HAProxy and Swarm metrics                      |
+  | Grafana queries Prometheus and Loki                               |
+  | Promtail on Swarm and load balancers sends logs to Loki           |
+  +-------------------------------------------------------------------+
+```
+
 
 ## Instalación de Ansible en el Host de Control
 
@@ -108,23 +186,11 @@ después funcionó a la primera.
   contenedor ya existente con la misma config no lo destruye ni lo recrea
   (`changed: false`); si cambia algo en `config:`/`devices:`, el módulo
   aplica solo esa diferencia con `PUT` a la API de LXD, sin recrear el
-  contenedor. `state: stopped` / `state: absent` son igual de idempotentes
-  (usados en `10_probar_caida_nodo.yml` y `20_destroy.yml`).
-
-## Nodos del laboratorio
-
-| Host | Rol | IP | vCPU | RAM | Disco |
-|------|-----|-----|------|-----|-------|
-| manager1 | Manager (líder inicial) | 10.207.154.10 | 2 | 4 GB | 40 GB |
-| manager2 | Manager | 10.207.154.11 | 2 | 4 GB | 40 GB |
-| manager3 | Manager | 10.207.154.12 | 2 | 4 GB | 40 GB |
-| worker1 | Worker | 10.207.154.13 | 4 | 8 GB | 80 GB |
-| worker2 | Worker | 10.207.154.14 | 4 | 8 GB | 80 GB |
-| portainer-server | Fuera del Swarm | 10.207.154.15 | 1 | 2 GB | 20 GB |
+  contenedor. `state: stopped` y `state: absent` son igualmente idempotentes.
 
 Todo se define en `inventory.ini` (variables por host: `ansible_host`,
 `lxd_cpu`, `lxd_mem`, `lxd_disk`) y `group_vars/all.yml` (imagen, red,
-módulos de kernel, nombres derivados). `ansible.cfg` e `inventory.ini` viven
+`lb_vip`, módulos de kernel, nombres derivados). `ansible.cfg` e `inventory.ini` viven
 en esta misma carpeta — no se toca `/etc/ansible`.
 
 ## Uso
@@ -156,26 +222,27 @@ Una vez cumplidos los requisitos previos, puedes lanzar la ejecución secuencial
 O playbook a playbook:
 
 ```bash
-ansible-playbook 00_instalar_lxd.yml         # Instala LXD con ZFS local (opcional)
-ansible-playbook 01_crear_imagen_base.yml    # Genera la plantilla de imagen base
 ansible-playbook 02_check_requisitos.yml     # Verifica LXD, imagen y red
-ansible-playbook 03_crear_nodos.yml          # Crea los 6 contenedores LXD
-ansible-playbook 04_instalar_docker.yml      # Instala Docker Engine en los 6
+ansible-playbook 03_crear_nodos.yml          # Crea los 8 contenedores LXD (Swarm + Portainer + LBs)
+ansible-playbook 04_instalar_docker.yml      # Instala Docker Engine en los nodos (excluye balanceadores)
 ansible-playbook 05_swarm_init.yml           # docker swarm init en manager1; guarda los tokens
 ansible-playbook 06_swarm_join_managers.yml  # Une manager2 y manager3
 ansible-playbook 07_swarm_join_workers.yml   # Une worker1 y worker2
 ansible-playbook 08_verificar_cluster.yml    # docker node ls — confirma los 5 nodos Ready
-ansible-playbook 09_desplegar_servicio.yml   # Despliega web-demo solo en workers; prueba el routing mesh
-ansible-playbook 10_probar_caida_nodo.yml    # Derriba un nodo y observa la reprogramación
-ansible-playbook 11_recuperar_cluster.yml         # Reequilibra las réplicas en los workers activos
-ansible-playbook 12_instalar_portainer.yml        # Instala Portainer Server (fuera del cluster)
+ansible-playbook 09_desplegar_servicio.yml   # Despliega web-demo (python:alpine) y expone en workers
+ansible-playbook 10_probar_caida_nodo.yml    # Derriba un nodo de Swarm y observa la reprogramación
+ansible-playbook 11_recuperar_cluster.yml    # Reequilibra las réplicas en los workers activos
+ansible-playbook 12_instalar_portainer.yml   # Instala Portainer Server (fuera del cluster)
 ansible-playbook 13_instalar_agente_portainer.yml # Instala el Agente y registra el cluster en Portainer
+ansible-playbook 14_instalar_haproxy_keepalived.yml # Instala HAProxy + Keepalived (SSL y redirección)
+ansible-playbook 15_probar_caida_balanceador.yml    # Simula caída de lb1 y verifica failover de VIP
+ansible-playbook 16_instalar_monitorizacion.yml     # Levanta Prometheus + Grafana y configura Docker/HAProxy
+ansible-playbook 17_generar_trafico.yml             # Generador de tráfico HTTP asíncrono para llenar métricas
+ansible-playbook 18_instalar_loki_logs.yml          # Agrega Loki y Promtail para la centralización de logs
 ```
 
 Todos los playbooks son idempotentes: se pueden relanzar sin que fallen ni
-dupliquen nada (ver comentarios en cada fichero — `register`/`when` para las
-comprobaciones de estado de Swarm, módulos idempotentes de Ansible para todo
-lo demás).
+dupliquen nada.
 
 ### Probar la caída de un nodo con otro objetivo
 
@@ -183,6 +250,81 @@ lo demás).
 ansible-playbook 10_probar_caida_nodo.yml -e target_node=manager1
 # Con manager1 caído, manager2 o manager3 asumen el liderazgo (2/3 = quórum)
 ```
+
+### Balanceo de Carga con Redundancia y Terminación SSL (HAProxy + Keepalived)
+
+En el paso 14:
+- Se instalan HAProxy y Keepalived en los nodos `lb1` y `lb2`.
+- Se genera un certificado autofirmado en `localhost` y se instala para habilitar **Terminación SSL/TLS** en el puerto `443` de la VIP.
+- Se configura una redirección `301` de HTTP (puerto `80`) a HTTPS (puerto `443`) en la VIP.
+- Keepalived gestiona la VIP `10.207.154.20` mediante **unicast VRRP** (MASTER en `lb1` con prioridad 101, BACKUP en `lb2` con prioridad 100) y monitoriza el proceso de `haproxy`.
+
+### Probar la Caída del Balanceador (Failover de VIP)
+
+Para verificar el comportamiento de alta disponibilidad de la VIP, puedes ejecutar:
+```bash
+ansible-playbook 15_probar_caida_balanceador.yml
+```
+Este playbook:
+1. Verifica que la VIP `10.207.154.20` la tiene asignada `lb1` inicialmente.
+2. Lanza un script de curls continuas a la VIP (cada 100ms) en segundo plano.
+3. Detiene instantáneamente el contenedor `lb1` (`lxc stop lb1 --force`).
+4. Comprueba los códigos de estado HTTP y valida que la conmutación a `lb2` tardó un tiempo mínimo (generalmente < 0.5s, resultando en muy pocas peticiones fallidas).
+5. Vuelve a arrancar `lb1` y verifica que reclama la VIP automáticamente por *preemption*.
+
+### Monitorización del Cluster (Prometheus + Grafana)
+
+Para monitorizar el cluster, puedes ejecutar:
+```bash
+ansible-playbook 16_instalar_monitorizacion.yml
+```
+Este playbook realiza:
+1. **Configuración de Docker**: Desactiva `containerd-snapshotter` (forzando el uso de `overlay2`) en `/etc/docker/daemon.json` en los 5 nodos de Swarm para solucionar los problemas de resolución de nombres de contenedor de cAdvisor, y habilita las métricas experimentales en el puerto `9323`.
+2. **Exposición en HAProxy**: Activa el exportador nativo de Prometheus en el puerto `8404` de los balanceadores.
+3. **Prometheus & Grafana**: Levanta contenedores para Prometheus (puerto `9090`) y Grafana (puerto `3000`) en el nodo externo `portainer-server`.
+4. **Dashboards Aprovisionados**: Se provisionan tres dashboards modernos e independientes:
+   * **`Swarm Cluster & Nodes Overview`**: Estado global de salud, número de réplicas en ejecución y recursos agregados por servicios de Swarm.
+   * **`Container Deep Dive & Troubleshooting`**: Zoom individual de recursos (CPU, RAM) por contenedor y host de destino mediante variables en cascada enlazadas sin puertos rígidos.
+   * **`Node Exporter Host Overview`**: Monitorización pormenorizada del hardware físico de cada máquina.
+5. **Acceso a Grafana**:
+   * **Usuario**: `admin`
+   * **Contraseña**: `mipass12345678`
+
+> [!NOTE]
+> Debido al aislamiento de seguridad de los contenedores LXD sin privilegios (*unprivileged*), los agentes de cAdvisor no pueden saltar el namespace de red ni el ptrace del kernel para leer estadísticas individuales de I/O de disco y Red de contenedores ajenos. Para resolver esto, los paneles globales muestran la actividad agregada mediante las métricas nativas y seguras de Node Exporter y los balanceadores.
+
+### Centralización de Logs (Grafana Loki + Promtail)
+
+Para agregar y visualizar los logs de todo el clúster, puedes ejecutar:
+```bash
+ansible-playbook 18_instalar_loki_logs.yml
+```
+Este playbook realiza:
+1. **Loki Server**: Levanta un contenedor de Grafana Loki (puerto `3100`) de forma centralizada en el servidor `portainer-server`.
+2. **Datasource de Loki**: Aprovisiona automáticamente el origen de datos Loki en Grafana.
+3. **Agentes Promtail**: Copia y configura el agente Promtail como un servicio `systemd` en **todos los nodos del laboratorio**:
+   * **Nodos Swarm**: Recopila los logs de salida estándar de los contenedores Docker (`/var/lib/docker/containers/*/*.log`).
+   * **Balanceadores (`lb1`/`lb2`)**: Recopila los logs de HAProxy y eventos de Keepalived en `/var/log/syslog` y `/var/log/haproxy.log`.
+   * **Servidor Portainer**: Recopila los logs de los contenedores de infraestructura (Prometheus, Grafana y Loki).
+
+#### Búsqueda interactiva de Logs (LogQL)
+Para consultar logs en tiempo real, entra en Grafana > **Explore** y selecciona **Loki** como origen de datos. Ejemplos de filtros:
+* Logs de contenedores Docker: `{job="docker"}`
+* Logs de un contenedor específico: `{job="docker", container_id="<id_contenedor>"}`
+* Logs de HAProxy / Keepalived: `{job="syslog"}` o `{job="haproxy"}`
+* Logs del servidor de monitorización: `{host="portainer-server"}`
+
+### Generador de Tráfico de Carga (HTTP Load Testing)
+
+Para simular tráfico real y poblar de datos de forma abundante las gráficas de HAProxy y Docker Swarm en Grafana, puedes iniciar el generador asíncrono:
+```bash
+ansible-playbook 17_generar_trafico.yml
+```
+Este playbook:
+- Intenta utilizar `ab` (ApacheBench) localmente para enviar 500,000 peticiones concurrentes a la VIP.
+- Si `ab` no está instalado, utiliza un bucle concurrente con `curl`.
+- Se ejecuta **en segundo plano de forma asíncrona** durante 5 minutos para que puedas abrir el panel de Grafana y ver las curvas de conexiones, transferencia de bytes y volumen de respuestas de inmediato.
+- Para detener el tráfico antes de que finalicen los 5 minutos, ejecuta: `killall ab` o `killall curl`.
 
 ### Conectar Portainer al cluster
 
@@ -207,19 +349,19 @@ O si prefieres realizar el proceso paso a paso de forma manual:
 
 ```bash
 # 1. Elimina Portainer Agent y su red overlay del cluster Swarm
-ansible-playbook 18_desinstalar_agente_portainer.yml
+ansible-playbook 28_desinstalar_agente_portainer.yml
 
 # 2. Elimina Portainer Server y su volumen de datos
-ansible-playbook 19_desinstalar_portainer.yml
+ansible-playbook 29_desinstalar_portainer.yml
 
 # 3. Destruye los nodos LXD y limpia tokens
-ansible-playbook 20_destroy.yml
+ansible-playbook 30_destroy.yml
 ```
 
 O si prefieres destruir directamente los nodos LXD sin desinstalar Portainer previamente (por ejemplo, si no necesitas limpiar los volúmenes de Docker de forma ordenada):
 
 ```bash
-ansible-playbook 20_destroy.yml
+ansible-playbook 30_destroy.yml
 ```
 
 Todos estos métodos piden confirmación explícita (escribir `si`) antes de proceder con el borrado.

@@ -8,22 +8,22 @@ and this project adheres to Semantic Versioning.
 ## [Unreleased]
 
 ### Added
-- **Ansible Playbooks for Laboratory Orchestration**: Created a complete set of sequential playbooks (from `00` to `20`) to replace the legacy shell scripts with idempotent and native Ansible tasks.
+- **Ansible Playbooks for Laboratory Orchestration**: Created a complete set of sequential playbooks (from `00` to `30`) to replace the legacy shell scripts with idempotent and native Ansible tasks.
 - **`00_instalar_lxd.yml`**: Automates snap installation and ZFS pool loopback initialization without requiring host-level ZFS utilities.
 - **`01_crear_imagen_base.yml`**: Builds the custom base OS template with pre-configured SSH keys.
 - **`02_check_requisitos.yml`**: Validates local commands, templates, network interface presence, and installs required Galaxy collections.
-- **`03_crear_nodos.yml`**: Deploys the 6 container instances (3 managers, 2 workers, 1 portainer) on LXD.
+- **`03_crear_nodos.yml`**: Deploys the 8 container instances (3 managers, 2 workers, Portainer, and 2 load balancers) on LXD.
 - **`05_swarm_init.yml`**: Boots the initial Swarm cluster and generates worker/manager join tokens.
 - **`06_swarm_join_managers.yml`**: Automatically joins managers to form the 3-node Raft quorum.
 - **`07_swarm_join_workers.yml`**: Joins workers to the Swarm cluster.
 - **`08_verificar_cluster.yml`**: Diagnostics verification tool running `docker node ls` from the leader.
 - **`10_probar_caida_nodo.yml`**: Automated simulation of a node crash (stopping LXD container) to verify rescheduled replica distribution.
 - **`11_recuperar_cluster.yml`**: Automates rebalancing of the `web-demo` service replicas across all active workers after simulated node crash recovery.
-- **`19_desinstalar_portainer.yml`**: Provides clean uninstallation of Portainer Server (container + data volume) and Swarm Portainer Agent (service + overlay network).
-- **`20_destroy.yml`** (renamed from `12`): Safely destroys the LXD lab containers and sweeps tokens on confirmation.
+- **`28_desinstalar_agente_portainer.yml`** and **`29_desinstalar_portainer.yml`**: Provide clean uninstallation of the Swarm Portainer Agent and Portainer Server respectively.
+- **`30_destroy.yml`** (renamed from `12`): Safely destroys the LXD lab containers and sweeps tokens on confirmation.
 - **`13_instalar_agente_portainer.yml`**: Added to deploy the Portainer Swarm Agent and automatically register the Swarm cluster in Portainer Server via REST API calls.
 - **`run_all.sh`**: A master bash orchestration script that runs playbooks sequentially and supports bounds (e.g. `--hasta NN`).
-- **`destroy_all.sh`**: An orchestration script to cleanly uninstall Portainer (19) and destroy all LXD containers (20) sequentially.
+- **`destroy_all.sh`**: An orchestration script to cleanly uninstall Portainer (28–29) and destroy all LXD containers (30) sequentially.
 - **Ansible Installation Guide**: Documented PPA (`deb`) and Python 3 (`pipx`) installation methods for Ubuntu 24.04 and 26.04 in `README.md`, officially recommending `pipx` as Method A and placing PPA as Method B.
 
 ### Changed

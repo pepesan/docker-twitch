@@ -1,0 +1,250 @@
+---
+# Despliega la pila de monitorización (Prometheus + Grafana) en el nodo externo 'portainer-server'.
+# Además:
+# - Configura el Docker Daemon en todos los nodos de Swarm para exportar métricas en el puerto 9323.
+# - Despliega Node Exporter (puerto 9100) y cAdvisor (puerto 9338) como servicios globales en el clúster.
+- name: Configurar métricas del Docker Engine en el Swarm
+  hosts: swarm
+  gather_facts: false
+  tasks:
+    - name: Crear archivo de configuración /etc/docker/daemon.json
+      ansible.builtin.copy:
+        content: |
+          {
+            "metrics-addr" : "0.0.0.0:9323",
+            "experimental" : true,
+            "features": {
+              "containerd-snapshotter": false
+            }
+          }
+        dest: /etc/docker/daemon.json
+        owner: root
+        group: root
+        mode: '0644'
+      register: docker_daemon_json
+
+    - name: Reiniciar Docker Daemon para aplicar métricas
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+      when: docker_daemon_json.changed
+
+- name: Desplegar exportadores globales (Node Exporter y cAdvisor) en Swarm
+  hosts: manager1
+  gather_facts: false
+  tasks:
+    - name: Eliminar servicios antiguos si existen para arrancar limpios
+      community.docker.docker_swarm_service:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - node-exporter
+        - cadvisor
+
+    - name: Desplegar Node Exporter como servicio global en Swarm
+      community.docker.docker_swarm_service:
+        name: node-exporter
+        image: prom/node-exporter:v1.7.0
+        command:
+          - "/bin/node_exporter"
+          - "--path.procfs=/host/proc"
+          - "--path.sysfs=/host/sys"
+          - "--path.rootfs=/rootfs"
+          - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($|/)"
+        mounts:
+          - source: /proc
+            target: /host/proc
+            type: bind
+            readonly: true
+          - source: /sys
+            target: /host/sys
+            type: bind
+            readonly: true
+          - source: /
+            target: /rootfs
+            type: bind
+            readonly: true
+        publish:
+          - published_port: 9100
+            target_port: 9100
+            protocol: tcp
+            mode: host
+        mode: global
+
+    - name: Desplegar cAdvisor como servicio global en Swarm (Optimizado para LXD)
+      community.docker.docker_swarm_service:
+        name: cadvisor
+        image: gcr.io/cadvisor/cadvisor:v0.49.1
+        command:
+          - "/usr/bin/cadvisor"
+          - "--docker_only=true"
+          - "--housekeeping_interval=5s"
+        mounts:
+          - source: /var/run
+            target: /var/run
+            type: bind
+            readonly: true
+          - source: /sys
+            target: /sys
+            type: bind
+            readonly: true
+          - source: /var/lib/docker
+            target: /var/lib/docker
+            type: bind
+            readonly: true
+        publish:
+          - published_port: 9338
+            target_port: 8080
+            protocol: tcp
+            mode: host
+        mode: global
+
+- name: Desplegar Prometheus y Grafana en el nodo Portainer
+  hosts: portainer
+  gather_facts: true
+  tasks:
+    - name: Asegurar directorios de configuración en portainer-server
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      loop:
+        - /etc/prometheus
+        - /etc/grafana/provisioning/datasources
+        - /etc/grafana/provisioning/dashboards
+        - /etc/grafana/dashboards
+
+    - name: Crear archivo de configuración de Prometheus
+      ansible.builtin.template:
+        src: templates/prometheus/prometheus.yml.j2
+        dest: /etc/prometheus/prometheus.yml
+        owner: root
+        group: root
+        mode: '0644'
+      register: prometheus_config
+
+    - name: Crear archivo de aprovisionamiento de Grafana Datasource
+      ansible.builtin.template:
+        src: templates/grafana/provisioning/grafana-datasource.yml.j2
+        dest: /etc/grafana/provisioning/datasources/prometheus.yml
+        owner: root
+        group: root
+        mode: '0644'
+      register: grafana_datasource_config
+
+    - name: Crear archivo de aprovisionamiento de Grafana Dashboards
+      ansible.builtin.template:
+        src: templates/grafana/provisioning/grafana-dashboards.yml.j2
+        dest: /etc/grafana/provisioning/dashboards/dashboards.yml
+        owner: root
+        group: root
+        mode: '0644'
+      register: grafana_dashboards_config
+
+    - name: Copiar Dashboard de HAProxy a Grafana
+      ansible.builtin.copy:
+        src: templates/grafana/dashboards/haproxy_dashboard.json
+        dest: /etc/grafana/dashboards/haproxy_dashboard.json
+        owner: root
+        group: root
+        mode: '0644'
+      register: haproxy_dashboard_json
+
+    - name: Asegurar que los archivos JSON de dashboards antiguos no existen
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/grafana/dashboards/docker_dashboard.json
+        - /etc/grafana/dashboards/docker_overview.json
+      register: old_dashboards_deleted
+
+    - name: Copiar Dashboard de Swarm Cluster & Nodos a Grafana
+      ansible.builtin.copy:
+        src: templates/grafana/dashboards/swarm_cluster_overview.json
+        dest: /etc/grafana/dashboards/swarm_cluster_overview.json
+        owner: root
+        group: root
+        mode: '0644'
+      register: swarm_cluster_overview_json
+
+    - name: Copiar Dashboard de Detalle de Contenedores a Grafana
+      ansible.builtin.copy:
+        src: templates/grafana/dashboards/container_deep_dive.json
+        dest: /etc/grafana/dashboards/container_deep_dive.json
+        owner: root
+        group: root
+        mode: '0644'
+      register: container_deep_dive_json
+
+    - name: Copiar Dashboard de Node Exporter (Hardware de Hosts) a Grafana
+      ansible.builtin.copy:
+        src: templates/grafana/dashboards/node_exporter_overview.json
+        dest: /etc/grafana/dashboards/node_exporter_overview.json
+        owner: root
+        group: root
+        mode: '0644'
+      register: node_exporter_overview_json
+
+    - name: Arrancar contenedor de Prometheus (fuera del Swarm)
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus:v2.51.1
+        state: started
+        restart_policy: always
+        published_ports:
+          - "9090:9090"
+        volumes:
+          - /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        restart: "{{ prometheus_config.changed }}"
+
+    - name: Arrancar contenedor de Grafana (fuera del Swarm)
+      community.docker.docker_container:
+        name: grafana
+        image: grafana/grafana:10.4.1
+        state: started
+        restart_policy: always
+        published_ports:
+          - "3000:3000"
+        env:
+          GF_SECURITY_ADMIN_PASSWORD: mipass12345678
+        volumes:
+          - /etc/grafana/provisioning/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml
+          - /etc/grafana/provisioning/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+          - /etc/grafana/dashboards:/var/lib/grafana/dashboards
+        restart: "{{ grafana_datasource_config.changed or grafana_dashboards_config.changed or haproxy_dashboard_json.changed or swarm_cluster_overview_json.changed or container_deep_dive_json.changed or node_exporter_overview_json.changed or old_dashboards_deleted.changed }}"
+
+- name: Verificar monitorización
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Comprobar que Prometheus responde (puerto 9090)
+      ansible.builtin.uri:
+        url: "http://{{ portainer_ip }}:9090/api/v1/targets"
+        status_code: 200
+        timeout: 5
+      register: prometheus_check
+      until: prometheus_check.status == 200
+      retries: 15
+      delay: 2
+
+    - name: Comprobar que Grafana responde (puerto 3000)
+      ansible.builtin.uri:
+        url: "http://{{ portainer_ip }}:3000/api/health"
+        status_code: 200
+        timeout: 5
+      register: grafana_check
+      until: grafana_check.status == 200
+      retries: 15
+      delay: 2
+
+    - name: Mostrar estado de la monitorización
+      ansible.builtin.debug:
+        msg:
+          - "¡Monitorización desplegada con éxito!"
+          - "Prometheus: http://{{ portainer_ip }}:9090"
+          - "Grafana: http://{{ portainer_ip }}:3000"
+          - "Credenciales de Grafana: admin / mipass12345678"

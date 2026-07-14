@@ -1,0 +1,107 @@
+---
+# Simula la caída del balanceador de carga primario (lb1)
+# y verifica la conmutación de la IP Virtual (VIP) hacia lb2.
+# Al final, vuelve a levantar lb1 y comprueba la recuperación de la VIP.
+- name: Probar conmutación por error (Failover) de los balanceadores
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Verificar que lb1 tiene asignada la VIP en este momento
+      ansible.builtin.command: lxc exec lb1 -- ip addr show eth0
+      register: lb1_initial_check
+      failed_when: "lb_vip not in lb1_initial_check.stdout"
+      changed_when: false
+
+    - name: Lanzar el bucle de peticiones HTTPS y apagar lb1 en mitad del proceso
+      ansible.builtin.shell: |
+        # Borrar logs previos
+        rm -f /tmp/failover_test.log
+        
+        # Lanzar peticiones HTTPS en segundo plano (1 petición cada 100ms durante 5 segundos)
+        (
+          for i in $(seq 1 50); do
+            curl -sk -o /dev/null -w "%{http_code}\n" --connect-timeout 1 https://{{ lb_vip }}/ >> /tmp/failover_test.log
+            sleep 0.1
+          done
+        ) &
+        CURL_PID=$!
+        
+        # Esperar a que empiece a hacer peticiones
+        sleep 1
+        
+        # Detener el contenedor del balanceador primario (simula caída total de hardware)
+        echo "Apagando lb1..."
+        lxc stop lb1 --force
+        
+        # Esperar a que el bucle de curls termine
+        wait $CURL_PID
+      changed_when: true
+
+    - name: Leer los resultados de las peticiones HTTPS
+      ansible.builtin.command: cat /tmp/failover_test.log
+      register: test_results
+      changed_when: false
+
+    - name: Analizar comportamiento de la conmutación
+      vars:
+        codes: "{{ test_results.stdout_lines }}"
+        success_count: "{{ codes | select('equalto', '200') | list | length }}"
+        fail_count: "{{ codes | reject('equalto', '200') | list | length }}"
+      ansible.builtin.debug:
+        msg:
+          - "════════════════════════════════════════════"
+          - " RESULTADOS DEL TEST DE CONMUTACIÓN DE VIP"
+          - "════════════════════════════════════════════"
+          - "Peticiones totales realizadas: {{ codes | length }}"
+          - "Peticiones exitosas (HTTPS 200): {{ success_count }}"
+          - "Peticiones fallidas (cualquier respuesta distinta de 200): {{ fail_count }}"
+          - "════════════════════════════════════════════"
+
+    - name: Validar que el tiempo de inactividad de la VIP fue mínimo
+      vars:
+        codes: "{{ test_results.stdout_lines }}"
+        fail_count: "{{ codes | reject('equalto', '200') | list | length }}"
+      ansible.builtin.assert:
+        that: fail_count | int <= 15
+        fail_msg: "La conmutación tardó demasiado. Hubo {{ fail_count }} fallos (más de 1.5 segundos de caída)."
+        success_msg: "¡Prueba superada! Solo hubo {{ fail_count }} peticiones fallidas durante la conmutación."
+
+    - name: Comprobar que lb2 ha tomado el control de la VIP
+      ansible.builtin.command: lxc exec lb2 -- ip addr show eth0
+      register: lb2_check
+      failed_when: "lb_vip not in lb2_check.stdout"
+      changed_when: false
+
+    - name: Recuperar el balanceador primario (lb1)
+      ansible.builtin.command: lxc start lb1
+      changed_when: true
+
+    - name: Esperar a que SSH esté disponible en lb1
+      ansible.builtin.wait_for:
+        host: "{{ hostvars['lb1'].ansible_host }}"
+        port: 22
+        delay: 2
+        timeout: 60
+
+    - name: Esperar a que Keepalived en lb1 reclame la VIP (Preemption)
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Verificar que la VIP ha retornado a lb1 automáticamente
+      ansible.builtin.command: lxc exec lb1 -- ip addr show eth0
+      register: lb1_final_check
+      failed_when: "lb_vip not in lb1_final_check.stdout"
+      changed_when: false
+
+    - name: Confirmar respuesta HTTPS del cluster a través de la VIP recuperada
+      ansible.builtin.uri:
+        url: "https://{{ lb_vip }}/"
+        status_code: 200
+        validate_certs: false
+        timeout: 5
+      register: final_https
+
+    - name: Mostrar estado final
+      ansible.builtin.debug:
+        msg: "El balanceador lb1 se ha recuperado y ha reclamado la VIP {{ lb_vip }}. El cluster responde HTTPS {{ final_https.status }} correctamente."

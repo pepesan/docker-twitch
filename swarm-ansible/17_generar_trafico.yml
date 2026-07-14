@@ -1,0 +1,76 @@
+---
+# Genera tráfico HTTP constante contra la VIP (10.207.154.20)
+# para ver gráficos y métricas reales en el Dashboard de Grafana.
+#
+# Se ejecuta de forma asíncrona en segundo plano para que el terminal
+# no quede bloqueado y puedas consultar Grafana en tiempo real.
+- name: Generador de carga de red (Tráfico HTTP)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    concurrency: 15
+    duration_seconds: 300 # 5 minutos de tráfico
+  tasks:
+    - name: Comprobar si 'ab' (ApacheBench) está instalado en localhost
+      ansible.builtin.command: which ab
+      register: ab_check
+      failed_when: false
+      changed_when: false
+
+    - name: Instalar apache2-utils si falta y se disponen de privilegios
+      ansible.builtin.apt:
+        name: apache2-utils
+        state: present
+      become: true
+      when: ab_check.rc != 0
+      failed_when: false
+
+    - name: Comprobar de nuevo si 'ab' está disponible
+      ansible.builtin.command: which ab
+      register: ab_final_check
+      failed_when: false
+      changed_when: false
+
+    - name: Lanzar ApacheBench en segundo plano (Asíncrono)
+      ansible.builtin.shell: |
+        # 500,000 peticiones con concurrencia de 15 suele tardar varios minutos.
+        ab -n 500000 -c {{ concurrency }} http://{{ lb_vip }}/ > /tmp/ab_load_test.log 2>&1
+      async: "{{ duration_seconds }}"
+      poll: 0
+      register: ab_job
+      when: ab_final_check.rc == 0
+
+    - name: Lanzar bucle de curls en segundo plano si 'ab' no está disponible
+      ansible.builtin.shell: |
+        (
+          end=$((SECONDS + {{ duration_seconds }}))
+          while [ $SECONDS -lt $end ]; do
+            # Lanzamos 10 peticiones concurrentes en cada iteración rápida
+            for i in {1..10}; do
+              curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 http://{{ lb_vip }}/ &
+            done
+            wait
+            sleep 0.05
+          done
+        ) > /tmp/curl_load_test.log 2>&1
+      async: "{{ duration_seconds }}"
+      poll: 0
+      register: curl_job
+      when: ab_final_check.rc != 0
+
+    - name: Estado del generador
+      ansible.builtin.debug:
+        msg:
+          - "══════════════════════════════════════════════════════════"
+          - " GENERADOR DE TRÁFICO LANZADO EN SEGUNDO PLANO"
+          - "══════════════════════════════════════════════════════════"
+          - "Objetivo: http://{{ lb_vip }}/"
+          - "Duración máxima: {{ duration_seconds }} segundos (5 minutos)"
+          - "Herramienta usada: {{ 'ApacheBench (ab)' if ab_final_check.rc == 0 else 'Curl Multi-loop' }}"
+          - "══════════════════════════════════════════════════════════"
+          - "Abre Grafana y observa cómo suben las gráficas en tiempo real:"
+          - "http://{{ portainer_ip }}:3000"
+          - "══════════════════════════════════════════════════════════"
+          - "Para detener el tráfico antes de tiempo, puedes ejecutar:"
+          - "killall ab  (o  killall curl)"

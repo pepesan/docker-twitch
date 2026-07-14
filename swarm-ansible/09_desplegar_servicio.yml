@@ -14,14 +14,33 @@
     - name: Crear o actualizar el servicio (3 réplicas, solo en workers)
       community.docker.docker_swarm_service:
         name: "{{ swarm_service_name }}"
-        image: nginx:stable-alpine
+        image: python:alpine
+        command:
+          - "python3"
+          - "-c"
+          - |
+            import http.server, os
+            class MyHandler(http.server.BaseHTTPRequestHandler):
+                def address_string(self):
+                    return self.client_address[0]
+                def do_GET(self):
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/plain')
+                    self.end_headers()
+                    node = os.environ.get('NODE_HOSTNAME', 'unknown')
+                    task = os.environ.get('TASK_NAME', 'unknown')
+                    self.wfile.write(f"Running on node: {node} | Container task: {task}\n".encode())
+            http.server.HTTPServer(('0.0.0.0', 8080), MyHandler).serve_forever()
+        env:
+          - "NODE_HOSTNAME={{ '{{.Node.Hostname}}' }}"
+          - "TASK_NAME={{ '{{.Task.Name}}' }}"
         replicas: 3
         placement:
           constraints:
             - node.role == worker
         publish:
           - published_port: 8080
-            target_port: 80
+            target_port: 8080
       register: service_result
 
     - name: Esperar a que las réplicas converjan (realmente en ejecución)
@@ -72,6 +91,9 @@
         timeout: 5
       loop: "{{ groups['swarm'] }}"
       register: mesh_check
+      until: mesh_check.status == 200
+      retries: 10
+      delay: 2
 
     - name: Resultado del routing mesh
       ansible.builtin.debug:

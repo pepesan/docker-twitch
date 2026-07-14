@@ -6,7 +6,7 @@
 # reinstalan ni repiten nada si ya está en el estado deseado — se puede
 # relanzar este playbook las veces que haga falta sin efectos secundarios.
 - name: Instalar Docker Engine en todos los nodos del cluster
-  hosts: cluster
+  hosts: cluster:!loadbalancers
   gather_facts: true
   tasks:
     # NOTA DE DISEÑO / LABORATORIO: Detenemos y deshabilitamos unattended-upgrades y los
