@@ -23,6 +23,12 @@
       community.general.lxd_container:
         name: "{{ item }}"
         state: absent
+        # Fuerza la parada de procesos que impidan apagar el contenedor
+        # (por ejemplo, HAProxy/Keepalived en un balanceador) y concede a
+        # LXD tiempo suficiente para completar la operación de borrado.
+        force_stop: true
+        timeout: 300
+        wait_for_container: true
       loop: "{{ groups['cluster'] }}"
 
     - name: Borrar los tokens de unión guardados
