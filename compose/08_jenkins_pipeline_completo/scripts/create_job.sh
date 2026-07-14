@@ -40,6 +40,12 @@ print(f"""<?xml version='1.1' encoding='UTF-8'?>
 </flow-definition>""")
 PYEOF
 )
+# Verificar si Jenkins responde antes de continuar
+if ! curl -sf -o /dev/null -u "$AUTH" "$JENKINS_URL/api/json"; then
+  echo "Error: No se pudo conectar a Jenkins en $JENKINS_URL (o las credenciales no son válidas)."
+  echo "Asegúrate de que Jenkins esté levantado (puedes iniciarlo con ./01_launch.sh)."
+  exit 1
+fi
 
 COOKIES=$(mktemp)
 trap 'rm -f "$COOKIES"' EXIT

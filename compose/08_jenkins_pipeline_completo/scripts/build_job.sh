@@ -18,6 +18,13 @@ JENKINS_ADMIN_ID="${JENKINS_ADMIN_ID:-admin}"
 JENKINS_ADMIN_PASSWORD="${JENKINS_ADMIN_PASSWORD:-admin}"
 AUTH="$JENKINS_ADMIN_ID:$JENKINS_ADMIN_PASSWORD"
 
+# Verificar si Jenkins responde antes de continuar
+if ! curl -sf -o /dev/null -u "$AUTH" "$JENKINS_URL/api/json"; then
+  echo "Error: No se pudo conectar a Jenkins en $JENKINS_URL (o las credenciales no son válidas)."
+  echo "Asegúrate de que Jenkins esté levantado (puedes iniciarlo con ./01_launch.sh)."
+  exit 1
+fi
+
 COOKIES=$(mktemp)
 trap 'rm -f "$COOKIES"' EXIT
 
