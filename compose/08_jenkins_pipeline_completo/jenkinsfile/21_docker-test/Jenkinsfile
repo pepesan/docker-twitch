@@ -31,10 +31,11 @@ pipeline {
 
     stage('Agente Node en contenedor') {
       agent {
-        docker { image 'node:22'; label 'built-in' }
+        docker { image 'node:26'; label 'built-in' }
       }
       steps {
         sh 'node --version'
+        sh 'npm --version'
       }
     }
   }

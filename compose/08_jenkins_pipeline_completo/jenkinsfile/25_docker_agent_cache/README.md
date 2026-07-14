@@ -14,4 +14,4 @@ builds en vez de descargar las dependencias de cero cada vez.
 ./04_delete.sh    # lo borra
 ```
 
-Resultado verificado: 9s en frío (1er build) vs. 1s con caché (2o build).
+Resultado verificado: el 1er build (en frío) tardará bastante más (ej. 30s-60s) resolviendo y descargando las dependencias de Spring Boot y Spark, mientras que el 2o build (con caché) tardará apenas 1-2s.
