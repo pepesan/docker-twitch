@@ -48,7 +48,7 @@ contenedores LXD — pero orquestado con Ansible en vez de scripts de bash con
                          | Client / browser      |
                          +-----------+-----------+
                                      |
-                         HTTPS :443 | HTTP :80 -> HTTPS
+                          HTTPS :443 | HTTP :80 -> HTTPS
                                      |
                     +----------------v----------------+
                     | VIP 10.207.154.20               |
