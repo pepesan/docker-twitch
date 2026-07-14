@@ -14,6 +14,8 @@ fi
 export AGENT2_SSH_PUBLIC_KEY="$(cat ./config/ssh/id_ed25519_agent2.pub)"
 docker compose -p jenkins_docker_pipeline --profile agent-docker up -d --build
 
+sudo chmod 666 /var/run/docker.sock
+
 echo
 echo "Agente 'agent2' (con Docker) arrancando. La conexión SSH puede tardar"
 echo "unos segundos (varios reintentos automáticos)."
