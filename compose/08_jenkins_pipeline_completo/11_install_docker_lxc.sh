@@ -76,7 +76,7 @@ else
   generate_certificates
 fi
 
-if lxc exec "$NODE_NAME" -- sh -c 'command -v docker >/dev/null 2>&1'; then
+if lxc exec "$NODE_NAME" -- sh -c 'command -v docker >/dev/null 2>&1 || exit 1'; then
   echo "==> Docker ya está instalado dentro del LXC."
 else
   echo "==> Instalando Docker dentro del contenedor LXC..."
