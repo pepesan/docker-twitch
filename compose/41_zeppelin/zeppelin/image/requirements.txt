@@ -1,0 +1,11 @@
+# Librerías Python para las prácticas del curso (ver REQUISITOS.md),
+# instaladas en el entorno conda "python_curso" (Python 3.11) de la imagen
+# Zeppelin del curso — ver ../Dockerfile.
+pandas
+numpy
+openpyxl
+sqlalchemy
+psycopg2-binary
+matplotlib
+seaborn
+scikit-learn

@@ -6,3 +6,6 @@
 
 # Local TLS certificates and private keys for the Jenkins lab
 compose/08_jenkins_pipeline_completo/config/certs/
+
+# Datos runtime del ejemplo de laboratorios Zeppelin/Postgres (curso Python-Auditoría-BBK)
+compose/41_zeppelin/volumes/

@@ -1,0 +1,6 @@
+-- Script de inicialización de la base de datos simulada de auditoría.
+-- Los ficheros .sql de esta carpeta se ejecutan automáticamente al crear
+-- el volumen de datos (docker-entrypoint-initdb.d de la imagen postgres).
+--
+-- Pendiente: crear el esquema y los datos ficticios de operaciones
+-- bancarias que usarán las prácticas de los Módulos 3 y 4.

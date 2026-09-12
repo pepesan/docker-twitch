@@ -1,0 +1,238 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Módulo 1 · Estructura de un notebook Zeppelin\n\n**Objetivo:** identificar las partes de un notebook (celdas de código, Markdown y resultados) y el flujo de trabajo reproducible que se usará durante todo el curso.\n\nAutor: David Vaquero Santiago (pepesan@gmail.com)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-12 09:58:37.342",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eMódulo 1 · Estructura de un notebook Zeppelin\u003c/h1\u003e\n\u003cp\u003e\u003cstrong\u003eObjetivo:\u003c/strong\u003e identificar las partes de un notebook (celdas de código, Markdown y resultados) y el flujo de trabajo reproducible que se usará durante todo el curso.\u003c/p\u003e\n\u003cp\u003eAutor: David Vaquero Santiago (\u003ca href\u003d\"mailto:pepesan@gmail.com\"\u003epepesan@gmail.com\u003c/a\u003e)\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1789206606922_1531152406",
+      "id": "paragraph_1789206440531_1400711180",
+      "dateCreated": "2026-09-12 09:50:06.922",
+      "dateStarted": "2026-09-12 09:58:37.341",
+      "dateFinished": "2026-09-12 09:58:37.348",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 1. Celdas Markdown\n\nEsta celda es de tipo `%md`. Sirve para documentar el análisis: contexto, supuestos, decisiones y conclusiones. Zeppelin la renderiza como texto enriquecido al ejecutarla (`Shift+Enter`).\n\nEn auditoría, estas celdas son las que dejan **evidencia** de qué se hizo y por qué, no solo el código.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e1. Celdas Markdown\u003c/h2\u003e\n\u003cp\u003eEsta celda es de tipo \u003ccode\u003e%md\u003c/code\u003e. Sirve para documentar el análisis: contexto, supuestos, decisiones y conclusiones. Zeppelin la renderiza como texto enriquecido al ejecutarla (\u003ccode\u003eShift+Enter\u003c/code\u003e).\u003c/p\u003e\n\u003cp\u003eEn auditoría, estas celdas son las que dejan \u003cstrong\u003eevidencia\u003c/strong\u003e de qué se hizo y por qué, no solo el código.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1789206606922_471968199",
+      "id": "paragraph_1789206440531_-829106718",
+      "dateCreated": "2026-09-12 09:50:06.922",
+      "dateStarted": "2026-09-12 09:50:07.023",
+      "dateFinished": "2026-09-12 09:50:07.028",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Celda de código: %python es el intérprete que usaremos en todo el curso\nprint(\"Módulo 1 - Python en auditoría\")\nmensaje \u003d \"Cada celda se ejecuta de forma independiente, pero comparte \"\\\n    \"variables con las demás celdas del mismo notebook.\"\nprint(mensaje)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-12 09:58:41.257",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Módulo 1 - Python en auditoría\nCada celda se ejecuta de forma independiente, pero comparte variables con las demás celdas del mismo notebook.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1789206606922_1465300360",
+      "id": "paragraph_1789206440531_855912322",
+      "dateCreated": "2026-09-12 09:50:06.922",
+      "dateStarted": "2026-09-12 09:58:41.259",
+      "dateFinished": "2026-09-12 09:58:41.318",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Las variables definidas en una celda anterior siguen disponibles aquí\nprint(f\"Longitud del mensaje anterior: {len(mensaje)} caracteres\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-12 09:58:45.165",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Longitud del mensaje anterior: 110 caracteres\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1789206606922_586128259",
+      "id": "paragraph_1789206440531_1158490893",
+      "dateCreated": "2026-09-12 09:50:06.922",
+      "dateStarted": "2026-09-12 09:58:45.167",
+      "dateFinished": "2026-09-12 09:58:45.225",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 2. Resultados\n\nDebajo de cada celda de código aparece su **resultado** (salida de `print`, valor devuelto, tablas, gráficos...). Esto permite dejar evidencia de cada paso del análisis sin salir del notebook ni depender de capturas externas.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e2. Resultados\u003c/h2\u003e\n\u003cp\u003eDebajo de cada celda de código aparece su \u003cstrong\u003eresultado\u003c/strong\u003e (salida de \u003ccode\u003eprint\u003c/code\u003e, valor devuelto, tablas, gráficos\u0026hellip;). Esto permite dejar evidencia de cada paso del análisis sin salir del notebook ni depender de capturas externas.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1789206606922_1510760176",
+      "id": "paragraph_1789206440531_-830250173",
+      "dateCreated": "2026-09-12 09:50:06.922",
+      "dateStarted": "2026-09-12 09:50:07.325",
+      "dateFinished": "2026-09-12 09:50:07.329",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 3. Buenas prácticas de documentación\n\n- Usar celdas `%md` para explicar el **porqué** de cada paso, no solo el qué.\n- Ejecutar el notebook de arriba a abajo antes de darlo por bueno (menú *Run all paragraphs*) — garantiza que es reproducible.\n- Guardar evidencia de la ejecución (exportar a HTML/PDF) para el expediente de auditoría.\n- Nombrar los notebooks con un prefijo numérico (`00_`, `01_`...) para que el orden de trabajo quede claro de un vistazo.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e3. Buenas prácticas de documentación\u003c/h2\u003e\n\u003cul\u003e\n\u003cli\u003eUsar celdas \u003ccode\u003e%md\u003c/code\u003e para explicar el \u003cstrong\u003eporqué\u003c/strong\u003e de cada paso, no solo el qué.\u003c/li\u003e\n\u003cli\u003eEjecutar el notebook de arriba a abajo antes de darlo por bueno (menú \u003cem\u003eRun all paragraphs\u003c/em\u003e) — garantiza que es reproducible.\u003c/li\u003e\n\u003cli\u003eGuardar evidencia de la ejecución (exportar a HTML/PDF) para el expediente de auditoría.\u003c/li\u003e\n\u003cli\u003eNombrar los notebooks con un prefijo numérico (\u003ccode\u003e00_\u003c/code\u003e, \u003ccode\u003e01_\u003c/code\u003e\u0026hellip;) para que el orden de trabajo quede claro de un vistazo.\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1789206606922_2088681705",
+      "id": "paragraph_1789206440531_-282842936",
+      "dateCreated": "2026-09-12 09:50:06.922",
+      "dateStarted": "2026-09-12 09:50:07.425",
+      "dateFinished": "2026-09-12 09:50:07.435",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "00_estructura_notebook",
+  "id": "2M1EST0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": false
+  }
+}
