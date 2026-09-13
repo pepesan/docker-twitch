@@ -1,0 +1,288 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Módulo 3 · Práctica: carga y conciliación de fuentes\n\nEste notebook contiene un análisis **parcialmente desarrollado**. Completa las celdas marcadas con `TODO`, documentando en una celda Markdown lo que has hecho en cada sección.\n\nEstructura: 1) carga desde Excel y CSV, 2) carga desde la base de datos, 3) conciliación de fuentes, 4) conclusiones.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h1>Módulo 3 · Práctica: carga y conciliación de fuentes</h1>\n<p>Este notebook contiene un análisis <strong>parcialmente desarrollado</strong>. Completa las celdas marcadas con <code>TODO</code>, documentando en una celda Markdown lo que has hecho en cada sección.</p>\n<p>Estructura: 1) carga desde Excel y CSV, 2) carga desde la base de datos, 3) conciliación de fuentes, 4) conclusiones.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_0",
+      "id": "paragraph_M3PRA0001_0",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:28 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:30 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 1. Carga desde Excel y CSV\n\nDatos de las sucursales (Excel, varias hojas) y del extracto bancario (CSV).",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>1. Carga desde Excel y CSV</h2>\n<p>Datos de las sucursales (Excel, varias hojas) y del extracto bancario (CSV).</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_1",
+      "id": "paragraph_M3PRA0001_1",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:30 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:30 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nimport pandas as pd\n\nruta_excel = \"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/operaciones_sucursales.xlsx\"\nruta_csv = \"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/movimientos_extracto.csv\"\n\nhojas = pd.read_excel(ruta_excel, sheet_name=None)\ndf_sucursales = pd.concat(hojas.values(), ignore_index=True)\ndf_extracto = pd.read_csv(ruta_csv)\n\nprint(f\"Operaciones en sucursales (Excel): {len(df_sucursales)}\")\nprint(f\"Operaciones en el extracto (CSV): {len(df_extracto)}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Operaciones en sucursales (Excel): 6\nOperaciones en el extracto (CSV): 5\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_2",
+      "id": "paragraph_M3PRA0001_2",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:30 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:35 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 2. Carga desde la base de datos\n\n**TODO:** completa `consulta` para traer solo las operaciones del sistema con `importe > 1000`, ordenadas de mayor a menor importe.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>2. Carga desde la base de datos</h2>\n<p><strong>TODO:</strong> completa <code>consulta</code> para traer solo las operaciones del sistema con <code>importe &gt; 1000</code>, ordenadas de mayor a menor importe.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_3",
+      "id": "paragraph_M3PRA0001_3",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:35 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:35 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nfrom sqlalchemy import create_engine\n\n# Dentro de Zeppelin el host de la BBDD es \"db\" (nombre del servicio en compose.yaml);\n# desde un script fuera de Docker se usaría \"localhost\".\nengine = create_engine(\"postgresql+psycopg2://auditor:auditor@db:5432/auditoria\")\n\n# TODO: añade WHERE importe > 1000 ORDER BY importe DESC\nconsulta = \"SELECT * FROM operaciones\"\ndf_sistema = pd.read_sql(consulta, engine)\nprint(df_sistema)",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  id_operacion     cuenta  importe       fecha sucursal\n0       OP-001  ES00-1234   1200.0  2026-01-05    MAD01\n1       OP-002  ES00-5678     75.0  2026-01-06    MAD01\n2       OP-003  ES00-1234   3400.0  2026-01-06    BIL02\n3       OP-004  ES00-9012    980.0  2026-01-07    BIL02\n4       OP-005  ES00-3456  15200.0  2026-01-07    MAD01\n5       OP-006  ES00-5678   2100.0  2026-01-08    BIL02\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_4",
+      "id": "paragraph_M3PRA0001_4",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:35 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 3. Conciliación de fuentes\n\n**TODO:** cruza `df_sistema` y `df_extracto` por `id_operacion` con un `merge` `how=\"outer\"` e `indicator=True`, guardando el resultado en `conciliacion`.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>3. Conciliación de fuentes</h2>\n<p><strong>TODO:</strong> cruza <code>df_sistema</code> y <code>df_extracto</code> por <code>id_operacion</code> con un <code>merge</code> <code>how=&quot;outer&quot;</code> e <code>indicator=True</code>, guardando el resultado en <code>conciliacion</code>.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_5",
+      "id": "paragraph_M3PRA0001_5",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:36 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# TODO: conciliacion = df_sistema.merge(df_extracto, on=\"id_operacion\", how=\"outer\", indicator=True)\nconciliacion = None\n\nif conciliacion is not None:\n    pendientes = conciliacion[conciliacion[\"_merge\"] != \"both\"]\n    print(f\"Operaciones pendientes de conciliar: {len(pendientes)}\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Pendiente de completar (ver TODO de la celda)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_6",
+      "id": "paragraph_M3PRA0001_6",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:36 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 4. Conclusiones\n\n**TODO:** documenta aquí, en 3-4 líneas, qué fuentes conciliaste, cuántas operaciones quedan pendientes de revisar y qué harías a continuación como auditor/a.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>4. Conclusiones</h2>\n<p><strong>TODO:</strong> documenta aquí, en 3-4 líneas, qué fuentes conciliaste, cuántas operaciones quedan pendientes de revisar y qué harías a continuación como auditor/a.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3PRA0001_7",
+      "id": "paragraph_M3PRA0001_7",
+      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
+      "dateStarted": "Sep 13, 2026, 10:34:36 AM",
+      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "01_practica_carga_datos",
+  "id": "M3PRA0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": false
+  },
+  "path": "/ejemplos/03_carga_datos/01_practica_carga_datos"
+}
