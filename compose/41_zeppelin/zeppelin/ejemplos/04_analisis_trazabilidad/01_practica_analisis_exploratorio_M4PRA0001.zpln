@@ -1,0 +1,288 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Módulo 4 · Práctica: análisis exploratorio con trazabilidad\n\nEste notebook contiene un análisis **parcialmente desarrollado**. Completa las celdas marcadas con `TODO`, documentando en una celda Markdown lo que has hecho en cada sección.\n\nEstructura: 1) carga y enriquecimiento, 2) limpieza de duplicados y nulos, 3) detección de valores atípicos, 4) conclusiones.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h1>Módulo 4 · Práctica: análisis exploratorio con trazabilidad</h1>\n<p>Este notebook contiene un análisis <strong>parcialmente desarrollado</strong>. Completa las celdas marcadas con <code>TODO</code>, documentando en una celda Markdown lo que has hecho en cada sección.</p>\n<p>Estructura: 1) carga y enriquecimiento, 2) limpieza de duplicados y nulos, 3) detección de valores atípicos, 4) conclusiones.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_0",
+      "id": "paragraph_M4PRA0001_0",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:31:54 AM",
+      "dateFinished": "Sep 13, 2026, 11:31:56 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 1. Carga y enriquecimiento\n\nOperaciones de auditoría, unidas con los datos de sucursal (Excel/CSV ya cargados como CSV aquí).",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>1. Carga y enriquecimiento</h2>\n<p>Operaciones de auditoría, unidas con los datos de sucursal (Excel/CSV ya cargados como CSV aquí).</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_1",
+      "id": "paragraph_M4PRA0001_1",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:31:57 AM",
+      "dateFinished": "Sep 13, 2026, 11:31:57 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nimport pandas as pd\n\nruta_operaciones = \"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\"\nruta_sucursales = \"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/sucursales.csv\"\n\ndf = pd.read_csv(ruta_operaciones)\ndf[\"fecha\"] = pd.to_datetime(df[\"fecha\"])\nsucursales = pd.read_csv(ruta_sucursales)\ndf = df.merge(sucursales, on=\"sucursal\", how=\"left\")\n\nprint(f\"Operaciones cargadas: {len(df)}\")\nprint(df[[\"id_operacion\", \"cuenta\", \"importe\", \"ciudad\"]])",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Operaciones cargadas: 11\n   id_operacion     cuenta  importe  ciudad\n0        OP-101  ES00-1234   1200.0  Madrid\n1        OP-102  ES00-5678     75.0  Madrid\n2        OP-103  ES00-9012   3400.0  Bilbao\n3        OP-104        NaN    980.0  Bilbao\n4        OP-105  ES00-3456  15200.0  Madrid\n5        OP-105  ES00-3456  15200.0  Madrid\n6        OP-106  ES00-1234    640.0  Bilbao\n7        OP-107  ES00-7890      NaN  Madrid\n8        OP-108  ES00-5678    210.0  Bilbao\n9        OP-109  ES00-9012  88000.0  Madrid\n10       OP-110  ES00-1234   1500.0  Bilbao\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_2",
+      "id": "paragraph_M4PRA0001_2",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:31:57 AM",
+      "dateFinished": "Sep 13, 2026, 11:32:01 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 2. Limpieza: duplicados y valores perdidos\n\n**TODO:** completa `limpiar()` para eliminar operaciones duplicadas por `id_operacion` (quedándote con la primera) y rellenar `cuenta` con `\"PENDIENTE_REVISION\"` e `importe` con `0.0` cuando falten.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>2. Limpieza: duplicados y valores perdidos</h2>\n<p><strong>TODO:</strong> completa <code>limpiar()</code> para eliminar operaciones duplicadas por <code>id_operacion</code> (quedándote con la primera) y rellenar <code>cuenta</code> con <code>&quot;PENDIENTE_REVISION&quot;</code> e <code>importe</code> con <code>0.0</code> cuando falten.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_3",
+      "id": "paragraph_M4PRA0001_3",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:32:01 AM",
+      "dateFinished": "Sep 13, 2026, 11:32:01 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\ndef limpiar(df):\n    # TODO: quita duplicados por id_operacion (keep=\"first\") y rellena\n    # cuenta/importe como se describe arriba.\n    return df\n\n\ndf_limpio = limpiar(df)\nprint(f\"Operaciones antes de limpiar: {len(df)}, después: {len(df_limpio)}\")\nprint(f\"Valores nulos restantes:\\n{df_limpio[['cuenta', 'importe']].isna().sum()}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Operaciones antes de limpiar: 11, después: 11\nValores nulos restantes:\ncuenta     1\nimporte    1\ndtype: int64\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_4",
+      "id": "paragraph_M4PRA0001_4",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:32:01 AM",
+      "dateFinished": "Sep 13, 2026, 11:32:01 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 3. Detección de valores atípicos\n\n**TODO:** completa `detectar_outliers()` calculando el límite superior por el método IQR (Q3 + 1.5 × IQR) sobre `importe` y devolviendo las filas de `df_limpio` que lo superan.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>3. Detección de valores atípicos</h2>\n<p><strong>TODO:</strong> completa <code>detectar_outliers()</code> calculando el límite superior por el método IQR (Q3 + 1.5 × IQR) sobre <code>importe</code> y devolviendo las filas de <code>df_limpio</code> que lo superan.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_5",
+      "id": "paragraph_M4PRA0001_5",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:32:01 AM",
+      "dateFinished": "Sep 13, 2026, 11:32:01 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\ndef detectar_outliers(df):\n    # TODO: calcula q1, q3, iqr y limite_superior; devuelve df[df[\"importe\"] > limite_superior]\n    return df.iloc[0:0]\n\n\noutliers = detectar_outliers(df_limpio)\nprint(f\"Operaciones atípicas detectadas: {len(outliers)}\")\nprint(outliers[[\"id_operacion\", \"importe\"]] if len(outliers) else \"Pendiente de completar (ver TODO de la celda)\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Operaciones atípicas detectadas: 0\nPendiente de completar (ver TODO de la celda)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_6",
+      "id": "paragraph_M4PRA0001_6",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:32:01 AM",
+      "dateFinished": "Sep 13, 2026, 11:32:01 AM",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 4. Conclusiones\n\n**TODO:** documenta aquí, en 3-4 líneas, cuántas operaciones se limpiaron, cuántos valores atípicos se detectaron y qué harías a continuación como auditor/a.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h2>4. Conclusiones</h2>\n<p><strong>TODO:</strong> documenta aquí, en 3-4 líneas, cuántas operaciones se limpiaron, cuántos valores atípicos se detectaron y qué harías a continuación como auditor/a.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4PRA0001_7",
+      "id": "paragraph_M4PRA0001_7",
+      "dateCreated": "Sep 13, 2026, 1:31:18 PM",
+      "dateStarted": "Sep 13, 2026, 11:32:02 AM",
+      "dateFinished": "Sep 13, 2026, 11:32:02 AM",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "01_practica_analisis_exploratorio",
+  "id": "M4PRA0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": false
+  },
+  "path": "/ejemplos/04_analisis_trazabilidad/01_practica_analisis_exploratorio"
+}
