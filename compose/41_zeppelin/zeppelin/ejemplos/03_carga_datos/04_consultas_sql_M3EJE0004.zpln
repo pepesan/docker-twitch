@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: consultas SQL básicas\n\nEquivalente a `ejemplos-python/src/modulo_03/04_consultas_sql.py`. Filtrar/ordenar con `WHERE`/`ORDER BY` y agregar con `GROUP BY` desde Pandas.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:41:28.190",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: consultas SQL básicas\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_03/04_consultas_sql.py\u003c/code\u003e. Filtrar/ordenar con \u003ccode\u003eWHERE\u003c/code\u003e/\u003ccode\u003eORDER BY\u003c/code\u003e y agregar con \u003ccode\u003eGROUP BY\u003c/code\u003e desde Pandas.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0004_0",
+      "id": "paragraph_M3EJE0004_0",
+      "dateCreated": "2026-09-15 20:31:53.436",
+      "dateStarted": "2026-09-15 20:41:28.192",
+      "dateFinished": "2026-09-15 20:41:28.196",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 3: consultas SQL básicas\n# (equivalente a ejemplos-python/src/modulo_03/04_consultas_sql.py)\nimport pandas as pd\nfrom sqlalchemy import create_engine\n\nengine \u003d create_engine(\"postgresql+psycopg2://auditor:auditor@db:5432/auditoria\")\n\naltas \u003d pd.read_sql(\n    \"SELECT * FROM operaciones WHERE importe \u003e 1000 ORDER BY importe DESC\", engine\n)\nprint(altas)\n\nresumen \u003d pd.read_sql(\n    \"SELECT sucursal, COUNT(*) AS num_operaciones, SUM(importe) AS total \"\n    \"FROM operaciones GROUP BY sucursal\",\n    engine,\n)\nprint(resumen)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:41:28.293",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  id_operacion     cuenta  importe       fecha sucursal\n0       OP-005  ES00-3456  15200.0  2026-01-07    MAD01\n1       OP-003  ES00-1234   3400.0  2026-01-06    BIL02\n2       OP-006  ES00-5678   2100.0  2026-01-08    BIL02\n3       OP-001  ES00-1234   1200.0  2026-01-05    MAD01\n  sucursal  num_operaciones    total\n0    MAD01                3  16475.0\n1    BIL02                3   6480.0\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0004_1",
+      "id": "paragraph_M3EJE0004_1",
+      "dateCreated": "2026-09-15 20:31:53.436",
+      "dateStarted": "2026-09-15 20:41:28.295",
+      "dateFinished": "2026-09-15 20:41:28.786",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "04_consultas_sql",
+  "id": "M3EJE0004",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "startTime": "2026-09-15_20-31-53",
+    "isRunning": true
+  }
+}

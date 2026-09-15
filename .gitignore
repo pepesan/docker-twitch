@@ -9,3 +9,7 @@ compose/08_jenkins_pipeline_completo/config/certs/
 
 # Datos runtime del ejemplo de laboratorios Zeppelin/Postgres (curso Python-Auditoría-BBK)
 compose/41_zeppelin/volumes/
+
+# Evidencia generada al ejecutar el notebook 09_documentacion_evidencias del Módulo 4
+# (artefacto de salida, no dato de entrada fijo)
+compose/41_zeppelin/zeppelin/ejemplos/04_analisis_trazabilidad/data/evidencia_analisis.csv

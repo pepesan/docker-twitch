@@ -1,0 +1,91 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: rango intercuartílico (IQR)\n\nEquivalente a `ejemplos-python/src/modulo_04/07_deteccion_outliers.py`. Cálculo de Q1/Q3/IQR y detección de valores atípicos por encima del límite superior.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: rango intercuartílico (IQR)\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_04/07_deteccion_outliers.py\u003c/code\u003e. Cálculo de Q1/Q3/IQR y detección de valores atípicos por encima del límite superior.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0007_0",
+      "id": "paragraph_M4EJE0007_0",
+      "dateCreated": "2026-09-15 20:39:18.726",
+      "dateStarted": "2026-09-15 20:39:18.728",
+      "dateFinished": "2026-09-15 20:39:20.444",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 4: rango intercuartílico (IQR)\n# (equivalente a ejemplos-python/src/modulo_04/07_deteccion_outliers.py)\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\")\nimportes \u003d df[\"importe\"].dropna()\n\nq1 \u003d importes.quantile(0.25)\nq3 \u003d importes.quantile(0.75)\niqr \u003d q3 - q1\nlimite_superior \u003d q3 + 1.5 * iqr\n\noutliers \u003d df[df[\"importe\"] \u003e limite_superior]\nprint(f\"Q1\u003d{q1}, Q3\u003d{q3}, IQR\u003d{iqr}, límite superior\u003d{limite_superior}\")\nprint(outliers[[\"id_operacion\", \"importe\"]])",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Q1\u003d725.0, Q3\u003d12250.0, IQR\u003d11525.0, límite superior\u003d29537.5\n  id_operacion  importe\n9       OP-109  88000.0\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0007_1",
+      "id": "paragraph_M4EJE0007_1",
+      "dateCreated": "2026-09-15 20:39:18.726",
+      "dateStarted": "2026-09-15 20:39:20.530",
+      "dateFinished": "2026-09-15 20:39:24.031",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "07_deteccion_outliers",
+  "id": "M4EJE0007",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-39-18"
+  }
+}

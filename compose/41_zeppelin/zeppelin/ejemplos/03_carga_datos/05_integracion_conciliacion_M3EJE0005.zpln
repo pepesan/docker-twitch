@@ -1,0 +1,91 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: integración y conciliación de fuentes\n\nEquivalente a `ejemplos-python/src/modulo_03/05_integracion_conciliacion.py`. `merge(..., how\u003d\"outer\", indicator\u003dTrue)` para saber qué operaciones están en cada fuente.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: integración y conciliación de fuentes\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_03/05_integracion_conciliacion.py\u003c/code\u003e. \u003ccode\u003emerge(..., how\u003d\u0026quot;outer\u0026quot;, indicator\u003dTrue)\u003c/code\u003e para saber qué operaciones están en cada fuente.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0005_0",
+      "id": "paragraph_M3EJE0005_0",
+      "dateCreated": "2026-09-15 20:31:53.466",
+      "dateStarted": "2026-09-15 20:31:53.468",
+      "dateFinished": "2026-09-15 20:31:55.105",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 3: integración y conciliación de fuentes\n# (equivalente a ejemplos-python/src/modulo_03/05_integracion_conciliacion.py)\nimport pandas as pd\nfrom sqlalchemy import create_engine\n\nengine \u003d create_engine(\"postgresql+psycopg2://auditor:auditor@db:5432/auditoria\")\ndf_sistema \u003d pd.read_sql(\"SELECT id_operacion, importe FROM operaciones\", engine)\ndf_extracto \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/movimientos_extracto.csv\")\n\nconciliacion \u003d df_sistema.merge(\n    df_extracto, on\u003d\"id_operacion\", how\u003d\"outer\", indicator\u003dTrue\n)\nprint(conciliacion)\n\nsolo_extracto \u003d conciliacion[conciliacion[\"_merge\"] \u003d\u003d \"right_only\"]\nsolo_sistema \u003d conciliacion[conciliacion[\"_merge\"] \u003d\u003d \"left_only\"]\nprint(f\"Operaciones solo en el extracto (no registradas en el sistema): {len(solo_extracto)}\")\nprint(f\"Operaciones solo en el sistema (no aparecen en el extracto): {len(solo_sistema)}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  id_operacion  importe  importe_banco fecha_valor      _merge\n0       OP-001   1200.0         1200.0  05/01/2026        both\n1       OP-002     75.0           75.0  06/01/2026        both\n2       OP-003   3400.0         3400.0  07/01/2026        both\n3       OP-004    980.0          980.0  07/01/2026        both\n4       OP-005  15200.0            NaN         NaN   left_only\n5       OP-006   2100.0            NaN         NaN   left_only\n6       OP-007      NaN          500.0  08/01/2026  right_only\nOperaciones solo en el extracto (no registradas en el sistema): 1\nOperaciones solo en el sistema (no aparecen en el extracto): 2\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0005_1",
+      "id": "paragraph_M3EJE0005_1",
+      "dateCreated": "2026-09-15 20:31:53.466",
+      "dateStarted": "2026-09-15 20:31:55.171",
+      "dateFinished": "2026-09-15 20:31:59.122",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "05_integracion_conciliacion",
+  "id": "M3EJE0005",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-31-53"
+  }
+}
