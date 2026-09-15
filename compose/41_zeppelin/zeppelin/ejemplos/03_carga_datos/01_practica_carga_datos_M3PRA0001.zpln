@@ -3,13 +3,18 @@
     {
       "text": "%md\n# Módulo 3 · Práctica: carga y conciliación de fuentes\n\nEste notebook contiene un análisis **parcialmente desarrollado**. Completa las celdas marcadas con `TODO`, documentando en una celda Markdown lo que has hecho en cada sección.\n\nEstructura: 1) carga desde Excel y CSV, 2) carga desde la base de datos, 3) conciliación de fuentes, 4) conclusiones.",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:25.254",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -20,7 +25,7 @@
         "msg": [
           {
             "type": "HTML",
-            "data": "<div class=\"markdown-body\">\n<h1>Módulo 3 · Práctica: carga y conciliación de fuentes</h1>\n<p>Este notebook contiene un análisis <strong>parcialmente desarrollado</strong>. Completa las celdas marcadas con <code>TODO</code>, documentando en una celda Markdown lo que has hecho en cada sección.</p>\n<p>Estructura: 1) carga desde Excel y CSV, 2) carga desde la base de datos, 3) conciliación de fuentes, 4) conclusiones.</p>\n\n</div>"
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eMódulo 3 · Práctica: carga y conciliación de fuentes\u003c/h1\u003e\n\u003cp\u003eEste notebook contiene un análisis \u003cstrong\u003eparcialmente desarrollado\u003c/strong\u003e. Completa las celdas marcadas con \u003ccode\u003eTODO\u003c/code\u003e, documentando en una celda Markdown lo que has hecho en cada sección.\u003c/p\u003e\n\u003cp\u003eEstructura: 1) carga desde Excel y CSV, 2) carga desde la base de datos, 3) conciliación de fuentes, 4) conclusiones.\u003c/p\u003e\n\n\u003c/div\u003e"
           }
         ]
       },
@@ -29,21 +34,26 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_0",
       "id": "paragraph_M3PRA0001_0",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:28 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:30 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:25.273",
+      "dateFinished": "2026-09-15 20:13:27.055",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 1. Carga desde Excel y CSV\n\nDatos de las sucursales (Excel, varias hojas) y del extracto bancario (CSV).",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:27.075",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -54,7 +64,7 @@
         "msg": [
           {
             "type": "HTML",
-            "data": "<div class=\"markdown-body\">\n<h2>1. Carga desde Excel y CSV</h2>\n<p>Datos de las sucursales (Excel, varias hojas) y del extracto bancario (CSV).</p>\n\n</div>"
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e1. Carga desde Excel y CSV\u003c/h2\u003e\n\u003cp\u003eDatos de las sucursales (Excel, varias hojas) y del extracto bancario (CSV).\u003c/p\u003e\n\n\u003c/div\u003e"
           }
         ]
       },
@@ -63,20 +73,26 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_1",
       "id": "paragraph_M3PRA0001_1",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:30 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:30 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:27.078",
+      "dateFinished": "2026-09-15 20:13:27.083",
       "status": "FINISHED"
     },
     {
-      "text": "%python\nimport pandas as pd\n\nruta_excel = \"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/operaciones_sucursales.xlsx\"\nruta_csv = \"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/movimientos_extracto.csv\"\n\nhojas = pd.read_excel(ruta_excel, sheet_name=None)\ndf_sucursales = pd.concat(hojas.values(), ignore_index=True)\ndf_extracto = pd.read_csv(ruta_csv)\n\nprint(f\"Operaciones en sucursales (Excel): {len(df_sucursales)}\")\nprint(f\"Operaciones en el extracto (CSV): {len(df_extracto)}\")",
+      "text": "%python\nimport pandas as pd\n\nruta_excel \u003d \"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/operaciones_sucursales.xlsx\"\nruta_csv \u003d \"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/movimientos_extracto.csv\"\n\nhojas \u003d pd.read_excel(ruta_excel, sheet_name\u003dNone)\ndf_sucursales \u003d pd.concat(hojas.values(), ignore_index\u003dTrue)\ndf_extracto \u003d pd.read_csv(ruta_csv)\n\nprint(f\"Operaciones en sucursales (Excel): {len(df_sucursales)}\")\nprint(f\"Operaciones en el extracto (CSV): {len(df_extracto)}\")",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:27.178",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "python",
-          "editOnDblClick": false
-        }
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -96,21 +112,26 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_2",
       "id": "paragraph_M3PRA0001_2",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:30 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:35 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:27.183",
+      "dateFinished": "2026-09-15 20:13:30.778",
       "status": "FINISHED"
     },
     {
-      "text": "%md\n## 2. Carga desde la base de datos\n\n**TODO:** completa `consulta` para traer solo las operaciones del sistema con `importe > 1000`, ordenadas de mayor a menor importe.",
+      "text": "%md\n## 2. Carga desde la base de datos\n\n**TODO:** completa `consulta` para traer solo las operaciones del sistema con `importe \u003e 1000`, ordenadas de mayor a menor importe.",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:30.786",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -121,7 +142,7 @@
         "msg": [
           {
             "type": "HTML",
-            "data": "<div class=\"markdown-body\">\n<h2>2. Carga desde la base de datos</h2>\n<p><strong>TODO:</strong> completa <code>consulta</code> para traer solo las operaciones del sistema con <code>importe &gt; 1000</code>, ordenadas de mayor a menor importe.</p>\n\n</div>"
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e2. Carga desde la base de datos\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e completa \u003ccode\u003econsulta\u003c/code\u003e para traer solo las operaciones del sistema con \u003ccode\u003eimporte \u0026gt; 1000\u003c/code\u003e, ordenadas de mayor a menor importe.\u003c/p\u003e\n\n\u003c/div\u003e"
           }
         ]
       },
@@ -130,20 +151,26 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_3",
       "id": "paragraph_M3PRA0001_3",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:35 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:35 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:30.788",
+      "dateFinished": "2026-09-15 20:13:30.796",
       "status": "FINISHED"
     },
     {
-      "text": "%python\nfrom sqlalchemy import create_engine\n\n# Dentro de Zeppelin el host de la BBDD es \"db\" (nombre del servicio en compose.yaml);\n# desde un script fuera de Docker se usaría \"localhost\".\nengine = create_engine(\"postgresql+psycopg2://auditor:auditor@db:5432/auditoria\")\n\n# TODO: añade WHERE importe > 1000 ORDER BY importe DESC\nconsulta = \"SELECT * FROM operaciones\"\ndf_sistema = pd.read_sql(consulta, engine)\nprint(df_sistema)",
+      "text": "%python\nfrom sqlalchemy import create_engine\n\n# Dentro de Zeppelin el host de la BBDD es \"db\" (nombre del servicio en compose.yaml);\n# desde un script fuera de Docker se usaría \"localhost\".\nengine \u003d create_engine(\"postgresql+psycopg2://auditor:auditor@db:5432/auditoria\")\n\n# TODO: añade WHERE importe \u003e 1000 ORDER BY importe DESC\nconsulta \u003d \"SELECT * FROM operaciones\"\ndf_sistema \u003d pd.read_sql(consulta, engine)\nprint(df_sistema)",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:30.888",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "python",
-          "editOnDblClick": false
-        }
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -163,21 +190,26 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_4",
       "id": "paragraph_M3PRA0001_4",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:35 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:30.890",
+      "dateFinished": "2026-09-15 20:13:31.354",
       "status": "FINISHED"
     },
     {
-      "text": "%md\n## 3. Conciliación de fuentes\n\n**TODO:** cruza `df_sistema` y `df_extracto` por `id_operacion` con un `merge` `how=\"outer\"` e `indicator=True`, guardando el resultado en `conciliacion`.",
+      "text": "%md\n## 3. Conciliación de fuentes\n\n**TODO:** cruza `df_sistema` y `df_extracto` por `id_operacion` con un `merge` `how\u003d\"outer\"` e `indicator\u003dTrue`, guardando el resultado en `conciliacion`.",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:31.391",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -188,7 +220,7 @@
         "msg": [
           {
             "type": "HTML",
-            "data": "<div class=\"markdown-body\">\n<h2>3. Conciliación de fuentes</h2>\n<p><strong>TODO:</strong> cruza <code>df_sistema</code> y <code>df_extracto</code> por <code>id_operacion</code> con un <code>merge</code> <code>how=&quot;outer&quot;</code> e <code>indicator=True</code>, guardando el resultado en <code>conciliacion</code>.</p>\n\n</div>"
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e3. Conciliación de fuentes\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e cruza \u003ccode\u003edf_sistema\u003c/code\u003e y \u003ccode\u003edf_extracto\u003c/code\u003e por \u003ccode\u003eid_operacion\u003c/code\u003e con un \u003ccode\u003emerge\u003c/code\u003e \u003ccode\u003ehow\u003d\u0026quot;outer\u0026quot;\u003c/code\u003e e \u003ccode\u003eindicator\u003dTrue\u003c/code\u003e, guardando el resultado en \u003ccode\u003econciliacion\u003c/code\u003e.\u003c/p\u003e\n\n\u003c/div\u003e"
           }
         ]
       },
@@ -197,20 +229,26 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_5",
       "id": "paragraph_M3PRA0001_5",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:36 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:31.394",
+      "dateFinished": "2026-09-15 20:13:31.402",
       "status": "FINISHED"
     },
     {
-      "text": "%python\n# TODO: conciliacion = df_sistema.merge(df_extracto, on=\"id_operacion\", how=\"outer\", indicator=True)\nconciliacion = None\n\nif conciliacion is not None:\n    pendientes = conciliacion[conciliacion[\"_merge\"] != \"both\"]\n    print(f\"Operaciones pendientes de conciliar: {len(pendientes)}\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
+      "text": "%python\n# TODO: conciliacion \u003d df_sistema.merge(df_extracto, on\u003d\"id_operacion\", how\u003d\"outer\", indicator\u003dTrue)\nconciliacion \u003d None\n\nif conciliacion is not None:\n    pendientes \u003d conciliacion[conciliacion[\"_merge\"] !\u003d \"both\"]\n    print(f\"Operaciones pendientes de conciliar: {len(pendientes)}\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:31.494",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "python",
-          "editOnDblClick": false
-        }
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -230,21 +268,26 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_6",
       "id": "paragraph_M3PRA0001_6",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:36 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:31.498",
+      "dateFinished": "2026-09-15 20:13:31.504",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 4. Conclusiones\n\n**TODO:** documenta aquí, en 3-4 líneas, qué fuentes conciliaste, cuántas operaciones quedan pendientes de revisar y qué harías a continuación como auditor/a.",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:13:31.598",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -255,7 +298,7 @@
         "msg": [
           {
             "type": "HTML",
-            "data": "<div class=\"markdown-body\">\n<h2>4. Conclusiones</h2>\n<p><strong>TODO:</strong> documenta aquí, en 3-4 líneas, qué fuentes conciliaste, cuántas operaciones quedan pendientes de revisar y qué harías a continuación como auditor/a.</p>\n\n</div>"
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e4. Conclusiones\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e documenta aquí, en 3-4 líneas, qué fuentes conciliaste, cuántas operaciones quedan pendientes de revisar y qué harías a continuación como auditor/a.\u003c/p\u003e\n\n\u003c/div\u003e"
           }
         ]
       },
@@ -264,9 +307,9 @@
       "progressUpdateIntervalMs": 500,
       "jobName": "paragraph_M3PRA0001_7",
       "id": "paragraph_M3PRA0001_7",
-      "dateCreated": "Sep 13, 2026, 12:34:10 PM",
-      "dateStarted": "Sep 13, 2026, 10:34:36 AM",
-      "dateFinished": "Sep 13, 2026, 10:34:36 AM",
+      "dateCreated": "2026-09-13 12:34:10.000",
+      "dateStarted": "2026-09-15 20:13:31.600",
+      "dateFinished": "2026-09-15 20:13:31.606",
       "status": "FINISHED"
     }
   ],
@@ -282,7 +325,6 @@
   },
   "info": {
     "inIsolatedMode": false,
-    "isRunning": false
-  },
-  "path": "/ejemplos/03_carga_datos/01_practica_carga_datos"
+    "isRunning": true
+  }
 }
