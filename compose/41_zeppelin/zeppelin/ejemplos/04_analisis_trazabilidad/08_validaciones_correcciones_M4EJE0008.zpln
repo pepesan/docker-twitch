@@ -71,6 +71,56 @@
       "dateStarted": "2026-09-15 20:39:20.540",
       "dateFinished": "2026-09-15 20:39:23.992",
       "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## Validaciones de dominio: catálogo e importes negativos\n\n`isna()` solo detecta huecos, no valores presentes pero inválidos. Dos validaciones habituales en auditoría: que la sucursal exista en el catálogo (`sucursales.csv`) y que el importe no sea negativo.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0008_2",
+      "id": "paragraph_M4EJE0008_2",
+      "dateCreated": "2026-09-15 20:39:18.736",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Validaciones de dominio: sucursal en catálogo e importe no negativo\nsucursales = pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/sucursales.csv\")\ncatalogo_sucursales = set(sucursales[\"sucursal\"])\n\noperaciones_revisar = pd.DataFrame({\n    \"id_operacion\": [\"OP-301\", \"OP-302\", \"OP-303\"],\n    \"sucursal\": [\"MAD01\", \"VAL03\", \"BIL02\"],\n    \"importe\": [120.0, 200.0, -50.0],\n})\n\nfuera_de_catalogo = operaciones_revisar[~operaciones_revisar[\"sucursal\"].isin(catalogo_sucursales)]\nimportes_negativos = operaciones_revisar[operaciones_revisar[\"importe\"] < 0]\nprint(f\"Sucursales fuera de catálogo: {list(fuera_de_catalogo['id_operacion'])}\")\nprint(f\"Importes negativos: {list(importes_negativos['id_operacion'])}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0008_3",
+      "id": "paragraph_M4EJE0008_3",
+      "dateCreated": "2026-09-15 20:39:18.736",
+      "status": "READY"
     }
   ],
   "name": "08_validaciones_correcciones",

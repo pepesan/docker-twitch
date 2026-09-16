@@ -49,6 +49,13 @@ docker compose down -v    # parar y borrar los datos persistidos (BBDD, notebook
 | `hue`     | http://localhost:8888          | se crea en el primer acceso (no trae usuario por defecto) | — | 3 |
 | `adminer` | http://localhost:8091           | — (pide host/usuario/contraseña de `db` en el formulario) | — | 3 |
 
+> El primer acceso a HUE pide crear un usuario y contraseña (quedan
+> guardados en su propia BBDD interna, no en `db`); ese primer usuario se
+> convierte en administrador. Una vez dentro, el conector **"Auditoría
+> (Postgres)"** ya aparece configurado en el editor SQL — apunta a la misma
+> BBDD `auditoria` que usan los notebooks de Zeppelin y Adminer, sin que
+> haga falta configurar nada más (ver `hue/conf/zz-course-overrides.ini`).
+
 > Son credenciales de un entorno **local de prácticas**, sin datos reales ni
 > acceso a sistemas del banco. No usar este esquema de credenciales fuera del
 > laboratorio.

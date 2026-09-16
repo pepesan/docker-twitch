@@ -71,6 +71,83 @@
       "dateStarted": "2026-09-15 20:39:20.530",
       "dateFinished": "2026-09-15 20:39:24.031",
       "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## Tratamiento de outliers, no solo detección\n\nDetectar un valor atípico es solo el primer paso. Hay dos formas habituales de tratarlo, con implicaciones distintas para una auditoría:\n- **Marcar para revisión**: conserva el dato original y añade una columna de alerta; mejor rastro de auditoría.\n- **Capar el valor** (winsorizing): sustituye el importe por el límite superior; útil para cálculos agregados, pero pierde el dato original si no se guarda aparte.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0007_2",
+      "id": "paragraph_M4EJE0007_2",
+      "dateCreated": "2026-09-15 20:39:18.726",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Marcar para revisión: conserva el importe original\ndf_marcado \u003d df.copy()\ndf_marcado[\"revisar_outlier\"] \u003d df_marcado[\"importe\"] \u003e limite_superior\nprint(df_marcado[df_marcado[\"revisar_outlier\"]][[\"id_operacion\", \"importe\", \"revisar_outlier\"]])",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0007_3",
+      "id": "paragraph_M4EJE0007_3",
+      "dateCreated": "2026-09-15 20:39:18.726",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Capar el valor (winsorizing): sustituye por el límite superior\ndf_capado \u003d df.copy()\ndf_capado.loc[df_capado[\"importe\"] \u003e limite_superior, \"importe\"] \u003d limite_superior\nprint(df_capado[[\"id_operacion\", \"importe\"]])",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0007_4",
+      "id": "paragraph_M4EJE0007_4",
+      "dateCreated": "2026-09-15 20:39:18.726",
+      "status": "READY"
     }
   ],
   "name": "07_deteccion_outliers",
