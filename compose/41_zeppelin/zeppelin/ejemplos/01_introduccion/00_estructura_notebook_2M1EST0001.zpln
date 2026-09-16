@@ -3,7 +3,7 @@
     {
       "text": "%md\n# Módulo 1 · Estructura de un notebook Zeppelin\n\n**Objetivo:** identificar las partes de un notebook (celdas de código, Markdown y resultados) y el flujo de trabajo reproducible que se usará durante todo el curso.\n\nAutor: David Vaquero Santiago (pepesan@gmail.com)",
       "user": "anonymous",
-      "dateUpdated": "2026-09-15 19:29:39.935",
+      "dateUpdated": "2026-09-16 08:47:48.249",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -78,7 +78,7 @@
     {
       "text": "%python\n# Celda de código: %python es el intérprete que usaremos en todo el curso\nprint(\"Módulo 1 - Python en auditoría\")\nmensaje \u003d \"Cada celda se ejecuta de forma independiente, pero comparte \"\\\n    \"variables con las demás celdas del mismo notebook.\"\nprint(mensaje)",
       "user": "anonymous",
-      "dateUpdated": "2026-09-15 19:30:10.448",
+      "dateUpdated": "2026-09-16 10:22:20.680",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -100,7 +100,7 @@
         "msg": [
           {
             "type": "TEXT",
-            "data": "Módulo 1 - Python en auditoría\nCada celda se ejecuta de forma independiente, pero comparte variables con las demás celdas del mismo notebook.\nHola\n"
+            "data": "Módulo 1 - Python en auditoría\nCada celda se ejecuta de forma independiente, pero comparte variables con las demás celdas del mismo notebook.\n"
           }
         ]
       },
@@ -110,8 +110,8 @@
       "jobName": "paragraph_1789206606922_1465300360",
       "id": "paragraph_1789206440531_855912322",
       "dateCreated": "2026-09-12 09:50:06.922",
-      "dateStarted": "2026-09-15 19:30:04.174",
-      "dateFinished": "2026-09-15 19:30:04.180",
+      "dateStarted": "2026-09-16 10:22:20.691",
+      "dateFinished": "2026-09-16 10:22:20.746",
       "status": "FINISHED"
     },
     {
