@@ -50,11 +50,18 @@ docker compose down -v    # parar y borrar los datos persistidos (BBDD, notebook
 | `adminer` | http://localhost:8091           | — (pide host/usuario/contraseña de `db` en el formulario) | — | 3 |
 
 > El primer acceso a HUE pide crear un usuario y contraseña (quedan
-> guardados en su propia BBDD interna, no en `db`); ese primer usuario se
-> convierte en administrador. Una vez dentro, el conector **"Auditoría
-> (Postgres)"** ya aparece configurado en el editor SQL — apunta a la misma
-> BBDD `auditoria` que usan los notebooks de Zeppelin y Adminer, sin que
-> haga falta configurar nada más (ver `hue/conf/zz-course-overrides.ini`).
+> guardados en su propia BBDD interna `hue`, dentro del mismo servidor
+> Postgres del servicio `db`, separada de `auditoria`); ese primer usuario
+> se convierte en administrador. Una vez dentro, en el editor SQL **elige el
+> conector "Auditoría (Postgres)"** — es el único que funciona en este
+> laboratorio y apunta a la misma BBDD `auditoria` que usan los notebooks de
+> Zeppelin y Adminer, sin que haga falta configurar nada más (ver
+> `hue/conf/zz-course-overrides.ini`). La imagen `gethue/hue` trae también
+> "Hive" e "Impala" en el desplegable por ser conectores estándar de la
+> imagen, pero **no funcionan aquí** (no hay ningún HiveServer2 levantado):
+> seleccionarlos da un error de conexión al puerto 10000
+> (`TTransportException`). No es un fallo del laboratorio, es que esos dos
+> conectores no aplican a este entorno — ignóralos.
 
 > Son credenciales de un entorno **local de prácticas**, sin datos reales ni
 > acceso a sistemas del banco. No usar este esquema de credenciales fuera del
@@ -192,6 +199,40 @@ format which is compatible with "pg_ctlcluster"...`, es que la carpeta
 `volumes/db` quedó inicializada con el formato antiguo — solución:
 `./20_destroy.sh`, borrar `volumes/db` y volver a ejecutar `00_init.sh` +
 `01_launch_compose.sh`.
+
+## Nota sobre HUE
+
+La imagen `gethue/hue` arranca, por defecto, **sin ningún conector SQL
+activo** (todo el bloque `[[interpreters]]` de su `hue.ini` viene comentado)
+y usa **SQLite** para su propia BBDD interna (usuarios, historial,
+documentos guardados). Ninguna de las dos cosas sirve para este
+laboratorio:
+
+- Sin un conector configurado, no se puede lanzar ninguna consulta desde la
+  interfaz web.
+- SQLite no soporta bien escrituras concurrentes; bajo Docker, con la propia
+  UI de HUE lanzando peticiones en paralelo (polling de estado,
+  autocompletado, historial), acaba dando errores intermitentes de
+  `database is locked`.
+
+Por eso `hue/conf/zz-course-overrides.ini` (montado en
+`/usr/share/hue/desktop/conf/`, se fusiona con la config de la imagen)
+añade:
+
+1. Un conector `postgresql` (vía SQLAlchemy) apuntando a la BBDD
+   `auditoria` — aparece en el editor como **"Auditoría (Postgres)"**.
+2. El metastore propio de HUE (`[desktop][[database]]`) apuntando a una
+   BBDD `hue` separada, en el mismo servidor Postgres (creada por
+   `postgres/init/00_crear_bbdd_hue.sql`), en vez de SQLite.
+
+La imagen sigue mostrando "Hive" e "Impala" en el desplegable del editor
+(son conectores estándar de `gethue/hue`, no se pueden ocultar sin romper
+la aplicación: `beeswax`, el módulo de Hive, es una dependencia interna de
+Hue, no una app opcional — bloquearla vía `app_blacklist` impide arrancar
+el propio servicio). **No funcionan en este laboratorio** — no hay ningún
+HiveServer2 levantado — y seleccionarlos da
+`TTransportException: Could not connect to ... 10000`. Usa siempre el
+conector "Auditoría (Postgres)".
 
 ## Datos de carga
 
