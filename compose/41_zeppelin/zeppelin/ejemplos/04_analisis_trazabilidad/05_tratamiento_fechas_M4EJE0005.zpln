@@ -1,0 +1,90 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: de texto a fecha, y de fecha a información derivada\n\nEquivalente a `ejemplos-python/src/modulo_04/05_tratamiento_fechas.py`. El accesor `.dt` para extraer mes, día de la semana y calcular antigüedad.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: de texto a fecha, y de fecha a información derivada\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_04/05_tratamiento_fechas.py\u003c/code\u003e. El accesor \u003ccode\u003e.dt\u003c/code\u003e para extraer mes, día de la semana y calcular antigüedad.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0005_0",
+      "id": "paragraph_M4EJE0005_0",
+      "dateCreated": "2026-09-15 20:39:18.708",
+      "dateStarted": "2026-09-15 20:39:18.709",
+      "dateFinished": "2026-09-15 20:39:20.444",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 4: de texto a fecha, y de fecha a información derivada\n# (equivalente a ejemplos-python/src/modulo_04/05_tratamiento_fechas.py)\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\")\ndf[\"fecha\"] \u003d pd.to_datetime(df[\"fecha\"])\n\ndf[\"mes\"] \u003d df[\"fecha\"].dt.month\ndf[\"dia_semana\"] \u003d df[\"fecha\"].dt.day_name()\nprint(df[[\"id_operacion\", \"fecha\", \"mes\", \"dia_semana\"]])\n\nhoy \u003d pd.Timestamp(\"2026-01-12\")\ndf[\"dias_desde_operacion\"] \u003d (hoy - df[\"fecha\"]).dt.days\nprint(df[[\"id_operacion\", \"fecha\", \"dias_desde_operacion\"]])",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "   id_operacion      fecha  mes dia_semana\n0        OP-101 2026-01-05    1     Monday\n1        OP-102 2026-01-06    1    Tuesday\n2        OP-103 2026-01-06    1    Tuesday\n3        OP-104 2026-01-07    1  Wednesday\n4        OP-105 2026-01-07    1  Wednesday\n5        OP-105 2026-01-07    1  Wednesday\n6        OP-106 2026-01-08    1   Thursday\n7        OP-107 2026-01-08    1   Thursday\n8        OP-108 2026-01-09    1     Friday\n9        OP-109 2026-01-09    1     Friday\n10       OP-110 2026-01-10    1   Saturday\n   id_operacion      fecha  dias_desde_operacion\n0        OP-101 2026-01-05                     7\n1        OP-102 2026-01-06                     6\n2        OP-103 2026-01-06                     6\n3        OP-104 2026-01-07                     5\n4        OP-105 2026-01-07                     5\n5        OP-105 2026-01-07                     5\n6        OP-106 2026-01-08                     4\n7        OP-107 2026-01-08                     4\n8        OP-108 2026-01-09                     3\n9        OP-109 2026-01-09                     3\n10       OP-110 2026-01-10                     2\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0005_1",
+      "id": "paragraph_M4EJE0005_1",
+      "dateCreated": "2026-09-15 20:39:18.708",
+      "dateStarted": "2026-09-15 20:39:20.512",
+      "dateFinished": "2026-09-15 20:39:24.017",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "05_tratamiento_fechas",
+  "id": "M4EJE0005",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": false
+  }
+}

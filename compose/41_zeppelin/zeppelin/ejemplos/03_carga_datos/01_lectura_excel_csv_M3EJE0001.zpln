@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: lectura de Excel y CSV con Pandas\n\nEquivalente a `ejemplos-python/src/modulo_03/01_lectura_excel_csv.py`. Lee una hoja concreta de un Excel (`sheet_name\u003d\"MAD01\"`) y el extracto bancario en CSV.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:38.369",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: lectura de Excel y CSV con Pandas\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_03/01_lectura_excel_csv.py\u003c/code\u003e. Lee una hoja concreta de un Excel (\u003ccode\u003esheet_name\u003d\u0026quot;MAD01\u0026quot;\u003c/code\u003e) y el extracto bancario en CSV.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0001_0",
+      "id": "paragraph_M3EJE0001_0",
+      "dateCreated": "2026-09-15 20:31:53.344",
+      "dateStarted": "2026-09-15 20:39:38.373",
+      "dateFinished": "2026-09-15 20:39:38.381",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 3: lectura de Excel y CSV con Pandas\n# (equivalente a ejemplos-python/src/modulo_03/01_lectura_excel_csv.py)\nimport pandas as pd\n\ndf_excel \u003d pd.read_excel(\"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/operaciones_sucursales.xlsx\", sheet_name\u003d\"MAD01\")\nprint(df_excel)\n\ndf_csv \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/movimientos_extracto.csv\")\nprint(df_csv)\nprint(df_csv.dtypes)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:38.473",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  id_operacion     cuenta  importe       fecha\n0       OP-001  ES00-1234     1200  2026-01-05\n1       OP-002  ES00-5678       75  2026-01-06\n2       OP-005  ES00-3456    15200  2026-01-07\n  id_operacion  importe_banco fecha_valor\n0       OP-001         1200.0  05/01/2026\n1       OP-002           75.0  06/01/2026\n2       OP-003         3400.0  07/01/2026\n3       OP-004          980.0  07/01/2026\n4       OP-007          500.0  08/01/2026\nid_operacion         str\nimporte_banco    float64\nfecha_valor          str\ndtype: object\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0001_1",
+      "id": "paragraph_M3EJE0001_1",
+      "dateCreated": "2026-09-15 20:31:53.344",
+      "dateStarted": "2026-09-15 20:39:38.475",
+      "dateFinished": "2026-09-15 20:39:38.635",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "01_lectura_excel_csv",
+  "id": "M3EJE0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "startTime": "2026-09-15_20-31-53",
+    "isRunning": true
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: homogeneización de formatos y calidad del dato\n\nEquivalente a `ejemplos-python/src/modulo_03/06_homogeneizacion_calidad.py`. Renombra columnas, normaliza fechas y hace controles iniciales de calidad (duplicados, nulos).",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: homogeneización de formatos y calidad del dato\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_03/06_homogeneizacion_calidad.py\u003c/code\u003e. Renombra columnas, normaliza fechas y hace controles iniciales de calidad (duplicados, nulos).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0006_0",
+      "id": "paragraph_M3EJE0006_0",
+      "dateCreated": "2026-09-15 20:31:53.505",
+      "dateStarted": "2026-09-15 20:31:53.507",
+      "dateFinished": "2026-09-15 20:31:55.105",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 3: homogeneización de formatos y calidad del dato\n# (equivalente a ejemplos-python/src/modulo_03/06_homogeneizacion_calidad.py)\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/movimientos_extracto.csv\")\n\ndf \u003d df.rename(columns\u003d{\"importe_banco\": \"importe\"})\ndf[\"fecha_valor\"] \u003d pd.to_datetime(df[\"fecha_valor\"], format\u003d\"%d/%m/%Y\")\nprint(df.dtypes)\nprint(df)\n\nprint(f\"Filas duplicadas: {df.duplicated(subset\u003d\u0027id_operacion\u0027).sum()}\")\nprint(f\"Importes nulos: {df[\u0027importe\u0027].isna().sum()}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "id_operacion               str\nimporte                float64\nfecha_valor     datetime64[us]\ndtype: object\n  id_operacion  importe fecha_valor\n0       OP-001   1200.0  2026-01-05\n1       OP-002     75.0  2026-01-06\n2       OP-003   3400.0  2026-01-07\n3       OP-004    980.0  2026-01-07\n4       OP-007    500.0  2026-01-08\nFilas duplicadas: 0\nImportes nulos: 0\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0006_1",
+      "id": "paragraph_M3EJE0006_1",
+      "dateCreated": "2026-09-15 20:31:53.505",
+      "dateStarted": "2026-09-15 20:31:59.216",
+      "dateFinished": "2026-09-15 20:31:59.234",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "06_homogeneizacion_calidad",
+  "id": "M3EJE0006",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-31-53"
+  }
+}

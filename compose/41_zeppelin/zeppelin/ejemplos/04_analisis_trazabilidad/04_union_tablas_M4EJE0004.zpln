@@ -1,0 +1,91 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: enriquecer operaciones con datos de sucursal\n\nEquivalente a `ejemplos-python/src/modulo_04/04_union_tablas.py`. `merge` para unir tablas y `concat` para combinar lotes de filas.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: enriquecer operaciones con datos de sucursal\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_04/04_union_tablas.py\u003c/code\u003e. \u003ccode\u003emerge\u003c/code\u003e para unir tablas y \u003ccode\u003econcat\u003c/code\u003e para combinar lotes de filas.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0004_0",
+      "id": "paragraph_M4EJE0004_0",
+      "dateCreated": "2026-09-15 20:39:18.699",
+      "dateStarted": "2026-09-15 20:39:18.700",
+      "dateFinished": "2026-09-15 20:39:20.444",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 4: enriquecer operaciones con datos de sucursal\n# (equivalente a ejemplos-python/src/modulo_04/04_union_tablas.py)\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\")\nsucursales \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/sucursales.csv\")\n\ndf_enriquecido \u003d df.merge(sucursales, on\u003d\"sucursal\", how\u003d\"left\")\nprint(df_enriquecido[[\"id_operacion\", \"sucursal\", \"ciudad\", \"region\"]])\n\nlote_1 \u003d df.iloc[:5]\nlote_2 \u003d df.iloc[5:]\ntodo \u003d pd.concat([lote_1, lote_2], ignore_index\u003dTrue)\nprint(f\"Filas lote 1: {len(lote_1)}, lote 2: {len(lote_2)}, total tras concat: {len(todo)}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "   id_operacion sucursal  ciudad  region\n0        OP-101    MAD01  Madrid  Centro\n1        OP-102    MAD01  Madrid  Centro\n2        OP-103    BIL02  Bilbao   Norte\n3        OP-104    BIL02  Bilbao   Norte\n4        OP-105    MAD01  Madrid  Centro\n5        OP-105    MAD01  Madrid  Centro\n6        OP-106    BIL02  Bilbao   Norte\n7        OP-107    MAD01  Madrid  Centro\n8        OP-108    BIL02  Bilbao   Norte\n9        OP-109    MAD01  Madrid  Centro\n10       OP-110    BIL02  Bilbao   Norte\nFilas lote 1: 5, lote 2: 6, total tras concat: 11\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0004_1",
+      "id": "paragraph_M4EJE0004_1",
+      "dateCreated": "2026-09-15 20:39:18.699",
+      "dateStarted": "2026-09-15 20:39:20.503",
+      "dateFinished": "2026-09-15 20:39:24.000",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "04_union_tablas",
+  "id": "M4EJE0004",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-39-18"
+  }
+}

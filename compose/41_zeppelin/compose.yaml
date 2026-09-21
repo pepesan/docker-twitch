@@ -38,7 +38,7 @@ services:
       - ./volumes/db:/var/lib/postgresql
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
 
-  # Módulo 3 — simulación de HUE para consultas SQL vía interfaz web
+  # Módulo 3 — HUE como interfaz web de consultas SQL sobre la misma BBDD
   hue:
     image: gethue/hue:20260611-140101
     container_name: curso_hue
@@ -46,6 +46,8 @@ services:
       - "8888:8888"
     depends_on:
       - db
+    volumes:
+      - ./hue/conf/zz-course-overrides.ini:/usr/share/hue/desktop/conf/zz-course-overrides.ini:ro
 
   # Módulo 3 — cliente web ligero para inspeccionar la base de datos simulada
   # Puerto 8091 (no 8081): dentro de un escritorio Kasm Workspaces, 8081 ya

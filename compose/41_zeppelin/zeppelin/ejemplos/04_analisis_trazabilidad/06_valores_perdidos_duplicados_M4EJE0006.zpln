@@ -1,0 +1,191 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: detectar y tratar huecos y duplicados\n\nEquivalente a `ejemplos-python/src/modulo_04/06_valores_perdidos_duplicados.py`. `isna()`, `drop_duplicates()` y `fillna()`.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: detectar y tratar huecos y duplicados\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_04/06_valores_perdidos_duplicados.py\u003c/code\u003e. \u003ccode\u003eisna()\u003c/code\u003e, \u003ccode\u003edrop_duplicates()\u003c/code\u003e y \u003ccode\u003efillna()\u003c/code\u003e.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0006_0",
+      "id": "paragraph_M4EJE0006_0",
+      "dateCreated": "2026-09-15 20:39:18.718",
+      "dateStarted": "2026-09-15 20:39:18.719",
+      "dateFinished": "2026-09-15 20:39:20.444",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 4: detectar y tratar huecos y duplicados\n# (equivalente a ejemplos-python/src/modulo_04/06_valores_perdidos_duplicados.py)\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\")\n\nprint(df.isna().sum())\n\ndf_sin_duplicados \u003d df.drop_duplicates(subset\u003d\"id_operacion\", keep\u003d\"first\")\nprint(f\"Filas originales: {len(df)}, sin duplicados: {len(df_sin_duplicados)}\")\n\ndf_relleno \u003d df.copy()\ndf_relleno[\"cuenta\"] \u003d df_relleno[\"cuenta\"].fillna(\"SIN_CUENTA\")\ndf_sin_nulos \u003d df_relleno.dropna(subset\u003d[\"importe\"])\nprint(f\"Filas tras eliminar importes nulos: {len(df_sin_nulos)}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "id_operacion    0\ncuenta          1\nimporte         1\nfecha           0\nsucursal        0\ndtype: int64\nFilas originales: 11, sin duplicados: 10\nFilas tras eliminar importes nulos: 10\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0006_1",
+      "id": "paragraph_M4EJE0006_1",
+      "dateCreated": "2026-09-15 20:39:18.718",
+      "dateStarted": "2026-09-15 20:39:20.524",
+      "dateFinished": "2026-09-15 20:39:23.974",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## Duplicados conflictivos: mismo id, valores distintos\n\nEl duplicado del CSV es una fila idéntica repetida, pero en auditoría lo habitual es algo más peligroso: dos registros con el **mismo `id_operacion` pero valores distintos**. `drop_duplicates(keep=\"first\")` se quedaría con una versión sin avisar de la discrepancia. Antes de descartar nada hay que localizarlos con `duplicated(subset=..., keep=False)`, que marca **todas** las filas implicadas.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0006_2",
+      "id": "paragraph_M4EJE0006_2",
+      "dateCreated": "2026-09-15 20:39:18.718",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Duplicados conflictivos: mismo id_operacion, importe distinto\nmovimientos_revision = pd.DataFrame({\n    \"id_operacion\": [\"OP-201\", \"OP-201\", \"OP-202\"],\n    \"cuenta\": [\"ES00-1111\", \"ES00-1111\", \"ES00-2222\"],\n    \"importe\": [500.0, 550.0, 300.0],\n})\nconflictivos = movimientos_revision[\n    movimientos_revision.duplicated(subset=\"id_operacion\", keep=False)\n]\nprint(conflictivos)",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0006_3",
+      "id": "paragraph_M4EJE0006_3",
+      "dateCreated": "2026-09-15 20:39:18.718",
+      "status": "READY"
+    },
+    {
+      "text": "%md\n## Duplicados ocultos por formato\n\nDos cuentas pueden ser \"la misma\" para el negocio y distintas para Pandas por culpa de espacios sobrantes o de mayúsculas/minúsculas. `str.strip().str.upper()` normaliza antes de comparar.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0006_4",
+      "id": "paragraph_M4EJE0006_4",
+      "dateCreated": "2026-09-15 20:39:18.718",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Duplicados ocultos por formato: espacios y mayúsculas/minúsculas distintas\ncuentas_sucias = pd.Series([\" ES00-1234\", \"es00-5678\", \"ES00-9012 \", \"ES00-1234\"])\nprint(f\"Valores únicos antes de limpiar: {cuentas_sucias.nunique()}\")\n\ncuentas_limpias = cuentas_sucias.str.strip().str.upper()\nprint(f\"Valores únicos tras strip().upper(): {cuentas_limpias.nunique()}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0006_5",
+      "id": "paragraph_M4EJE0006_5",
+      "dateCreated": "2026-09-15 20:39:18.718",
+      "status": "READY"
+    }
+  ],
+  "name": "06_valores_perdidos_duplicados",
+  "id": "M4EJE0006",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-39-18"
+  }
+}

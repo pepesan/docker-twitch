@@ -1,0 +1,187 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: múltiples hojas y estructuras tabulares\n\nEquivalente a `ejemplos-python/src/modulo_03/02_multiples_hojas.py`. Primero cargamos hoja a hoja (`MAD01`, luego `BIL02`) para ver que cada una es un `DataFrame` independiente, las combinamos a mano con `pd.concat`, y al final mostramos el atajo `sheet_name=None`, que hace lo mismo en un solo paso leyendo todas las hojas del libro en un diccionario.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:52.740",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0002_0",
+      "id": "paragraph_M3EJE0002_0",
+      "dateCreated": "2026-09-15 20:31:53.375",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Paso 1: cargar solo la hoja MAD01\nimport pandas as pd\n\nruta = \"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/operaciones_sucursales.xlsx\"\n\ndf_mad01 = pd.read_excel(ruta, sheet_name=\"MAD01\")\nprint(df_mad01)\nprint(f\"Operaciones en MAD01: {len(df_mad01)}\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:52.842",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0002_1",
+      "id": "paragraph_M3EJE0002_1",
+      "dateCreated": "2026-09-15 20:31:53.375",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Paso 2: cargar solo la hoja BIL02\ndf_bil02 = pd.read_excel(ruta, sheet_name=\"BIL02\")\nprint(df_bil02)\nprint(f\"Operaciones en BIL02: {len(df_bil02)}\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:52.842",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0002_2",
+      "id": "paragraph_M3EJE0002_2",
+      "dateCreated": "2026-09-15 20:31:53.375",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Paso 3: combinar las hojas cargadas por separado\ndf_todas_manual = pd.concat([df_mad01, df_bil02], ignore_index=True)\nprint(df_todas_manual)\nprint(f\"Total operaciones combinadas a mano: {len(df_todas_manual)}\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:52.842",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0002_3",
+      "id": "paragraph_M3EJE0002_3",
+      "dateCreated": "2026-09-15 20:31:53.375",
+      "status": "READY"
+    },
+    {
+      "text": "%md\n### Atajo: todas las hojas de una vez\n\nCargar hoja a hoja funciona pero no escala si el libro tiene muchas hojas. `sheet_name=None` lee todas las hojas en un único diccionario `{nombre_hoja: DataFrame}`, que se puede combinar igual con `pd.concat`.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:52.740",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0002_4",
+      "id": "paragraph_M3EJE0002_4",
+      "dateCreated": "2026-09-15 20:31:53.375",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 3: múltiples hojas y estructuras tabulares\n# (equivalente a ejemplos-python/src/modulo_03/02_multiples_hojas.py)\nhojas = pd.read_excel(ruta, sheet_name=None)\nprint(list(hojas.keys()))\n\ndf_todas = pd.concat(hojas.values(), ignore_index=True)\nprint(df_todas)\nprint(f\"Total operaciones combinadas: {len(df_todas)}\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-15 20:39:52.842",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0002_5",
+      "id": "paragraph_M3EJE0002_5",
+      "dateCreated": "2026-09-15 20:31:53.375",
+      "status": "READY"
+    }
+  ],
+  "name": "02_multiples_hojas",
+  "id": "M3EJE0002",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "startTime": "2026-09-15_20-31-53",
+    "isRunning": true
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: operaciones vectorizadas con NumPy\n\nEquivalente a `ejemplos-python/src/modulo_04/01_numpy_calculo.py`. Media, desviación típica y percentil de los importes, y una operación vectorizada (aplicar IVA a todo el array).",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: operaciones vectorizadas con NumPy\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_04/01_numpy_calculo.py\u003c/code\u003e. Media, desviación típica y percentil de los importes, y una operación vectorizada (aplicar IVA a todo el array).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0001_0",
+      "id": "paragraph_M4EJE0001_0",
+      "dateCreated": "2026-09-15 20:39:18.670",
+      "dateStarted": "2026-09-15 20:39:18.676",
+      "dateFinished": "2026-09-15 20:39:20.444",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 4: operaciones vectorizadas con NumPy\n# (equivalente a ejemplos-python/src/modulo_04/01_numpy_calculo.py)\nimport numpy as np\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\")\nimportes \u003d df[\"importe\"].dropna().to_numpy()\n\nprint(importes)\nprint(f\"Media: {np.mean(importes):.2f}\")\nprint(f\"Desviación típica: {np.std(importes):.2f}\")\nprint(f\"Percentil 90: {np.percentile(importes, 90):.2f}\")\n\nimportes_con_iva \u003d importes * 1.21\nprint(importes_con_iva)",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "[1.20e+03 7.50e+01 3.40e+03 9.80e+02 1.52e+04 1.52e+04 6.40e+02 2.10e+02\n 8.80e+04 1.50e+03]\nMedia: 12640.50\nDesviación típica: 25738.93\nPercentil 90: 22480.00\n[1.4520e+03 9.0750e+01 4.1140e+03 1.1858e+03 1.8392e+04 1.8392e+04\n 7.7440e+02 2.5410e+02 1.0648e+05 1.8150e+03]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0001_1",
+      "id": "paragraph_M4EJE0001_1",
+      "dateCreated": "2026-09-15 20:39:18.670",
+      "dateStarted": "2026-09-15 20:39:20.478",
+      "dateFinished": "2026-09-15 20:39:23.977",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "01_numpy_calculo",
+  "id": "M4EJE0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-39-18"
+  }
+}

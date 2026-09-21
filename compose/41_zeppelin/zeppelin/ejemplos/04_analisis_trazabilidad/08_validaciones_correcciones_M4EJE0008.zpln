@@ -1,0 +1,141 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: corregir muchas filas a la vez con .loc\n\nEquivalente a `ejemplos-python/src/modulo_04/08_validaciones_correcciones.py`. Detecta operaciones sin cuenta o sin importe y las corrige con `.loc`.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: corregir muchas filas a la vez con .loc\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_04/08_validaciones_correcciones.py\u003c/code\u003e. Detecta operaciones sin cuenta o sin importe y las corrige con \u003ccode\u003e.loc\u003c/code\u003e.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0008_0",
+      "id": "paragraph_M4EJE0008_0",
+      "dateCreated": "2026-09-15 20:39:18.736",
+      "dateStarted": "2026-09-15 20:39:18.737",
+      "dateFinished": "2026-09-15 20:39:20.444",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 4: corregir muchas filas a la vez con .loc\n# (equivalente a ejemplos-python/src/modulo_04/08_validaciones_correcciones.py)\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\")\n\nsin_cuenta \u003d df[\"cuenta\"].isna()\nsin_importe \u003d df[\"importe\"].isna()\nprint(f\"Operaciones sin cuenta: {sin_cuenta.sum()}\")\nprint(f\"Operaciones sin importe: {sin_importe.sum()}\")\n\ndf_corregido \u003d df.copy()\ndf_corregido.loc[sin_cuenta, \"cuenta\"] \u003d \"PENDIENTE_REVISION\"\ndf_corregido.loc[sin_importe, \"importe\"] \u003d 0.0\n\nprint(df_corregido[sin_cuenta | sin_importe])",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Operaciones sin cuenta: 1\nOperaciones sin importe: 1\n  id_operacion              cuenta  importe       fecha sucursal\n3       OP-104  PENDIENTE_REVISION    980.0  2026-01-07    BIL02\n7       OP-107           ES00-7890      0.0  2026-01-08    MAD01\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0008_1",
+      "id": "paragraph_M4EJE0008_1",
+      "dateCreated": "2026-09-15 20:39:18.736",
+      "dateStarted": "2026-09-15 20:39:20.540",
+      "dateFinished": "2026-09-15 20:39:23.992",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## Validaciones de dominio: catálogo e importes negativos\n\n`isna()` solo detecta huecos, no valores presentes pero inválidos. Dos validaciones habituales en auditoría: que la sucursal exista en el catálogo (`sucursales.csv`) y que el importe no sea negativo.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0008_2",
+      "id": "paragraph_M4EJE0008_2",
+      "dateCreated": "2026-09-15 20:39:18.736",
+      "status": "READY"
+    },
+    {
+      "text": "%python\n# Validaciones de dominio: sucursal en catálogo e importe no negativo\nsucursales = pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/sucursales.csv\")\ncatalogo_sucursales = set(sucursales[\"sucursal\"])\n\noperaciones_revisar = pd.DataFrame({\n    \"id_operacion\": [\"OP-301\", \"OP-302\", \"OP-303\"],\n    \"sucursal\": [\"MAD01\", \"VAL03\", \"BIL02\"],\n    \"importe\": [120.0, 200.0, -50.0],\n})\n\nfuera_de_catalogo = operaciones_revisar[~operaciones_revisar[\"sucursal\"].isin(catalogo_sucursales)]\nimportes_negativos = operaciones_revisar[operaciones_revisar[\"importe\"] < 0]\nprint(f\"Sucursales fuera de catálogo: {list(fuera_de_catalogo['id_operacion'])}\")\nprint(f\"Importes negativos: {list(importes_negativos['id_operacion'])}\")",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M4EJE0008_3",
+      "id": "paragraph_M4EJE0008_3",
+      "dateCreated": "2026-09-15 20:39:18.736",
+      "status": "READY"
+    }
+  ],
+  "name": "08_validaciones_correcciones",
+  "id": "M4EJE0008",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-39-18"
+  }
+}

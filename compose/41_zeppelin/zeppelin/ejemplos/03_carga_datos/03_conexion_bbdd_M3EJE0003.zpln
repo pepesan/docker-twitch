@@ -1,0 +1,91 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: conexión a la base de datos simulada de auditoría\n\nEquivalente a `ejemplos-python/src/modulo_03/03_conexion_bbdd.py`. Dentro de Zeppelin la BBDD se referencia por `db` (nombre del servicio en `compose.yaml`), no `localhost` como en el script ejecutado desde el host.",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: conexión a la base de datos simulada de auditoría\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_03/03_conexion_bbdd.py\u003c/code\u003e. Dentro de Zeppelin la BBDD se referencia por \u003ccode\u003edb\u003c/code\u003e (nombre del servicio en \u003ccode\u003ecompose.yaml\u003c/code\u003e), no \u003ccode\u003elocalhost\u003c/code\u003e como en el script ejecutado desde el host.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0003_0",
+      "id": "paragraph_M3EJE0003_0",
+      "dateCreated": "2026-09-15 20:31:53.405",
+      "dateStarted": "2026-09-15 20:31:53.406",
+      "dateFinished": "2026-09-15 20:31:55.105",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 3: conexión a la base de datos simulada de auditoría\n# (equivalente a ejemplos-python/src/modulo_03/03_conexion_bbdd.py)\nimport pandas as pd\nfrom sqlalchemy import create_engine\n\nengine \u003d create_engine(\"postgresql+psycopg2://auditor:auditor@db:5432/auditoria\")\n\ndf \u003d pd.read_sql(\"SELECT * FROM operaciones\", engine)\nprint(df)\nprint(df.dtypes)",
+      "user": "anonymous",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  id_operacion     cuenta  importe       fecha sucursal\n0       OP-001  ES00-1234   1200.0  2026-01-05    MAD01\n1       OP-002  ES00-5678     75.0  2026-01-06    MAD01\n2       OP-003  ES00-1234   3400.0  2026-01-06    BIL02\n3       OP-004  ES00-9012    980.0  2026-01-07    BIL02\n4       OP-005  ES00-3456  15200.0  2026-01-07    MAD01\n5       OP-006  ES00-5678   2100.0  2026-01-08    BIL02\nid_operacion        str\ncuenta              str\nimporte         float64\nfecha            object\nsucursal            str\ndtype: object\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M3EJE0003_1",
+      "id": "paragraph_M3EJE0003_1",
+      "dateCreated": "2026-09-15 20:31:53.405",
+      "dateStarted": "2026-09-15 20:31:55.209",
+      "dateFinished": "2026-09-15 20:31:59.139",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "03_conexion_bbdd",
+  "id": "M3EJE0003",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-15_20-31-53"
+  }
+}

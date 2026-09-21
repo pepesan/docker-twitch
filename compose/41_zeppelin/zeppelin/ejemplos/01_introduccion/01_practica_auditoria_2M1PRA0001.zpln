@@ -3,13 +3,18 @@
     {
       "text": "%md\n# Módulo 1 · Práctica: notebook de auditoría\n\nEste notebook contiene un análisis de auditoría **parcialmente desarrollado**. Tu tarea es completar las celdas marcadas con `TODO`, documentando en una celda Markdown lo que has hecho en cada sección.\n\nEstructura: 1) carga de datos, 2) control básico, 3) análisis, 4) conclusiones.",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:47.588",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -30,20 +35,25 @@
       "jobName": "paragraph_1789206522905_1180160589",
       "id": "paragraph_1789206440531_-34037350",
       "dateCreated": "2026-09-12 09:48:42.907",
-      "dateStarted": "2026-09-12 10:21:31.532",
-      "dateFinished": "2026-09-12 10:21:33.407",
+      "dateStarted": "2026-09-15 19:31:47.592",
+      "dateFinished": "2026-09-15 19:31:49.245",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 1. Carga de datos\n\nDatos ficticios de operaciones bancarias (ya cargados).",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:49.295",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -64,19 +74,25 @@
       "jobName": "paragraph_1789206522907_641347599",
       "id": "paragraph_1789206440531_-1882603498",
       "dateCreated": "2026-09-12 09:48:42.907",
-      "dateStarted": "2026-09-12 10:21:33.433",
-      "dateFinished": "2026-09-12 10:21:33.439",
+      "dateStarted": "2026-09-15 19:31:49.297",
+      "dateFinished": "2026-09-15 19:31:49.303",
       "status": "FINISHED"
     },
     {
       "text": "%python\noperaciones \u003d [\n    {\"id\": 1, \"fecha\": \"2026-01-05\", \"cuenta\": \"ES01-0001\", \"importe\": 1250.00},\n    {\"id\": 2, \"fecha\": \"2026-01-06\", \"cuenta\": \"ES01-0002\", \"importe\": 9800.50},\n    {\"id\": 3, \"fecha\": \"2026-01-06\", \"cuenta\": \"ES01-0001\", \"importe\": 320.10},\n    {\"id\": 4, \"fecha\": \"2026-01-07\", \"cuenta\": \"ES01-0003\", \"importe\": 15000.00},\n    {\"id\": 5, \"fecha\": \"2026-01-08\", \"cuenta\": \"ES01-0002\", \"importe\": 75.25},\n]\nprint(f\"Operaciones cargadas: {len(operaciones)}\")",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:49.397",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "python",
-          "editOnDblClick": false
-        }
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -97,20 +113,25 @@
       "jobName": "paragraph_1789206522907_1963223601",
       "id": "paragraph_1789206440531_1859629164",
       "dateCreated": "2026-09-12 09:48:42.907",
-      "dateStarted": "2026-09-12 10:21:33.534",
-      "dateFinished": "2026-09-12 10:21:33.540",
+      "dateStarted": "2026-09-15 19:31:49.401",
+      "dateFinished": "2026-09-15 19:31:49.407",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 2. Control básico: operaciones por encima de un umbral\n\n**TODO:** completa la celda siguiente para quedarte solo con las operaciones cuyo `importe` supere `UMBRAL`, guardándolas en `operaciones_revisar`.",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:49.501",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -131,19 +152,25 @@
       "jobName": "paragraph_1789206522907_1130149959",
       "id": "paragraph_1789206440531_-1160181710",
       "dateCreated": "2026-09-12 09:48:42.907",
-      "dateStarted": "2026-09-12 10:21:33.634",
-      "dateFinished": "2026-09-12 10:21:33.639",
+      "dateStarted": "2026-09-15 19:31:49.504",
+      "dateFinished": "2026-09-15 19:31:49.511",
       "status": "FINISHED"
     },
     {
       "text": "%python\nUMBRAL \u003d 10000\n\n# TODO: recorre `operaciones` y añade a `operaciones_revisar`\n# aquellas cuyo importe sea mayor que UMBRAL.\noperaciones_revisar \u003d []\n\nprint(f\"Operaciones por encima del umbral ({UMBRAL} EUR): \"\n      f\"{len(operaciones_revisar)}\")",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:49.604",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "python",
-          "editOnDblClick": false
-        }
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -164,20 +191,25 @@
       "jobName": "paragraph_1789206522907_1795388237",
       "id": "paragraph_1789206440531_-42340809",
       "dateCreated": "2026-09-12 09:48:42.907",
-      "dateStarted": "2026-09-12 10:21:33.734",
-      "dateFinished": "2026-09-12 10:21:33.739",
+      "dateStarted": "2026-09-15 19:31:49.606",
+      "dateFinished": "2026-09-15 19:31:49.614",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 3. Análisis: importe total y medio\n\n**TODO:** completa la celda siguiente para calcular `total` (suma de todos los importes) y `media` (importe medio).",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:49.706",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -198,19 +230,25 @@
       "jobName": "paragraph_1789206522907_1920660811",
       "id": "paragraph_1789206440531_328428961",
       "dateCreated": "2026-09-12 09:48:42.907",
-      "dateStarted": "2026-09-12 10:21:33.835",
-      "dateFinished": "2026-09-12 10:21:33.840",
+      "dateStarted": "2026-09-15 19:31:49.709",
+      "dateFinished": "2026-09-15 19:31:49.714",
       "status": "FINISHED"
     },
     {
       "text": "%python\n# TODO: calcula total y media a partir de `operaciones`\ntotal \u003d None\nmedia \u003d None\n\nif total is not None and media is not None:\n    print(f\"Importe total: {total:.2f} EUR\")\n    print(f\"Importe medio: {media:.2f} EUR\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:49.809",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "python",
-          "editOnDblClick": false
-        }
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -231,20 +269,25 @@
       "jobName": "paragraph_1789206522907_1726194478",
       "id": "paragraph_1789206440531_1685506158",
       "dateCreated": "2026-09-12 09:48:42.908",
-      "dateStarted": "2026-09-12 10:21:33.935",
-      "dateFinished": "2026-09-12 10:21:33.940",
+      "dateStarted": "2026-09-15 19:31:49.812",
+      "dateFinished": "2026-09-15 19:31:49.819",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 4. Conclusiones\n\n**TODO:** documenta aquí, en 3-4 líneas, qué has encontrado (¿cuántas operaciones se salen del umbral?, ¿qué harías a continuación como auditor/a?).",
       "user": "anonymous",
+      "dateUpdated": "2026-09-15 19:31:49.912",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -265,8 +308,8 @@
       "jobName": "paragraph_1789206522908_885780927",
       "id": "paragraph_1789206440531_-1361674796",
       "dateCreated": "2026-09-12 09:48:42.908",
-      "dateStarted": "2026-09-12 10:21:34.036",
-      "dateFinished": "2026-09-12 10:21:34.040",
+      "dateStarted": "2026-09-15 19:31:49.914",
+      "dateFinished": "2026-09-15 19:31:49.920",
       "status": "FINISHED"
     }
   ],
