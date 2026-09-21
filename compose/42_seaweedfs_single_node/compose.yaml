@@ -1,0 +1,18 @@
+services:
+  seaweedfs:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs
+    restart: unless-stopped
+    command: >
+      server -dir=/data -ip.bind=0.0.0.0
+      -master.port=9333 -volume.port=8080 -volume.max=0
+      -filer -filer.port=8888
+      -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "9333:9333"   # API/UI del master
+      - "8080:8080"   # API/UI del volume server
+      - "8888:8888"   # API/UI del filer
+      - "8333:8333"   # API S3
+    volumes:
+      - ./data:/data
+      - ./s3-config/s3.json:/etc/seaweedfs/s3.json:ro

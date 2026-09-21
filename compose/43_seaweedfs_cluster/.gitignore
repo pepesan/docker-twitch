@@ -1,0 +1,5 @@
+data/*
+.env
+filer-config/filer.toml
+s3-config/s3.json
+haproxy/haproxy.cfg

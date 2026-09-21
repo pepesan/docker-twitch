@@ -1,0 +1,194 @@
+services:
+  master1:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-master1
+    restart: unless-stopped
+    ports:
+      - "9333:9333"
+      - "19333:19333"
+    command: >
+      master -ip=master1 -ip.bind=0.0.0.0 -port=9333
+      -peers=master1:9333,master2:9333,master3:9333
+      -defaultReplication=001 -mdir=/data
+    volumes:
+      - ./data/master1:/data
+    networks:
+      - seaweedfs
+
+  master2:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-master2
+    restart: unless-stopped
+    ports:
+      - "9334:9333"
+      - "19334:19333"
+    command: >
+      master -ip=master2 -ip.bind=0.0.0.0 -port=9333
+      -peers=master1:9333,master2:9333,master3:9333
+      -defaultReplication=001 -mdir=/data
+    volumes:
+      - ./data/master2:/data
+    networks:
+      - seaweedfs
+
+  master3:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-master3
+    restart: unless-stopped
+    ports:
+      - "9335:9333"
+      - "19335:19333"
+    command: >
+      master -ip=master3 -ip.bind=0.0.0.0 -port=9333
+      -peers=master1:9333,master2:9333,master3:9333
+      -defaultReplication=001 -mdir=/data
+    volumes:
+      - ./data/master3:/data
+    networks:
+      - seaweedfs
+
+  volume1:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-volume1
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "18080:18080"
+    command: >
+      volume -mserver="master1:9333,master2:9333,master3:9333"
+      -ip.bind=0.0.0.0 -port=8080 -dir=/data -max=0
+    depends_on:
+      - master1
+      - master2
+      - master3
+    volumes:
+      - ./data/volume1:/data
+    networks:
+      - seaweedfs
+
+  volume2:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-volume2
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+      - "18081:18080"
+    command: >
+      volume -mserver="master1:9333,master2:9333,master3:9333"
+      -ip.bind=0.0.0.0 -port=8080 -dir=/data -max=0
+    depends_on:
+      - master1
+      - master2
+      - master3
+    volumes:
+      - ./data/volume2:/data
+    networks:
+      - seaweedfs
+
+  volume3:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-volume3
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+      - "18082:18080"
+    command: >
+      volume -mserver="master1:9333,master2:9333,master3:9333"
+      -ip.bind=0.0.0.0 -port=8080 -dir=/data -max=0
+    depends_on:
+      - master1
+      - master2
+      - master3
+    volumes:
+      - ./data/volume3:/data
+    networks:
+      - seaweedfs
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: seaweedfs-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: seaweedfs
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: seaweedfs
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - seaweedfs
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seaweedfs -d seaweedfs"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  filer1:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-filer1
+    restart: unless-stopped
+    ports:
+      - "8889:8888"
+      - "18889:18888"
+    command: >
+      filer -master="master1:9333,master2:9333,master3:9333"
+      -ip.bind=0.0.0.0 -s3 -s3.port=8333
+      -s3.config=/etc/seaweedfs/s3.json
+    depends_on:
+      master1:
+        condition: service_started
+      master2:
+        condition: service_started
+      master3:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./s3-config/s3.json:/etc/seaweedfs/s3.json:ro
+      - ./filer-config/filer.toml:/etc/seaweedfs/filer.toml:ro
+    networks:
+      - seaweedfs
+
+  filer2:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs-filer2
+    restart: unless-stopped
+    ports:
+      - "8890:8888"
+      - "18890:18888"
+    command: >
+      filer -master="master1:9333,master2:9333,master3:9333"
+      -ip.bind=0.0.0.0 -s3 -s3.port=8333
+      -s3.config=/etc/seaweedfs/s3.json
+    depends_on:
+      master1:
+        condition: service_started
+      master2:
+        condition: service_started
+      master3:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./s3-config/s3.json:/etc/seaweedfs/s3.json:ro
+      - ./filer-config/filer.toml:/etc/seaweedfs/filer.toml:ro
+    networks:
+      - seaweedfs
+
+  haproxy:
+    image: haproxy:2.9-alpine
+    container_name: seaweedfs-haproxy
+    restart: unless-stopped
+    ports:
+      - "8333:8333"
+      - "8888:8888"
+      - "1936:1936"
+    depends_on:
+      - filer1
+      - filer2
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - seaweedfs
+
+networks:
+  seaweedfs:

@@ -1,0 +1,43 @@
+global
+    maxconn 4096
+
+defaults
+    mode http
+    timeout connect 5s
+    timeout client 60s
+    timeout server 60s
+    option httplog
+
+userlist filer_ui_users
+    user pepesan password __FILER_UI_PASSWORD_HASH__
+
+frontend s3_front
+    bind *:8333
+    default_backend s3_back
+
+backend s3_back
+    balance roundrobin
+    option httpchk GET /status
+    http-check expect status 200
+    server filer1 filer1:8333 check
+    server filer2 filer2:8333 check
+
+frontend filer_ui_front
+    bind *:8888
+    acl filer_ui_auth http_auth(filer_ui_users)
+    http-request auth realm filer_ui unless filer_ui_auth
+    default_backend filer_ui_back
+
+backend filer_ui_back
+    balance roundrobin
+    option httpchk GET /
+    http-check expect status 200
+    server filer1 filer1:8888 check
+    server filer2 filer2:8888 check
+
+listen stats
+    bind *:1936
+    stats enable
+    stats uri /
+    stats refresh 5s
+    stats auth pepesan:__STATS_PASSWORD__

@@ -1,0 +1,11 @@
+[postgres2]
+enabled = true
+hostname = "postgres"
+port = 5432
+username = "seaweedfs"
+password = "__POSTGRES_PASSWORD__"
+database = "seaweedfs"
+sslmode = "disable"
+connection_max_idle = 5
+connection_max_open = 75
+connection_max_lifetime_seconds = 0
