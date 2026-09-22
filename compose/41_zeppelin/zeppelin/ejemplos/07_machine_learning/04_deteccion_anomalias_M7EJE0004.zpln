@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: detección de anomalías con IsolationForest\n\nEquivalente a `ejemplos-python/src/modulo_07/04_deteccion_anomalias.py`. IsolationForest aísla cada operación mediante particiones aleatorias; las que se aíslan con muy pocas particiones se consideran atípicas. Aquí sí se incluyen las anomalías inyectadas, porque son precisamente lo que se quiere comprobar que el modelo detecta.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:30:58.410",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: detección de anomalías con IsolationForest\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_07/04_deteccion_anomalias.py\u003c/code\u003e. IsolationForest aísla cada operación mediante particiones aleatorias; las que se aíslan con muy pocas particiones se consideran atípicas. Aquí sí se incluyen las anomalías inyectadas, porque son precisamente lo que se quiere comprobar que el modelo detecta.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7EJE0004_0",
+      "id": "paragraph_M7EJE0004_0",
+      "dateCreated": "2026-09-22 22:30:58.410",
+      "dateStarted": "2026-09-22 20:32:59.442",
+      "dateFinished": "2026-09-22 20:32:59.447",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 7: detección de anomalías con IsolationForest\n# (equivalente a ejemplos-python/src/modulo_07/04_deteccion_anomalias.py)\nimport pandas as pd\nfrom sklearn.ensemble import IsolationForest\n\nruta \u003d \"/opt/zeppelin/notebook/ejemplos/07_machine_learning/data/operaciones_ml.csv\"\ndf \u003d pd.read_csv(ruta)\ncaracteristicas \u003d [\"importe\", \"dias_desde_revision\", \"num_operaciones_mes\", \"antiguedad_cuenta_anios\"]\n\nmodelo \u003d IsolationForest(contamination\u003d0.02, random_state\u003d42)\ndf[\"es_anomalia\"] \u003d modelo.fit_predict(df[caracteristicas]) \u003d\u003d -1\n\ndetectadas \u003d df[df[\"es_anomalia\"]]\nprint(f\"Anomalías detectadas: {len(detectadas)}\")\nprint(detectadas[[\"id_operacion\", \"importe\", \"anomalia_inyectada\"]])\n\nverdaderos_positivos \u003d detectadas[\"anomalia_inyectada\"].sum()\nprint(f\"De las 3 anomalías inyectadas, detectadas: {verdaderos_positivos}\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:30:58.410",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Anomalías detectadas: 7\n    id_operacion   importe  anomalia_inyectada\n49       OP-0050     44.96               False\n52       OP-0053    241.04               False\n75       OP-0076    135.37               False\n93       OP-0094     44.71               False\n300      OP-9001  45000.00                True\n301      OP-9002  38000.00                True\n302      OP-9003  52000.00                True\nDe las 3 anomalías inyectadas, detectadas: 3\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7EJE0004_1",
+      "id": "paragraph_M7EJE0004_1",
+      "dateCreated": "2026-09-22 22:30:58.410",
+      "dateStarted": "2026-09-22 20:32:59.542",
+      "dateFinished": "2026-09-22 20:33:00.433",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "04_deteccion_anomalias",
+  "id": "M7EJE0004",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-32-59"
+  }
+}

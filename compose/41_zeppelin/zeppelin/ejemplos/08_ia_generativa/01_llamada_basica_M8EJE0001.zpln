@@ -1,0 +1,170 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: primera llamada a la API de Anthropic\n\nEquivalente a `ejemplos-python/src/modulo_08/01_llamada_basica.py`. A diferencia del script (que lee `ANTHROPIC_API_KEY` del entorno), aquí la clave se define como variable editable en la celda siguiente, para que cada alumno/a use la suya sin tocar el código.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: primera llamada a la API de Anthropic\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_08/01_llamada_basica.py\u003c/code\u003e. A diferencia del script (que lee \u003ccode\u003eANTHROPIC_API_KEY\u003c/code\u003e del entorno), aquí la clave se define como variable editable en la celda siguiente, para que cada alumno/a use la suya sin tocar el código.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0001_0",
+      "id": "paragraph_M8EJE0001_0",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:15.502",
+      "dateFinished": "2026-09-22 20:52:16.226",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n### Cómo conseguir tu propia clave de la API de Anthropic\n\n1. Entra en [console.anthropic.com](https://console.anthropic.com) e inicia sesión (o crea una cuenta).\n2. En el menú lateral, ve a **Settings → API Keys**.\n3. Pulsa **Create Key**, dale un nombre (p. ej. `curso-python-auditoria`) y cópiala — solo se muestra una vez.\n4. Pégala como valor de `ANTHROPIC_API_KEY` en la celda siguiente.\n\n**Nunca subas tu clave a un repositorio ni la compartas** — trátala como una contraseña. Si la pegas aquí para probar en tu propio Zeppelin local, recuerda borrarla de la celda antes de guardar o compartir el notebook.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch3\u003eCómo conseguir tu propia clave de la API de Anthropic\u003c/h3\u003e\n\u003col\u003e\n\u003cli\u003eEntra en \u003ca href\u003d\"https://console.anthropic.com\"\u003econsole.anthropic.com\u003c/a\u003e e inicia sesión (o crea una cuenta).\u003c/li\u003e\n\u003cli\u003eEn el menú lateral, ve a \u003cstrong\u003eSettings → API Keys\u003c/strong\u003e.\u003c/li\u003e\n\u003cli\u003ePulsa \u003cstrong\u003eCreate Key\u003c/strong\u003e, dale un nombre (p. ej. \u003ccode\u003ecurso-python-auditoria\u003c/code\u003e) y cópiala — solo se muestra una vez.\u003c/li\u003e\n\u003cli\u003ePégala como valor de \u003ccode\u003eANTHROPIC_API_KEY\u003c/code\u003e en la celda siguiente.\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003e\u003cstrong\u003eNunca subas tu clave a un repositorio ni la compartas\u003c/strong\u003e — trátala como una contraseña. Si la pegas aquí para probar en tu propio Zeppelin local, recuerda borrarla de la celda antes de guardar o compartir el notebook.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0001_1",
+      "id": "paragraph_M8EJE0001_1",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:16.303",
+      "dateFinished": "2026-09-22 20:52:16.321",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nANTHROPIC_API_KEY \u003d \"\"  # TODO: pega aquí tu clave propia",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0001_2",
+      "id": "paragraph_M8EJE0001_2",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:16.404",
+      "dateFinished": "2026-09-22 20:52:19.834",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 8: primera llamada a la API de Anthropic\n# (equivalente a ejemplos-python/src/modulo_08/01_llamada_basica.py)\nimport anthropic\n\nif not ANTHROPIC_API_KEY:\n    print(\"Completa ANTHROPIC_API_KEY en la celda anterior con tu propia clave antes de ejecutar esta celda.\")\nelse:\n    client \u003d anthropic.Anthropic(api_key\u003dANTHROPIC_API_KEY)\n\n    respuesta \u003d client.messages.create(\n        model\u003d\"claude-opus-5\",\n        max_tokens\u003d1024,\n        system\u003d\"Eres un asistente de auditoría interna. Responde de forma breve y concreta.\",\n        messages\u003d[{\"role\": \"user\", \"content\": \"¿Qué es una prueba sustantiva en auditoría?\"}],\n    )\n\n    for bloque in respuesta.content:\n        if bloque.type \u003d\u003d \"text\":\n            print(bloque.text)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Completa ANTHROPIC_API_KEY en la celda anterior con tu propia clave antes de ejecutar esta celda.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0001_3",
+      "id": "paragraph_M8EJE0001_3",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:19.912",
+      "dateFinished": "2026-09-22 20:52:20.920",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "01_llamada_basica",
+  "id": "M8EJE0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "startTime": "2026-09-22_20-52-15",
+    "isRunning": true
+  }
+}

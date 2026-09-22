@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: clustering (aprendizaje no supervisado)\n\nEquivalente a `ejemplos-python/src/modulo_07/03_clustering.py`. A diferencia de clasificación y regresión, no hay una etiqueta que predecir: KMeans agrupa las operaciones en segmentos según similitud entre sus características.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:30:58.410",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: clustering (aprendizaje no supervisado)\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_07/03_clustering.py\u003c/code\u003e. A diferencia de clasificación y regresión, no hay una etiqueta que predecir: KMeans agrupa las operaciones en segmentos según similitud entre sus características.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7EJE0003_0",
+      "id": "paragraph_M7EJE0003_0",
+      "dateCreated": "2026-09-22 22:30:58.410",
+      "dateStarted": "2026-09-22 20:32:57.421",
+      "dateFinished": "2026-09-22 20:32:57.425",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 7: clustering (aprendizaje no supervisado)\n# (equivalente a ejemplos-python/src/modulo_07/03_clustering.py)\nimport pandas as pd\nfrom sklearn.cluster import KMeans\nfrom sklearn.preprocessing import StandardScaler\n\nruta \u003d \"/opt/zeppelin/notebook/ejemplos/07_machine_learning/data/operaciones_ml.csv\"\ndf \u003d pd.read_csv(ruta)\ndf \u003d df[~df[\"anomalia_inyectada\"]].copy()\ncaracteristicas \u003d [\"importe\", \"dias_desde_revision\", \"num_operaciones_mes\"]\n\nX_escalado \u003d StandardScaler().fit_transform(df[caracteristicas])\n\nmodelo \u003d KMeans(n_clusters\u003d3, random_state\u003d42, n_init\u003d10)\ndf[\"segmento\"] \u003d modelo.fit_predict(X_escalado)\n\nprint(df.groupby(\"segmento\")[caracteristicas].mean().round(1))\nprint(df[\"segmento\"].value_counts())",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:30:58.410",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "          importe  dias_desde_revision  num_operaciones_mes\nsegmento                                                   \n0           988.1                145.0                 37.2\n1           488.9                 90.7                 11.5\n2           784.6                 55.4                 35.2\nsegmento\n1    131\n2     90\n0     79\nName: count, dtype: int64\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7EJE0003_1",
+      "id": "paragraph_M7EJE0003_1",
+      "dateCreated": "2026-09-22 22:30:58.410",
+      "dateStarted": "2026-09-22 20:32:57.521",
+      "dateFinished": "2026-09-22 20:33:00.305",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "03_clustering",
+  "id": "M7EJE0003",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-32-57"
+  }
+}

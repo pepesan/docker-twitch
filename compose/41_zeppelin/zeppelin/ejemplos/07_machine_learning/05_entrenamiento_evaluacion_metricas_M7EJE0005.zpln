@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: métricas de evaluación más allá de la exactitud\n\nEquivalente a `ejemplos-python/src/modulo_07/05_entrenamiento_evaluacion_metricas.py`. La matriz de confusión y `classification_report` desglosan aciertos y errores por tipo (precisión, recall, F1), más informativo que una única cifra de exactitud, sobre todo con clases desbalanceadas (aquí solo el 25% son riesgo_alto).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:30:58.410",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: métricas de evaluación más allá de la exactitud\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_07/05_entrenamiento_evaluacion_metricas.py\u003c/code\u003e. La matriz de confusión y \u003ccode\u003eclassification_report\u003c/code\u003e desglosan aciertos y errores por tipo (precisión, recall, F1), más informativo que una única cifra de exactitud, sobre todo con clases desbalanceadas (aquí solo el 25% son riesgo_alto).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7EJE0005_0",
+      "id": "paragraph_M7EJE0005_0",
+      "dateCreated": "2026-09-22 22:30:58.410",
+      "dateStarted": "2026-09-22 20:33:01.462",
+      "dateFinished": "2026-09-22 20:33:01.466",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 7: métricas de evaluación más allá de la exactitud\n# (equivalente a ejemplos-python/src/modulo_07/05_entrenamiento_evaluacion_metricas.py)\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import classification_report, confusion_matrix\nfrom sklearn.model_selection import train_test_split\n\nruta \u003d \"/opt/zeppelin/notebook/ejemplos/07_machine_learning/data/operaciones_ml.csv\"\ndf \u003d pd.read_csv(ruta)\ndf \u003d df[~df[\"anomalia_inyectada\"]]\ncaracteristicas \u003d [\"importe\", \"dias_desde_revision\", \"num_operaciones_mes\", \"antiguedad_cuenta_anios\"]\n\nX_train, X_test, y_train, y_test \u003d train_test_split(\n    df[caracteristicas], df[\"riesgo_alto\"], test_size\u003d0.25, random_state\u003d42\n)\n\nmodelo \u003d LogisticRegression()\nmodelo.fit(X_train, y_train)\npredicciones \u003d modelo.predict(X_test)\n\nprint(\"Matriz de confusión (filas\u003dreal, columnas\u003dpredicho):\")\nprint(confusion_matrix(y_test, predicciones))\nprint()\nprint(classification_report(y_test, predicciones, target_names\u003d[\"riesgo_normal\", \"riesgo_alto\"]))",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:30:58.410",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Matriz de confusión (filas\u003dreal, columnas\u003dpredicho):\n[[54  6]\n [12  3]]\n\n               precision    recall  f1-score   support\n\nriesgo_normal       0.82      0.90      0.86        60\n  riesgo_alto       0.33      0.20      0.25        15\n\n     accuracy                           0.76        75\n    macro avg       0.58      0.55      0.55        75\n weighted avg       0.72      0.76      0.74        75\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7EJE0005_1",
+      "id": "paragraph_M7EJE0005_1",
+      "dateCreated": "2026-09-22 22:30:58.410",
+      "dateStarted": "2026-09-22 20:33:01.563",
+      "dateFinished": "2026-09-22 20:33:01.586",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "05_entrenamiento_evaluacion_metricas",
+  "id": "M7EJE0005",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-33-01"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: ficheros y gestión de excepciones\n\nEquivalente a `ejemplos-python/src/modulo_02/05_ficheros_excepciones.py`. `Path`/`with` para leer y escribir ficheros de forma segura, y `try/except/finally` para capturar errores esperados sin detener el programa.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: ficheros y gestión de excepciones\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_02/05_ficheros_excepciones.py\u003c/code\u003e. \u003ccode\u003ePath\u003c/code\u003e/\u003ccode\u003ewith\u003c/code\u003e para leer y escribir ficheros de forma segura, y \u003ccode\u003etry/except/finally\u003c/code\u003e para capturar errores esperados sin detener el programa.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0005_0",
+      "id": "paragraph_M2EJE0005_0",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:53.488",
+      "dateFinished": "2026-09-22 20:16:53.497",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 2: ficheros y gestión de excepciones\n# (equivalente a ejemplos-python/src/modulo_02/05_ficheros_excepciones.py)\n\nfrom pathlib import Path\n\n# Path representa una ruta del sistema de ficheros; write_text() crea el\n# fichero y escribe su contenido en una sola llamada.\nruta \u003d Path(\"/tmp/operaciones_demo.txt\")\nruta.write_text(\"OP-001,1200\\nOP-002,75\\nOP-003,3400\\n\")\n\n# \"with ruta.open()\" abre el fichero y lo cierra automáticamente al salir\n# del bloque, incluso si algo falla dentro; iterar sobre f da línea a línea.\nwith ruta.open() as f:\n    for linea in f:\n        print(linea.strip())\n\n# try/except captura un error esperado (aquí, convertir texto no numérico a\n# entero) sin que el programa se detenga; finally se ejecuta siempre,\n# haya habido error o no.\ntry:\n    importe \u003d int(\"no-numerico\")\nexcept ValueError as e:\n    print(f\"Error de conversión controlado: {e}\")\nfinally:\n    print(\"Lectura del fichero finalizada\")\n\nruta.unlink()",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "OP-001,1200\nOP-002,75\nOP-003,3400\nError de conversión controlado: invalid literal for int() with base 10: \u0027no-numerico\u0027\nLectura del fichero finalizada\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0005_1",
+      "id": "paragraph_M2EJE0005_1",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:53.589",
+      "dateFinished": "2026-09-22 20:16:54.029",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "05_ficheros_excepciones",
+  "id": "M2EJE0005",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-16-53"
+  }
+}

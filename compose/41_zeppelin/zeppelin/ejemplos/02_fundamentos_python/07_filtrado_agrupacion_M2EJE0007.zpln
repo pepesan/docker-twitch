@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: filtrado, ordenación, agrupación y transformación\n\nEquivalente a `ejemplos-python/src/modulo_02/07_filtrado_agrupacion.py`. Las cuatro operaciones más habituales sobre un DataFrame al revisar operaciones.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: filtrado, ordenación, agrupación y transformación\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_02/07_filtrado_agrupacion.py\u003c/code\u003e. Las cuatro operaciones más habituales sobre un DataFrame al revisar operaciones.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0007_0",
+      "id": "paragraph_M2EJE0007_0",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:55.537",
+      "dateFinished": "2026-09-22 20:16:55.541",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 2: filtrado, ordenación, agrupación y transformación\n# (equivalente a ejemplos-python/src/modulo_02/07_filtrado_agrupacion.py)\n\nimport pandas as pd\n\ndatos \u003d {\n    \"id_operacion\": [\"OP-001\", \"OP-002\", \"OP-003\", \"OP-004\"],\n    \"cuenta\": [\"ES00-1\", \"ES00-2\", \"ES00-1\", \"ES00-3\"],\n    \"importe\": [1200, 75, 3400, 980],\n}\ndf \u003d pd.DataFrame(datos)\n\n# Filtrado: df[condición] devuelve solo las filas donde la condición es\n# verdadera, igual que una máscara booleana.\naltas \u003d df[df[\"importe\"] \u003e 1000]\nprint(altas)\n\n# sort_values() ordena por una columna; ascending\u003dFalse para descendente.\ndf_ordenado \u003d df.sort_values(\"importe\", ascending\u003dFalse)\nprint(df_ordenado)\n\n# groupby() agrupa por el valor de una columna (cuenta) y agrega (sum) los\n# importes de cada grupo, igual que un \"GROUP BY\" de SQL.\nresumen \u003d df.groupby(\"cuenta\")[\"importe\"].sum()\nprint(resumen)\n\n# apply() ejecuta una función sobre cada valor de la columna; aquí una\n# función anónima (lambda) que da formato de texto al importe.\ndf[\"importe_eur\"] \u003d df[\"importe\"].apply(lambda x: f\"{x:.2f} €\")\nprint(df)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  id_operacion  cuenta  importe\n0       OP-001  ES00-1     1200\n2       OP-003  ES00-1     3400\n  id_operacion  cuenta  importe\n2       OP-003  ES00-1     3400\n0       OP-001  ES00-1     1200\n3       OP-004  ES00-3      980\n1       OP-002  ES00-2       75\ncuenta\nES00-1    4600\nES00-2      75\nES00-3     980\nName: importe, dtype: int64\n  id_operacion  cuenta  importe importe_eur\n0       OP-001  ES00-1     1200   1200.00 €\n1       OP-002  ES00-2       75     75.00 €\n2       OP-003  ES00-1     3400   3400.00 €\n3       OP-004  ES00-3      980    980.00 €\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0007_1",
+      "id": "paragraph_M2EJE0007_1",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:55.638",
+      "dateFinished": "2026-09-22 20:16:55.662",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "07_filtrado_agrupacion",
+  "id": "M2EJE0007",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-16-55"
+  }
+}

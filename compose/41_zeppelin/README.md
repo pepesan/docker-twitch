@@ -108,7 +108,7 @@ antepuesto al `$PATH` — así tanto `%python` en los notebooks como un
 
 Librerías instaladas (`zeppelin/image/requirements.txt`): `pandas`, `numpy`,
 `openpyxl`, `sqlalchemy`, `psycopg2-binary`, `matplotlib`, `seaborn`,
-`scikit-learn` — cubre los Módulos 1 a 7 del curso.
+`scikit-learn`, `anthropic` — cubre los Módulos 1 a 8 del curso.
 
 `compose.yaml` construye esta imagen automáticamente (`build: ./zeppelin/image`)
 con el nombre `pepesan/zeppelin:python-3.14` — el mismo con el que se publica

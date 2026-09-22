@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: introducción a Pandas y DataFrames\n\nEquivalente a `ejemplos-python/src/modulo_02/06_pandas_dataframes.py`. Un `DataFrame` es la estructura central de Pandas: una tabla con filas y columnas.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: introducción a Pandas y DataFrames\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_02/06_pandas_dataframes.py\u003c/code\u003e. Un \u003ccode\u003eDataFrame\u003c/code\u003e es la estructura central de Pandas: una tabla con filas y columnas.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0006_0",
+      "id": "paragraph_M2EJE0006_0",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:54.512",
+      "dateFinished": "2026-09-22 20:16:54.518",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 2: introducción a Pandas y DataFrames\n# (equivalente a ejemplos-python/src/modulo_02/06_pandas_dataframes.py)\n\nimport pandas as pd\n\n# Un DataFrame es la estructura central de Pandas: una tabla con filas y\n# columnas, construida aquí a partir de un diccionario donde cada clave es\n# una columna y su lista de valores son las filas.\ndatos \u003d {\n    \"id_operacion\": [\"OP-001\", \"OP-002\", \"OP-003\", \"OP-004\"],\n    \"cuenta\": [\"ES00-1\", \"ES00-2\", \"ES00-1\", \"ES00-3\"],\n    \"importe\": [1200, 75, 3400, 980],\n    \"fecha\": [\"2026-01-05\", \"2026-01-06\", \"2026-01-06\", \"2026-01-07\"],\n}\ndf \u003d pd.DataFrame(datos)\nprint(df)\n# dtypes muestra el tipo de dato de cada columna; describe() resume las\n# columnas numéricas con estadísticos básicos (media, mínimo, máximo...).\nprint(df.dtypes)\nprint(df.describe())",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  id_operacion  cuenta  importe       fecha\n0       OP-001  ES00-1     1200  2026-01-05\n1       OP-002  ES00-2       75  2026-01-06\n2       OP-003  ES00-1     3400  2026-01-06\n3       OP-004  ES00-3      980  2026-01-07\nid_operacion      str\ncuenta            str\nimporte         int64\nfecha             str\ndtype: object\n           importe\ncount     4.000000\nmean   1413.750000\nstd    1410.823489\nmin      75.000000\n25%     753.750000\n50%    1090.000000\n75%    1750.000000\nmax    3400.000000\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0006_1",
+      "id": "paragraph_M2EJE0006_1",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:54.611",
+      "dateFinished": "2026-09-22 20:16:55.250",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "06_pandas_dataframes",
+  "id": "M2EJE0006",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-16-54"
+  }
+}

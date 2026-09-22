@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: sintaxis, variables, tipos y operadores\n\nEquivalente a `ejemplos-python/src/modulo_02/01_sintaxis_variables_operadores.py`. Python infiere el tipo de cada variable a partir del valor asignado (tipado dinámico), sin necesidad de declararlo como en otros lenguajes.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: sintaxis, variables, tipos y operadores\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_02/01_sintaxis_variables_operadores.py\u003c/code\u003e. Python infiere el tipo de cada variable a partir del valor asignado (tipado dinámico), sin necesidad de declararlo como en otros lenguajes.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0001_0",
+      "id": "paragraph_M2EJE0001_0",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:49.412",
+      "dateFinished": "2026-09-22 20:16:51.156",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 2: sintaxis, variables, tipos y operadores\n# (equivalente a ejemplos-python/src/modulo_02/01_sintaxis_variables_operadores.py)\n\nnombre \u003d \"Auditoría\"\nimporte \u003d 1500.75\nrevisado \u003d True\n\nprint(f\"{nombre}: importe\u003d{importe}, revisado\u003d{revisado}\")\nprint(type(nombre), type(importe), type(revisado))\n\n# Operador aritmético (*) y operador de comparación (\u003e): este último\n# devuelve un booleano, el mismo tipo que \"revisado\".\ntotal \u003d importe * 2\nsupera_umbral \u003d importe \u003e 1000\nprint(total, supera_umbral)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Auditoría: importe\u003d1500.75, revisado\u003dTrue\n\u003cclass \u0027str\u0027\u003e \u003cclass \u0027float\u0027\u003e \u003cclass \u0027bool\u0027\u003e\n3001.5 True\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0001_1",
+      "id": "paragraph_M2EJE0001_1",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:51.214",
+      "dateFinished": "2026-09-22 20:16:54.013",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "01_sintaxis_variables_operadores",
+  "id": "M2EJE0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-16-49"
+  }
+}

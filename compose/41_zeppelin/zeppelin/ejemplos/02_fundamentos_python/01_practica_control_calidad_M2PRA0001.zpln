@@ -1,0 +1,331 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Módulo 2 · Práctica: control de calidad de operaciones\n\nEste notebook contiene un análisis **parcialmente desarrollado**. Completa las celdas marcadas con `TODO`, documentando en una celda Markdown lo que has hecho en cada sección.\n\nEstructura: 1) carga de datos, 2) reglas de control de calidad, 3) resultado, 4) conclusiones.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eMódulo 2 · Práctica: control de calidad de operaciones\u003c/h1\u003e\n\u003cp\u003eEste notebook contiene un análisis \u003cstrong\u003eparcialmente desarrollado\u003c/strong\u003e. Completa las celdas marcadas con \u003ccode\u003eTODO\u003c/code\u003e, documentando en una celda Markdown lo que has hecho en cada sección.\u003c/p\u003e\n\u003cp\u003eEstructura: 1) carga de datos, 2) reglas de control de calidad, 3) resultado, 4) conclusiones.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_0",
+      "id": "paragraph_M2PRA0001_0",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:56.561",
+      "dateFinished": "2026-09-22 20:16:56.566",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 1. Carga de operaciones\n\nOperaciones ficticias ya cargadas en un DataFrame (una de ellas con importe negativo, otra sin cuenta asociada, otra por encima del umbral de alerta).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e1. Carga de operaciones\u003c/h2\u003e\n\u003cp\u003eOperaciones ficticias ya cargadas en un DataFrame (una de ellas con importe negativo, otra sin cuenta asociada, otra por encima del umbral de alerta).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_1",
+      "id": "paragraph_M2PRA0001_1",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:56.662",
+      "dateFinished": "2026-09-22 20:16:56.666",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nimport pandas as pd\n\nUMBRAL_ALERTA \u003d 10000\n\ndf \u003d pd.DataFrame(\n    {\n        \"id_operacion\": [\"OP-001\", \"OP-002\", \"OP-003\", \"OP-004\", \"OP-005\"],\n        \"cuenta\": [\"ES00-1234\", \"ES00-5678\", \"ES00-1234\", None, \"ES00-9999\"],\n        \"importe\": [1200, -50, 3400, 980, 15000],\n    }\n)\nprint(f\"Operaciones cargadas: {len(df)}\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Operaciones cargadas: 5\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_2",
+      "id": "paragraph_M2PRA0001_2",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:56.763",
+      "dateFinished": "2026-09-22 20:16:56.768",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 2. Reglas de control de calidad\n\n**TODO:** completa `detectar_incidencias(df)` para que compruebe las tres reglas (ver `ejemplos-python/src/modulo_02/08_practica_control_calidad.py` si necesitas ayuda) y añada un mensaje a `incidencias` por cada regla que se incumpla:\n- Algún `importe` negativo\n- Alguna operación sin `cuenta` asociada\n- Algún `importe` por encima de `UMBRAL_ALERTA`",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e2. Reglas de control de calidad\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e completa \u003ccode\u003edetectar_incidencias(df)\u003c/code\u003e para que compruebe las tres reglas (ver \u003ccode\u003eejemplos-python/src/modulo_02/08_practica_control_calidad.py\u003c/code\u003e si necesitas ayuda) y añada un mensaje a \u003ccode\u003eincidencias\u003c/code\u003e por cada regla que se incumpla:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eAlgún \u003ccode\u003eimporte\u003c/code\u003e negativo\u003c/li\u003e\n\u003cli\u003eAlguna operación sin \u003ccode\u003ecuenta\u003c/code\u003e asociada\u003c/li\u003e\n\u003cli\u003eAlgún \u003ccode\u003eimporte\u003c/code\u003e por encima de \u003ccode\u003eUMBRAL_ALERTA\u003c/code\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_3",
+      "id": "paragraph_M2PRA0001_3",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:56.863",
+      "dateFinished": "2026-09-22 20:16:56.872",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\ndef detectar_incidencias(df):\n    incidencias \u003d []\n    # TODO: si (df[\"importe\"] \u003c 0).any(), añade \"Importes negativos detectados\"\n\n    # TODO: si df[\"cuenta\"].isna().any(), añade \"Operaciones sin cuenta asociada\"\n\n    # TODO: si (df[\"importe\"] \u003e UMBRAL_ALERTA).any(), añade \"Operaciones por encima del umbral de alerta\"\n\n    return incidencias\n\n\nincidencias \u003d detectar_incidencias(df)\nif incidencias:\n    for incidencia in incidencias:\n        print(f\"⚠ {incidencia}\")\nelse:\n    print(\"Sin incidencias detectadas (o pendiente de completar el TODO)\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Sin incidencias detectadas (o pendiente de completar el TODO)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_4",
+      "id": "paragraph_M2PRA0001_4",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:56.964",
+      "dateFinished": "2026-09-22 20:16:56.970",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 3. Resultado\n\n**TODO:** calcula `total` como la suma de la columna `importe`.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e3. Resultado\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e calcula \u003ccode\u003etotal\u003c/code\u003e como la suma de la columna \u003ccode\u003eimporte\u003c/code\u003e.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_5",
+      "id": "paragraph_M2PRA0001_5",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:57.065",
+      "dateFinished": "2026-09-22 20:16:57.070",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# TODO: calcula total a partir de df[\"importe\"]\ntotal \u003d None\n\nif total is not None:\n    print(f\"Importe total: {total:.2f} EUR\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Pendiente de completar (ver TODO de la celda)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_6",
+      "id": "paragraph_M2PRA0001_6",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:57.166",
+      "dateFinished": "2026-09-22 20:16:57.171",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 4. Conclusiones\n\n**TODO:** documenta aquí, en 3-4 líneas, qué incidencias encontraste y qué harías a continuación como auditor/a con la operación OP-005.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:15:21.305",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e4. Conclusiones\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e documenta aquí, en 3-4 líneas, qué incidencias encontraste y qué harías a continuación como auditor/a con la operación OP-005.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2PRA0001_7",
+      "id": "paragraph_M2PRA0001_7",
+      "dateCreated": "2026-09-22 22:15:21.305",
+      "dateStarted": "2026-09-22 20:16:57.266",
+      "dateFinished": "2026-09-22 20:16:57.269",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "01_practica_control_calidad",
+  "id": "M2PRA0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-16-56"
+  }
+}

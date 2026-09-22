@@ -1,0 +1,6 @@
+id_operacion,sucursal,motivos
+OP-301,MAD01,sin_cuenta
+OP-302,BIL02,importe_negativo
+OP-303,MAD01,sobre_umbral
+OP-304,VAL03,"sobre_umbral, sin_cuenta"
+OP-305,BIL02,importe_negativo

@@ -1,0 +1,404 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Módulo 8 · Flujo completo: de las incidencias al borrador de hallazgo\n\nEquivalente a `ejemplos-python/src/modulo_08/02_practica_flujo_auditoria.py`. En vez del flag `--live` del script (pensado para línea de comandos), aquí el modo dry-run/real se controla con la variable `EJECUTAR_LLAMADA_REAL` de más abajo.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eMódulo 8 · Flujo completo: de las incidencias al borrador de hallazgo\u003c/h1\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_08/02_practica_flujo_auditoria.py\u003c/code\u003e. En vez del flag \u003ccode\u003e--live\u003c/code\u003e del script (pensado para línea de comandos), aquí el modo dry-run/real se controla con la variable \u003ccode\u003eEJECUTAR_LLAMADA_REAL\u003c/code\u003e de más abajo.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_0",
+      "id": "paragraph_M8EJE0002_0",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:17.519",
+      "dateFinished": "2026-09-22 20:52:17.525",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 1. Carga y anonimización de incidencias\n\nNunca se envía al modelo el detalle operación a operación: solo un resumen agregado por sucursal y motivo (riesgo de confidencialidad).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e1. Carga y anonimización de incidencias\u003c/h2\u003e\n\u003cp\u003eNunca se envía al modelo el detalle operación a operación: solo un resumen agregado por sucursal y motivo (riesgo de confidencialidad).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_1",
+      "id": "paragraph_M8EJE0002_1",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:17.620",
+      "dateFinished": "2026-09-22 20:52:17.626",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nimport pandas as pd\n\nruta \u003d \"/opt/zeppelin/notebook/ejemplos/08_ia_generativa/data/incidencias.csv\"\ndf \u003d pd.read_csv(ruta)\n\n\ndef anonimizar_incidencias(df):\n    return df.groupby([\"sucursal\", \"motivos\"]).size().reset_index(name\u003d\"num_operaciones\")\n\n\nresumen \u003d anonimizar_incidencias(df)\nprint(resumen)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  sucursal                   motivos  num_operaciones\n0    BIL02          importe_negativo                2\n1    MAD01                sin_cuenta                1\n2    MAD01              sobre_umbral                1\n3    VAL03  sobre_umbral, sin_cuenta                1\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_2",
+      "id": "paragraph_M8EJE0002_2",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:17.721",
+      "dateFinished": "2026-09-22 20:52:19.834",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 2. Construcción del prompt\n\nEl resumen agregado se convierte en texto natural, envuelto en una instrucción concreta y acotada (máximo 5 líneas, sin inventar datos que no aparezcan en el resumen).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e2. Construcción del prompt\u003c/h2\u003e\n\u003cp\u003eEl resumen agregado se convierte en texto natural, envuelto en una instrucción concreta y acotada (máximo 5 líneas, sin inventar datos que no aparezcan en el resumen).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_3",
+      "id": "paragraph_M8EJE0002_3",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:19.923",
+      "dateFinished": "2026-09-22 20:52:19.927",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\ndef construir_prompt(resumen_anonimizado):\n    lineas \u003d [\n        f\"- {fila.sucursal}: {fila.num_operaciones} operación(es) con motivo \u0027{fila.motivos}\u0027\"\n        for fila in resumen_anonimizado.itertuples()\n    ]\n    resumen_texto \u003d \"\\n\".join(lineas)\n    return (\n        \"A partir de este resumen de incidencias de un control de auditoría, \"\n        \"redacta un borrador breve (máximo 5 líneas) de hallazgo para el informe, \"\n        \"sin inventar datos que no aparezcan en el resumen:\\n\\n\" + resumen_texto\n    )\n\n\nprompt \u003d construir_prompt(resumen)\nprint(prompt)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "A partir de este resumen de incidencias de un control de auditoría, redacta un borrador breve (máximo 5 líneas) de hallazgo para el informe, sin inventar datos que no aparezcan en el resumen:\n\n- BIL02: 2 operación(es) con motivo \u0027importe_negativo\u0027\n- MAD01: 1 operación(es) con motivo \u0027sin_cuenta\u0027\n- MAD01: 1 operación(es) con motivo \u0027sobre_umbral\u0027\n- VAL03: 1 operación(es) con motivo \u0027sobre_umbral, sin_cuenta\u0027\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_4",
+      "id": "paragraph_M8EJE0002_4",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:20.024",
+      "dateFinished": "2026-09-22 20:52:20.923",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n### Cómo conseguir tu propia clave de la API de Anthropic\n\n1. Entra en [console.anthropic.com](https://console.anthropic.com) e inicia sesión (o crea una cuenta).\n2. En el menú lateral, ve a **Settings → API Keys**.\n3. Pulsa **Create Key**, dale un nombre (p. ej. `curso-python-auditoria`) y cópiala — solo se muestra una vez.\n4. Pégala como valor de `ANTHROPIC_API_KEY` en la celda siguiente.\n\n**Nunca subas tu clave a un repositorio ni la compartas** — trátala como una contraseña. Si la pegas aquí para probar en tu propio Zeppelin local, recuerda borrarla de la celda antes de guardar o compartir el notebook.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch3\u003eCómo conseguir tu propia clave de la API de Anthropic\u003c/h3\u003e\n\u003col\u003e\n\u003cli\u003eEntra en \u003ca href\u003d\"https://console.anthropic.com\"\u003econsole.anthropic.com\u003c/a\u003e e inicia sesión (o crea una cuenta).\u003c/li\u003e\n\u003cli\u003eEn el menú lateral, ve a \u003cstrong\u003eSettings → API Keys\u003c/strong\u003e.\u003c/li\u003e\n\u003cli\u003ePulsa \u003cstrong\u003eCreate Key\u003c/strong\u003e, dale un nombre (p. ej. \u003ccode\u003ecurso-python-auditoria\u003c/code\u003e) y cópiala — solo se muestra una vez.\u003c/li\u003e\n\u003cli\u003ePégala como valor de \u003ccode\u003eANTHROPIC_API_KEY\u003c/code\u003e en la celda siguiente.\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003e\u003cstrong\u003eNunca subas tu clave a un repositorio ni la compartas\u003c/strong\u003e — trátala como una contraseña. Si la pegas aquí para probar en tu propio Zeppelin local, recuerda borrarla de la celda antes de guardar o compartir el notebook.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_5",
+      "id": "paragraph_M8EJE0002_5",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:21.025",
+      "dateFinished": "2026-09-22 20:52:21.031",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nANTHROPIC_API_KEY \u003d \"\"  # TODO: pega aquí tu clave propia\nEJECUTAR_LLAMADA_REAL \u003d False  # cambia a True junto con tu API key para llamar de verdad al modelo",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_6",
+      "id": "paragraph_M8EJE0002_6",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:21.126",
+      "dateFinished": "2026-09-22 20:52:21.130",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 3. Llamada al modelo (aislada en su propia función)\n\nCon `EJECUTAR_LLAMADA_REAL \u003d False` (por defecto) se hace un dry-run: se ve el prompt que se enviaría, sin llamar a ningún servicio ni necesitar clave.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e3. Llamada al modelo (aislada en su propia función)\u003c/h2\u003e\n\u003cp\u003eCon \u003ccode\u003eEJECUTAR_LLAMADA_REAL \u003d False\u003c/code\u003e (por defecto) se hace un dry-run: se ve el prompt que se enviaría, sin llamar a ningún servicio ni necesitar clave.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_7",
+      "id": "paragraph_M8EJE0002_7",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:21.227",
+      "dateFinished": "2026-09-22 20:52:21.232",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nimport anthropic\n\n\ndef generar_borrador_informe(prompt, client, model\u003d\"claude-opus-5\"):\n    respuesta \u003d client.messages.create(\n        model\u003dmodel,\n        max_tokens\u003d1024,\n        system\u003d\"Eres un asistente de auditoría interna. Responde de forma breve y concreta.\",\n        messages\u003d[{\"role\": \"user\", \"content\": prompt}],\n    )\n    return next(bloque.text for bloque in respuesta.content if bloque.type \u003d\u003d \"text\")\n\n\nif not EJECUTAR_LLAMADA_REAL or not ANTHROPIC_API_KEY:\n    print(\"--- DRY RUN: prompt que se enviaría (no se ha llamado a ningún servicio) ---\")\n    print(prompt)\nelse:\n    client \u003d anthropic.Anthropic(api_key\u003dANTHROPIC_API_KEY)\n    borrador \u003d generar_borrador_informe(prompt, client)\n    print(\"--- Borrador generado (revisar antes de usar) ---\")\n    print(borrador)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "--- DRY RUN: prompt que se enviaría (no se ha llamado a ningún servicio) ---\nA partir de este resumen de incidencias de un control de auditoría, redacta un borrador breve (máximo 5 líneas) de hallazgo para el informe, sin inventar datos que no aparezcan en el resumen:\n\n- BIL02: 2 operación(es) con motivo \u0027importe_negativo\u0027\n- MAD01: 1 operación(es) con motivo \u0027sin_cuenta\u0027\n- MAD01: 1 operación(es) con motivo \u0027sobre_umbral\u0027\n- VAL03: 1 operación(es) con motivo \u0027sobre_umbral, sin_cuenta\u0027\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_8",
+      "id": "paragraph_M8EJE0002_8",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:21.328",
+      "dateFinished": "2026-09-22 20:52:21.336",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 4. Antes de usar el borrador\n\nEl texto generado es un **borrador**, no un hallazgo validado: siempre requiere revisión humana antes de incluirse en un informe de auditoría.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:44:13.742",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e4. Antes de usar el borrador\u003c/h2\u003e\n\u003cp\u003eEl texto generado es un \u003cstrong\u003eborrador\u003c/strong\u003e, no un hallazgo validado: siempre requiere revisión humana antes de incluirse en un informe de auditoría.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M8EJE0002_9",
+      "id": "paragraph_M8EJE0002_9",
+      "dateCreated": "2026-09-22 22:44:13.742",
+      "dateStarted": "2026-09-22 20:52:21.429",
+      "dateFinished": "2026-09-22 20:52:21.434",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "02_practica_flujo_auditoria",
+  "id": "M8EJE0002",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "startTime": "2026-09-22_20-52-17",
+    "isRunning": true
+  }
+}

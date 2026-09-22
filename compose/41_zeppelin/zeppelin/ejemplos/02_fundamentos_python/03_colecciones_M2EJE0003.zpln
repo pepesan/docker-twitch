@@ -1,0 +1,97 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n## Ejemplo: listas, tuplas, diccionarios y conjuntos\n\nEquivalente a `ejemplos-python/src/modulo_02/03_colecciones.py`. Cuatro colecciones básicas de Python, cada una con su propio comportamiento (orden, mutabilidad, acceso por posición o por clave, duplicados).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eEjemplo: listas, tuplas, diccionarios y conjuntos\u003c/h2\u003e\n\u003cp\u003eEquivalente a \u003ccode\u003eejemplos-python/src/modulo_02/03_colecciones.py\u003c/code\u003e. Cuatro colecciones básicas de Python, cada una con su propio comportamiento (orden, mutabilidad, acceso por posición o por clave, duplicados).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0003_0",
+      "id": "paragraph_M2EJE0003_0",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:51.443",
+      "dateFinished": "2026-09-22 20:16:51.449",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\n# Ejemplo del Módulo 2: listas, tuplas, diccionarios y conjuntos\n# (equivalente a ejemplos-python/src/modulo_02/03_colecciones.py)\n\n# Lista: colección ordenada y modificable, se accede por posición (índice).\noperaciones \u003d [500, 1200, 75, 3400, 980]\ncoordenadas \u003d (40.4168, -3.7038)  # tupla: inmutable\n\n# Diccionario: colección de pares clave-valor, se accede por clave (no por\n# posición) — la forma natural de representar una operación con sus campos.\noperacion \u003d {\n    \"id\": \"OP-001\",\n    \"importe\": 1200,\n    \"cuenta\": \"ES00-1234\",\n}\nprint(operacion[\"importe\"])\n\n# Conjunto (set): colección sin orden ni elementos repetidos, útil para\n# quedarte con los valores distintos de algo (aquí, cuentas ya revisadas).\ncuentas_revisadas \u003d {\"ES00-1234\", \"ES00-5678\", \"ES00-1234\"}\nprint(cuentas_revisadas)  # duplicados eliminados automáticamente\n\n# comprensión de listas: construye una lista nueva filtrando/transformando\n# otra en una sola línea, en vez de un bucle for con append().\nimportes_altos \u003d [op for op in operaciones if op \u003e 1000]\nprint(importes_altos)",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:14:39.113",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "1200\n{\u0027ES00-5678\u0027, \u0027ES00-1234\u0027}\n[1200, 3400]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M2EJE0003_1",
+      "id": "paragraph_M2EJE0003_1",
+      "dateCreated": "2026-09-22 22:14:39.113",
+      "dateStarted": "2026-09-22 20:16:51.545",
+      "dateFinished": "2026-09-22 20:16:54.013",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "03_colecciones",
+  "id": "M2EJE0003",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-16-51"
+  }
+}

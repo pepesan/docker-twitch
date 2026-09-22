@@ -1,0 +1,487 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Módulo 7 · Práctica: comparativa de modelos\n\nEste notebook contiene un análisis **parcialmente desarrollado**. Completa las celdas marcadas con `TODO`, documentando en una celda Markdown lo que has hecho en cada sección.\n\nEstructura: 1) carga de datos, 2) clasificación, 3) regresión, 4) clustering, 5) detección de anomalías, 6) conclusiones.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eMódulo 7 · Práctica: comparativa de modelos\u003c/h1\u003e\n\u003cp\u003eEste notebook contiene un análisis \u003cstrong\u003eparcialmente desarrollado\u003c/strong\u003e. Completa las celdas marcadas con \u003ccode\u003eTODO\u003c/code\u003e, documentando en una celda Markdown lo que has hecho en cada sección.\u003c/p\u003e\n\u003cp\u003eEstructura: 1) carga de datos, 2) clasificación, 3) regresión, 4) clustering, 5) detección de anomalías, 6) conclusiones.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_0",
+      "id": "paragraph_M7PRA0001_0",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:03.487",
+      "dateFinished": "2026-09-22 20:33:03.491",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 1. Carga de datos\n\nDos versiones del dataset: sin anomalías inyectadas (para clasificación/regresión/clustering) y completo (para detectarlas).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e1. Carga de datos\u003c/h2\u003e\n\u003cp\u003eDos versiones del dataset: sin anomalías inyectadas (para clasificación/regresión/clustering) y completo (para detectarlas).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_1",
+      "id": "paragraph_M7PRA0001_1",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:03.587",
+      "dateFinished": "2026-09-22 20:33:03.592",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nimport pandas as pd\n\nruta \u003d \"/opt/zeppelin/notebook/ejemplos/07_machine_learning/data/operaciones_ml.csv\"\ndf_completo \u003d pd.read_csv(ruta)\ndf \u003d df_completo[~df_completo[\"anomalia_inyectada\"]].copy()\nCARACTERISTICAS \u003d [\"importe\", \"dias_desde_revision\", \"num_operaciones_mes\", \"antiguedad_cuenta_anios\"]\nprint(f\"Operaciones (sin anomalías): {len(df)} / con anomalías: {len(df_completo)}\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Operaciones (sin anomalías): 300 / con anomalías: 303\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_2",
+      "id": "paragraph_M7PRA0001_2",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:03.688",
+      "dateFinished": "2026-09-22 20:33:03.697",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 2. Clasificación\n\n**TODO:** entrena una `LogisticRegression` sobre `riesgo_alto` (80% train / 25% test, `random_state\u003d42`) y calcula su exactitud con `accuracy_score` (ver `ejemplos-python/src/modulo_07/01_clasificacion.py` si necesitas ayuda).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e2. Clasificación\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e entrena una \u003ccode\u003eLogisticRegression\u003c/code\u003e sobre \u003ccode\u003eriesgo_alto\u003c/code\u003e (80% train / 25% test, \u003ccode\u003erandom_state\u003d42\u003c/code\u003e) y calcula su exactitud con \u003ccode\u003eaccuracy_score\u003c/code\u003e (ver \u003ccode\u003eejemplos-python/src/modulo_07/01_clasificacion.py\u003c/code\u003e si necesitas ayuda).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_3",
+      "id": "paragraph_M7PRA0001_3",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:03.789",
+      "dateFinished": "2026-09-22 20:33:03.796",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import train_test_split\n\n# TODO: X_train, X_test, y_train, y_test \u003d train_test_split(df[CARACTERISTICAS], df[\"riesgo_alto\"], test_size\u003d0.25, random_state\u003d42)\n# TODO: modelo \u003d LogisticRegression(); modelo.fit(X_train, y_train)\n# TODO: exactitud \u003d accuracy_score(y_test, modelo.predict(X_test))\nexactitud \u003d None\n\nif exactitud is not None:\n    print(f\"Clasificación (riesgo_alto) — exactitud: {exactitud:.2f}\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Pendiente de completar (ver TODO de la celda)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_4",
+      "id": "paragraph_M7PRA0001_4",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:03.890",
+      "dateFinished": "2026-09-22 20:33:03.897",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 3. Regresión\n\n**TODO:** entrena una `LinearRegression` sobre `importe` usando `dias_desde_revision`, `num_operaciones_mes` y `antiguedad_cuenta_anios`, y calcula su R² con `r2_score` (ver `02_regresion.py`).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e3. Regresión\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e entrena una \u003ccode\u003eLinearRegression\u003c/code\u003e sobre \u003ccode\u003eimporte\u003c/code\u003e usando \u003ccode\u003edias_desde_revision\u003c/code\u003e, \u003ccode\u003enum_operaciones_mes\u003c/code\u003e y \u003ccode\u003eantiguedad_cuenta_anios\u003c/code\u003e, y calcula su R² con \u003ccode\u003er2_score\u003c/code\u003e (ver \u003ccode\u003e02_regresion.py\u003c/code\u003e).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_5",
+      "id": "paragraph_M7PRA0001_5",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:03.991",
+      "dateFinished": "2026-09-22 20:33:03.996",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import r2_score\n\ncaracteristicas_reg \u003d [\"dias_desde_revision\", \"num_operaciones_mes\", \"antiguedad_cuenta_anios\"]\n# TODO: entrena LinearRegression igual que en la celda anterior, sobre df[\"importe\"]\nr2 \u003d None\n\nif r2 is not None:\n    print(f\"Regresión (importe) — R²: {r2:.2f}\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Pendiente de completar (ver TODO de la celda)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_6",
+      "id": "paragraph_M7PRA0001_6",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:04.092",
+      "dateFinished": "2026-09-22 20:33:04.098",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 4. Clustering\n\n**TODO:** agrupa las operaciones en 3 segmentos con `KMeans` sobre `importe`, `dias_desde_revision` y `num_operaciones_mes` **escalados** con `StandardScaler` (ver `03_clustering.py`).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e4. Clustering\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e agrupa las operaciones en 3 segmentos con \u003ccode\u003eKMeans\u003c/code\u003e sobre \u003ccode\u003eimporte\u003c/code\u003e, \u003ccode\u003edias_desde_revision\u003c/code\u003e y \u003ccode\u003enum_operaciones_mes\u003c/code\u003e \u003cstrong\u003eescalados\u003c/strong\u003e con \u003ccode\u003eStandardScaler\u003c/code\u003e (ver \u003ccode\u003e03_clustering.py\u003c/code\u003e).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_7",
+      "id": "paragraph_M7PRA0001_7",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:04.193",
+      "dateFinished": "2026-09-22 20:33:04.199",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nfrom sklearn.cluster import KMeans\nfrom sklearn.preprocessing import StandardScaler\n\ncaracteristicas_cluster \u003d [\"importe\", \"dias_desde_revision\", \"num_operaciones_mes\"]\n# TODO: X_escalado \u003d StandardScaler().fit_transform(df[caracteristicas_cluster])\n# TODO: segmentos \u003d KMeans(n_clusters\u003d3, random_state\u003d42, n_init\u003d10).fit_predict(X_escalado)\nsegmentos \u003d None\n\nif segmentos is not None:\n    print(f\"Clustering — segmentos encontrados: {len(set(segmentos))}\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Pendiente de completar (ver TODO de la celda)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_8",
+      "id": "paragraph_M7PRA0001_8",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:04.293",
+      "dateFinished": "2026-09-22 20:33:04.299",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 5. Detección de anomalías\n\n**TODO:** usa `IsolationForest(contamination\u003d0.02, random_state\u003d42)` sobre `df_completo[CARACTERISTICAS]` para marcar las operaciones anómalas (ver `04_deteccion_anomalias.py`).",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e5. Detección de anomalías\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e usa \u003ccode\u003eIsolationForest(contamination\u003d0.02, random_state\u003d42)\u003c/code\u003e sobre \u003ccode\u003edf_completo[CARACTERISTICAS]\u003c/code\u003e para marcar las operaciones anómalas (ver \u003ccode\u003e04_deteccion_anomalias.py\u003c/code\u003e).\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_9",
+      "id": "paragraph_M7PRA0001_9",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:04.393",
+      "dateFinished": "2026-09-22 20:33:04.400",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%python\nfrom sklearn.ensemble import IsolationForest\n\n# TODO: es_anomalia \u003d IsolationForest(contamination\u003d0.02, random_state\u003d42).fit_predict(df_completo[CARACTERISTICAS]) \u003d\u003d -1\nes_anomalia \u003d None\n\nif es_anomalia is not None:\n    print(f\"Detección de anomalías — operaciones marcadas: {es_anomalia.sum()}\")\nelse:\n    print(\"Pendiente de completar (ver TODO de la celda)\")",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Pendiente de completar (ver TODO de la celda)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_10",
+      "id": "paragraph_M7PRA0001_10",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:04.494",
+      "dateFinished": "2026-09-22 20:33:04.500",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## 6. Conclusiones\n\n**TODO:** documenta aquí, en 3-4 líneas, qué modelo dirías que es más fiable para auditoría (clasificación, regresión, clustering o detección de anomalías) y por qué.",
+      "user": "anonymous",
+      "dateUpdated": "2026-09-22 22:31:48.585",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e6. Conclusiones\u003c/h2\u003e\n\u003cp\u003e\u003cstrong\u003eTODO:\u003c/strong\u003e documenta aquí, en 3-4 líneas, qué modelo dirías que es más fiable para auditoría (clasificación, regresión, clustering o detección de anomalías) y por qué.\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_M7PRA0001_11",
+      "id": "paragraph_M7PRA0001_11",
+      "dateCreated": "2026-09-22 22:31:48.585",
+      "dateStarted": "2026-09-22 20:33:04.594",
+      "dateFinished": "2026-09-22 20:33:04.597",
+      "status": "FINISHED"
+    }
+  ],
+  "name": "06_practica_comparativa_modelos",
+  "id": "M7PRA0001",
+  "defaultInterpreterGroup": "python",
+  "version": "0.12.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {
+    "inIsolatedMode": false,
+    "isRunning": true,
+    "startTime": "2026-09-22_20-33-03"
+  }
+}
