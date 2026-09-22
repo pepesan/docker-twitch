@@ -79,7 +79,7 @@
       "status": "FINISHED"
     },
     {
-      "text": "%python\noperaciones \u003d [\n    {\"id\": 1, \"fecha\": \"2026-01-05\", \"cuenta\": \"ES01-0001\", \"importe\": 1250.00},\n    {\"id\": 2, \"fecha\": \"2026-01-06\", \"cuenta\": \"ES01-0002\", \"importe\": 9800.50},\n    {\"id\": 3, \"fecha\": \"2026-01-06\", \"cuenta\": \"ES01-0001\", \"importe\": 320.10},\n    {\"id\": 4, \"fecha\": \"2026-01-07\", \"cuenta\": \"ES01-0003\", \"importe\": 15000.00},\n    {\"id\": 5, \"fecha\": \"2026-01-08\", \"cuenta\": \"ES01-0002\", \"importe\": 75.25},\n]\nprint(f\"Operaciones cargadas: {len(operaciones)}\")",
+      "text": "%python\n# Cada operación es un diccionario dentro de una lista: la estructura de\n# datos más básica de Python para representar una tabla en memoria, antes\n# de conocer Pandas.\noperaciones \u003d [\n    {\"id\": 1, \"fecha\": \"2026-01-05\", \"cuenta\": \"ES01-0001\", \"importe\": 1250.00},\n    {\"id\": 2, \"fecha\": \"2026-01-06\", \"cuenta\": \"ES01-0002\", \"importe\": 9800.50},\n    {\"id\": 3, \"fecha\": \"2026-01-06\", \"cuenta\": \"ES01-0001\", \"importe\": 320.10},\n    {\"id\": 4, \"fecha\": \"2026-01-07\", \"cuenta\": \"ES01-0003\", \"importe\": 15000.00},\n    {\"id\": 5, \"fecha\": \"2026-01-08\", \"cuenta\": \"ES01-0002\", \"importe\": 75.25},\n]\nprint(f\"Operaciones cargadas: {len(operaciones)}\")",
       "user": "anonymous",
       "dateUpdated": "2026-09-15 19:31:49.397",
       "progress": 0,
