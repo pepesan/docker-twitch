@@ -3,7 +3,7 @@
     {
       "text": "%md\n## Ejemplo: lectura de Excel y CSV con Pandas\n\nEquivalente a `ejemplos-python/src/modulo_03/01_lectura_excel_csv.py`. Lee una hoja concreta de un Excel (`sheet_name\u003d\"MAD01\"`) y el extracto bancario en CSV.",
       "user": "anonymous",
-      "dateUpdated": "2026-09-15 20:39:38.369",
+      "dateUpdated": "2026-09-22 19:52:24.798",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -35,14 +35,14 @@
       "jobName": "paragraph_M3EJE0001_0",
       "id": "paragraph_M3EJE0001_0",
       "dateCreated": "2026-09-15 20:31:53.344",
-      "dateStarted": "2026-09-15 20:39:38.373",
-      "dateFinished": "2026-09-15 20:39:38.381",
+      "dateStarted": "2026-09-22 19:52:24.806",
+      "dateFinished": "2026-09-22 19:52:26.569",
       "status": "FINISHED"
     },
     {
       "text": "%python\n# Ejemplo del Módulo 3: lectura de Excel y CSV con Pandas\n# (equivalente a ejemplos-python/src/modulo_03/01_lectura_excel_csv.py)\nimport pandas as pd\n\ndf_excel \u003d pd.read_excel(\"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/operaciones_sucursales.xlsx\", sheet_name\u003d\"MAD01\")\nprint(df_excel)\n\ndf_csv \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/03_carga_datos/data/movimientos_extracto.csv\")\nprint(df_csv)\nprint(df_csv.dtypes)",
       "user": "anonymous",
-      "dateUpdated": "2026-09-15 20:39:38.473",
+      "dateUpdated": "2026-09-22 19:52:26.609",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -74,8 +74,8 @@
       "jobName": "paragraph_M3EJE0001_1",
       "id": "paragraph_M3EJE0001_1",
       "dateCreated": "2026-09-15 20:31:53.344",
-      "dateStarted": "2026-09-15 20:39:38.475",
-      "dateFinished": "2026-09-15 20:39:38.635",
+      "dateStarted": "2026-09-22 19:52:26.613",
+      "dateFinished": "2026-09-22 19:52:30.559",
       "status": "FINISHED"
     }
   ],
