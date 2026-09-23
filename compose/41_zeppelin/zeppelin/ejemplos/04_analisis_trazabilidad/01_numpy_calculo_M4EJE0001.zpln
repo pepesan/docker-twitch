@@ -3,13 +3,18 @@
     {
       "text": "%md\n## Ejemplo: operaciones vectorizadas con NumPy\n\nEquivalente a `ejemplos-python/src/modulo_04/01_numpy_calculo.py`. Media, desviación típica y percentil de los importes, y una operación vectorizada (aplicar IVA a todo el array).",
       "user": "anonymous",
+      "dateUpdated": "2026-09-23 09:13:52.129",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -30,13 +35,14 @@
       "jobName": "paragraph_M4EJE0001_0",
       "id": "paragraph_M4EJE0001_0",
       "dateCreated": "2026-09-15 20:39:18.670",
-      "dateStarted": "2026-09-15 20:39:18.676",
-      "dateFinished": "2026-09-15 20:39:20.444",
+      "dateStarted": "2026-09-23 09:13:52.146",
+      "dateFinished": "2026-09-23 09:13:53.932",
       "status": "FINISHED"
     },
     {
       "text": "%python\n# Ejemplo del Módulo 4: operaciones vectorizadas con NumPy\n# (equivalente a ejemplos-python/src/modulo_04/01_numpy_calculo.py)\nimport numpy as np\nimport pandas as pd\n\ndf \u003d pd.read_csv(\"/opt/zeppelin/notebook/ejemplos/04_analisis_trazabilidad/data/operaciones_auditoria.csv\")\nimportes \u003d df[\"importe\"].dropna().to_numpy()\n\nprint(importes)\nprint(f\"Media: {np.mean(importes):.2f}\")\nprint(f\"Desviación típica: {np.std(importes):.2f}\")\nprint(f\"Percentil 90: {np.percentile(importes, 90):.2f}\")\n\nimportes_con_iva \u003d importes * 1.21\nprint(importes_con_iva)",
       "user": "anonymous",
+      "dateUpdated": "2026-09-23 09:13:53.948",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -68,8 +74,8 @@
       "jobName": "paragraph_M4EJE0001_1",
       "id": "paragraph_M4EJE0001_1",
       "dateCreated": "2026-09-15 20:39:18.670",
-      "dateStarted": "2026-09-15 20:39:20.478",
-      "dateFinished": "2026-09-15 20:39:23.977",
+      "dateStarted": "2026-09-23 09:13:53.951",
+      "dateFinished": "2026-09-23 09:13:57.892",
       "status": "FINISHED"
     }
   ],
@@ -85,7 +91,7 @@
   },
   "info": {
     "inIsolatedMode": false,
-    "isRunning": true,
-    "startTime": "2026-09-15_20-39-18"
+    "startTime": "2026-09-15_20-39-18",
+    "isRunning": true
   }
 }
