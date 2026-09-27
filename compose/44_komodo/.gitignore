@@ -1,0 +1,5 @@
+compose.env
+mongo-data/*
+mongo-config/*
+keys/*
+backups/*
