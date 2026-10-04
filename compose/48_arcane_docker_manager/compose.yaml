@@ -1,0 +1,22 @@
+services:
+  arcane:
+    image: getarcaneapp/manager:latest
+    container_name: arcane
+    ports:
+      - '3552:3552'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+      - ./projects:/opt/docker
+      - ./builds:/builds
+    environment:
+      - APP_URL=http://localhost:3552
+      # Relacionado con UID y GID del usuario actual
+      - PUID=1000
+      - PGID=1000
+      # openssl rand -hex 32
+      - ENCRYPTION_KEY=6b16912919f63221c44b4b4b6036764a
+      - TZ=Europe/Madrid
+      - PROJECTS_DIRECTORY=/opt/docker
+    cgroup: host
+    restart: always
