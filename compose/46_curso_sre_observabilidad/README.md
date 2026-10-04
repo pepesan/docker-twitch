@@ -25,7 +25,7 @@ desde el primer minuto sin tener que programar nada.
 | `hotrod` | app de demostración instrumentada con OTel | 2. OTel / 5. Trazas | `http://localhost:8082` | Ninguno |
 | `node-exporter` | métricas de CPU, RAM, disco y red del host | 3. Prometheus | `http://localhost:9100/metrics` | Ninguno |
 | `blackbox-exporter` | comprobación de disponibilidad HTTP de endpoints | 3. Prometheus | `http://localhost:9115` | Ninguno |
-| `caddy` | redirige enlaces de traza de hot-rod a Grafana | Soporte para trazas | `http://localhost:16686` | Ninguno |
+| `caddy` | adapta los enlaces `Find trace` de HotROD (búsqueda por tag `driver` o traza por ID) a Grafana/Tempo | Soporte para trazas | `http://localhost:16686` | Ninguno |
 | `load-generator` | genera tráfico sintético continuo hacia hot-rod | Soporte para talleres | *(proceso interno en bucle)* | Sin interfaz |
 
 No hay imagen "de aplicación propia" que instrumentar a mano en clase: se
@@ -103,7 +103,7 @@ cd compose/46_curso_sre_observabilidad
 - **Alloy UI**: http://localhost:12345 (grafo del pipeline de logs y estado de sus componentes)
 - **Tempo API**: http://localhost:3200 (sin UI propia, se consulta desde Grafana)
 - **Blackbox Exporter**: http://localhost:9115
-- **hot-rod (demo app)**: http://localhost:8082 — botones para simular pedidos, cada clic genera una traza distribuida real
+- **hot-rod (demo app)**: http://localhost:8082 — cuatro botones de cliente (Rachel's Floral Designs, Trom Chocolatier, Japanese Desserts y Amazing Coffee Roasters); cada clic genera una petición y una traza distribuida
 
 Grafana ya trae provisionados (sin tocar nada) los datasources de
 Prometheus, Loki y Tempo, con la correlación activada: desde una traza en
@@ -213,10 +213,11 @@ saber dónde mirar cada cosa la primera vez que entras:
   **Explore → Loki**, prueba `{container="hotrod"}`.
 - LogQL: filtra por label, por texto (`|= "error"`), agrega con
   `count_over_time(...)`.
-- Trazas: entra en http://localhost:8082, pincha varias veces en "Request",
-  y busca las trazas resultantes en Grafana → **Explore → Tempo** (o desde el
-  propio panel de Node Graph / Service Graph, generado automáticamente por
-  Tempo a partir de esas trazas).
+- Trazas: entra en http://localhost:8082 y pulsa uno de los cuatro botones de
+  cliente. Cada acción genera una petición; el enlace **find trace** abre
+  Grafana → **Explore → Tempo** filtrando por el evento `driver`, mientras
+  **open trace** abre directamente el ID de esa petición en Tempo. Grafana
+  solicita autenticación si aún no has iniciado sesión.
 - Taller de correlación: parte de una traza lenta en Tempo → botón "Logs for
   this span" → aterrizas en Loki filtrado a ese `trace_id` y esa ventana de
   tiempo exacta.
