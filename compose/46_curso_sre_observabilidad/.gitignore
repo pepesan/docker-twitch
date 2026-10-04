@@ -1,2 +1,2 @@
 compose.env
-volumes/*/data/*
+volumes/

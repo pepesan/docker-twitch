@@ -2,5 +2,5 @@ compose.env
 caddy.env
 pki/
 caddy-root-ca.crt
-volumes/*/data/*
+volumes/
 PLAN.md
