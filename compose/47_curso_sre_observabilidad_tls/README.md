@@ -351,8 +351,8 @@ cada consulta contra los datos reales** de un arranque desde cero.
 Para que estos dashboards tengan datos, el stack incluye lo que esperan:
 `cadvisor` con todas sus etiquetas, los colectores `processes` y `tcpstat` de
 node-exporter, Alertmanager y las métricas internas del collector como
-targets de Prometheus, la etiqueta `job` en Promtail y la etiqueta
-`service_name` en las span metrics de Tempo.
+targets de Prometheus, la etiqueta `job` (convención `proyecto/servicio`) en
+Promtail y Alloy, y la etiqueta `service` en las span metrics de Tempo 2.x.
 
 **Paneles que pueden salir vacíos y es normal** (no hay nada que mostrar, no
 es un fallo): *Instance Down* (Prometheus, si no cae ningún target), *TCP

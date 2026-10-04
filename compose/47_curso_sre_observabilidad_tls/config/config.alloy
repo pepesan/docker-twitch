@@ -18,7 +18,23 @@ discovery.relabel "contenedores" {
     regex         = "/(.*)"
     target_label  = "container"
   }
+  // `job` como en la convención de Loki (proyecto/servicio), que usan los
+  // dashboards comunitarios; para contenedores fuera de compose, su nombre.
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "job"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project", "__meta_docker_container_label_com_docker_compose_service"]
+    separator     = "/"
+    regex         = "(.+)/(.+)"
+    target_label  = "job"
+    replacement   = "${1}/${2}"
+  }
 }
+
+
 
 loki.source.docker "contenedores" {
   host             = "unix:///var/run/docker.sock"

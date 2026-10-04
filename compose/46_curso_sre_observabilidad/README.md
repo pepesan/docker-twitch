@@ -110,17 +110,56 @@ Prometheus, Loki y Tempo, con la correlación activada: desde una traza en
 Tempo puedes saltar a los logs de ese mismo periodo en Loki, y desde ahí a
 las métricas en Prometheus (bloque 5, "Correlación de señales").
 
+## Dashboards de la comunidad
+
+Grafana trae provisionados siete dashboards de [grafana.com](https://grafana.com/grafana/dashboards/),
+reutilizados en vez de hechos a mano, más el dashboard propio **Infraestructura
+- Node Exporter**. Todos usan los datasources internos (`prometheus`, `loki`,
+`tempo`, con uid fijo) y se han **verificado ejecutando cada consulta contra
+los datos reales** de un arranque desde cero.
+
+| Dashboard | ID en grafana.com | Para qué sirve | Quitado por no ser aplicable |
+|---|---|---|---|
+| Node Exporter Full | [1860](https://grafana.com/grafana/dashboards/1860) | host: CPU, RAM, disco, red, procesos, TCP | 4 paneles de *systemd* (AppArmor de Docker bloquea el colector), *IRQ Detail* (el kernel no da datos) y *Power Supply* / *Hardware Fan Speed* (hardware) |
+| Prometheus | [19105](https://grafana.com/grafana/dashboards/19105) | salud del propio Prometheus | 5 paneles de Kubernetes (pods, volúmenes persistentes) |
+| Prometheus Blackbox Exporter | [7587](https://grafana.com/grafana/dashboards/7587) | disponibilidad y latencia de endpoints | *SSL Expiry* (las sondas son HTTP, sin TLS) |
+| Alertmanager | [9578](https://grafana.com/grafana/dashboards/9578) | alertas, silencios, notificaciones | 5 paneles de *gossip* de cluster y *duración de notificaciones* (un solo nodo y receptor sin integraciones) |
+| Logs / App | [13639](https://grafana.com/grafana/dashboards/13639) | logs por aplicación (Loki, etiqueta `job` = `proyecto/servicio`) | — |
+| OpenTelemetry Collector | [15983](https://grafana.com/grafana/dashboards/15983) | flujo de spans por el collector (sus métricas internas, `:8888`) | 27 paneles de métricas/logs OTLP, RPC/HTTP y Kubernetes (aquí solo pasan trazas) |
+| Span Metric Service Performance | [21202](https://grafana.com/grafana/dashboards/21202) | RED (tasa, errores, latencia) por servicio de hot-rod, a partir de las span metrics de Tempo | — |
+
+Para que estos dashboards tengan datos, el stack incluye lo que esperan:
+Alertmanager y las métricas internas del collector (`:8888`) como targets de
+Prometheus, la etiqueta `job` (convención `proyecto/servicio`) en los logs que
+envía Alloy y la etiqueta `service` en las span metrics de Tempo 2.x.
+
+**Paneles que pueden salir vacíos y es normal** (no hay nada que mostrar, no
+es un fallo): *Instance Down* (Prometheus, si no cae ningún target), *TCP
+Stat Transient* (Node Exporter, sin conexiones en esos estados) y varios
+histogramas de mantenimiento de Alertmanager (snapshots y GC periódicos, cada
+~15 min). En *OpenTelemetry Collector*, el selector **exporter** debe estar
+en `otlp/tempo` para ver los spans exportados.
+
+**Añadir o actualizar uno**: descárgalo de grafana.com y normalízalo con
+`tools/importar_dashboard.py` (sustituye los datasources por los uid del
+stack y puede quitar paneles). Compruébalo con
+`tools/verificar_dashboard.py config/grafana/dashboards/<fichero>.json`, que
+resuelve las variables contra Prometheus/Loki y ejecuta cada consulta
+(el stack debe estar levantado); avisa de los paneles sin datos.
+
+
 ## Cómo ver todo esto en Grafana (guía rápida)
 
 Todo llega ya conectado (datasources + dashboard provisionados), pero conviene
 saber dónde mirar cada cosa la primera vez que entras:
 
-1. **Dashboard de infraestructura** — menú lateral **Dashboards** → carpeta
-   **Curso SRE** → **Infraestructura - Node Exporter**. CPU, memoria, disco,
-   red y disponibilidad de endpoints, con datos reales del host desde el
-   arranque. Si algún panel aparece vacío, casi siempre es el selector de
-   rango de tiempo (arriba a la derecha) — pon **Last 15 minutes** si el
-   stack lleva poco arriba.
+1. **Dashboards** — menú lateral **Dashboards** → carpeta **Curso SRE**. Hay
+   ocho: el propio **Infraestructura - Node Exporter** y siete de la comunidad
+   (grafana.com), provisionados desde `config/grafana/dashboards/`; ver
+   "Dashboards de la comunidad" más arriba para qué hace cada uno. Si algún
+   panel aparece vacío, casi siempre es el selector de rango de tiempo
+   (arriba a la derecha) — pon **Last 15 minutes** si el stack lleva poco
+   arriba.
 
 2. **Métricas sueltas (PromQL)** — menú **Explore**, datasource **Prometheus**
    (selector arriba a la izquierda del panel). Escribe una métrica, por

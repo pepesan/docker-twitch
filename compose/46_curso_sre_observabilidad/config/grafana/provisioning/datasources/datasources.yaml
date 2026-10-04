@@ -1,8 +1,16 @@
 apiVersion: 1
 
+# Grafana no permite cambiar el uid de un datasource ya creado (falla con
+# "data source not found" y no arranca): se borra el de Prometheus por nombre
+# y se recrea justo debajo con uid fijo, que usan los dashboards comunitarios.
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+
 datasources:
   - name: Prometheus
     type: prometheus
+    uid: prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
