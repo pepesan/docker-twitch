@@ -38,6 +38,7 @@ else
     curso_password=$(openssl rand -hex 12)
     curso_hash=$(docker run --rm caddy:2.11.4 caddy hash-password --plaintext "${curso_password}")
     {
+        echo "# Contraseña en claro (solo local, fichero excluido de Git): ${curso_password}"
         echo "CADDY_BASIC_USER=curso"
         echo "CADDY_BASIC_HASH='${curso_hash}'"
     } > caddy.env
