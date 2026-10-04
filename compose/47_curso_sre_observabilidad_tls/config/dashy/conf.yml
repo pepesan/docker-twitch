@@ -1,10 +1,10 @@
 ---
 pageInfo:
-  title: SRE Lab — Observabilidad Segura (TLS/Auth)
-  description: Portal del laboratorio SRE (Compose 47). Acceso directo por localhost en el botón principal y vía HTTPS (*.lab.local) en los sub-enlaces (requiere ./host/hosts.sh).
+  title: "SRE Lab — Observabilidad Segura (TLS/Auth)"
+  description: "Portal del laboratorio SRE (Compose 47). Acceso directo por localhost o por HTTPS (*.lab.local) tras ejecutar ./host/hosts.sh."
   navLinks:
-    - title: Documentación Dashy
-      path: https://dashy.to/docs
+    - title: "Documentación Dashy"
+      path: "https://dashy.to/docs"
 
 appConfig:
   theme: modern
@@ -17,43 +17,31 @@ sections:
     icon: fas fa-chart-line
     items:
       - title: Grafana
-        description: Paneles y dashboards de métricas, logs y trazas
-        icon: https://raw.githubusercontent.com/grafana/grafana/main/public/img/fav32.png
+        description: "Paneles y dashboards de métricas, logs y trazas (HTTPS: https://grafana.lab.local)"
+        icon: si-grafana
         url: http://localhost:3030
         target: newtab
         statusCheck: true
         statusCheckUrl: http://grafana:3000/api/health
-        subItems:
-          - title: HTTPS Caddy (grafana.lab.local)
-            url: https://grafana.lab.local
-            target: newtab
 
       - title: Prometheus
-        description: Servidor central de métricas y consultas PromQL
-        icon: https://prometheus.io/assets/prometheus_logo_grey.svg
+        description: "Servidor central de métricas y consultas PromQL (HTTPS: https://prometheus.lab.local)"
+        icon: si-prometheus
         url: http://localhost:9090
         target: newtab
         statusCheck: true
         statusCheckUrl: http://prometheus:9090/-/ready
-        subItems:
-          - title: HTTPS + Auth (prometheus.lab.local)
-            url: https://prometheus.lab.local
-            target: newtab
 
       - title: Alertmanager
-        description: Enrutamiento y gestión de alertas
-        icon: https://prometheus.io/assets/prometheus_logo_grey.svg
+        description: "Enrutamiento y gestión de alertas (HTTPS: https://alertmanager.lab.local)"
+        icon: fas fa-bell
         url: http://localhost:9093
         target: newtab
         statusCheck: true
         statusCheckUrl: http://alertmanager:9093/-/ready
-        subItems:
-          - title: HTTPS + Auth (alertmanager.lab.local)
-            url: https://alertmanager.lab.local
-            target: newtab
 
       - title: Blackbox Exporter
-        description: Monitoreo de sondas HTTP
+        description: "Monitoreo de disponibilidad HTTP de endpoints"
         icon: fas fa-network-wired
         url: http://localhost:9115
         target: newtab
@@ -61,7 +49,7 @@ sections:
         statusCheckUrl: http://blackbox-exporter:9115/
 
       - title: Node Exporter
-        description: Métricas del host y del sistema base
+        description: "Métricas del host y del sistema base"
         icon: fas fa-server
         url: http://localhost:9100/metrics
         target: newtab
@@ -72,47 +60,35 @@ sections:
     icon: fas fa-file-alt
     items:
       - title: Loki API
-        description: Ingesta y consulta LogQL (Loki 3.x)
-        icon: https://grafana.com/static/assets/img/favicons/favicon.ico
+        description: "Ingesta y consulta LogQL (HTTPS: https://loki.lab.local)"
+        icon: fas fa-file-alt
         url: http://localhost:3100/ready
         target: newtab
         statusCheck: true
         statusCheckUrl: http://loki:3100/ready
-        subItems:
-          - title: HTTPS + Auth (loki.lab.local)
-            url: https://loki.lab.local
-            target: newtab
 
       - title: Grafana Alloy UI
-        description: Recolector unificado OpenTelemetry y visualizador de pipeline
-        icon: https://grafana.com/static/assets/img/favicons/favicon.ico
+        description: "Recolector unificado OpenTelemetry y visualizador de pipeline (HTTPS: https://alloy.lab.local)"
+        icon: fas fa-cubes
         url: http://localhost:12345
         target: newtab
         statusCheck: true
         statusCheckUrl: http://alloy:12345/-/ready
-        subItems:
-          - title: HTTPS + Auth (alloy.lab.local)
-            url: https://alloy.lab.local
-            target: newtab
 
   - name: Trazas y Telemetría
     icon: fas fa-project-diagram
     items:
       - title: Tempo API
-        description: Almacén distribuido de trazas de alta escala
-        icon: https://grafana.com/static/assets/img/favicons/favicon.ico
+        description: "Almacén distribuido de trazas de alta escala (HTTPS: https://tempo.lab.local)"
+        icon: fas fa-route
         url: http://localhost:3200/ready
         target: newtab
         statusCheck: true
         statusCheckUrl: http://tempo:3200/ready
-        subItems:
-          - title: HTTPS + Auth (tempo.lab.local)
-            url: https://tempo.lab.local
-            target: newtab
 
       - title: OpenTelemetry Collector
-        description: Pipeline OTLP con métricas expuestas para Prometheus
-        icon: https://opentelemetry.io/img/logos/opentelemetry-horizontal-color.svg
+        description: "Pipeline OTLP con métricas expuestas para Prometheus"
+        icon: si-opentelemetry
         url: http://localhost:8889/metrics
         target: newtab
         statusCheck: true
@@ -122,13 +98,9 @@ sections:
     icon: fas fa-flask
     items:
       - title: Jaeger Hot-Rod
-        description: App de demostración con trazas OTLP automáticas
-        icon: https://www.jaegertracing.io/img/jaeger-icon-reverse.png
+        description: "App de demostración con trazas OTLP automáticas (HTTPS: https://hotrod.lab.local)"
+        icon: fas fa-car
         url: http://localhost:8082
         target: newtab
         statusCheck: true
         statusCheckUrl: http://hotrod:8080/
-        subItems:
-          - title: HTTPS + Auth (hotrod.lab.local)
-            url: https://hotrod.lab.local
-            target: newtab
