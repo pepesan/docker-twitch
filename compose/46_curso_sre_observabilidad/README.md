@@ -12,21 +12,21 @@ desde el primer minuto sin tener que programar nada.
 
 ## Componentes que se arrancan
 
-| Servicio | Rol | Bloque del temario |
-|---|---|---|
-| `node-exporter` | métricas del sistema (CPU, RAM, disco, red) del host | 3. Prometheus |
-| `blackbox-exporter` | prueba disponibilidad HTTP de endpoints (hot-rod, Grafana) | 3. Prometheus |
-| `prometheus` | almacena métricas, evalúa reglas de alerta, PromQL | 3. Prometheus |
-| `alertmanager` | enruta/agrupa alertas de Prometheus | 3. Prometheus / 6. Incidentes |
-| `grafana` | dashboards + alertas + correlación métricas↔logs↔trazas | 4. Grafana |
-| `loki` | almacén de logs (etiquetado, no full-text index) | 5. Logging |
-| `alloy` | recolecta y etiqueta logs de todos los contenedores + del host | 5. Logging |
-| `tempo` | almacén de trazas distribuidas | 5. Trazas |
-| `otel-collector` | pipeline único OTLP → Tempo (trazas) / Prometheus (métricas) / Loki (logs) | 2. OTel |
-| `hotrod` | app de ejemplo de Jaeger, instrumentada con OTel, genera trazas reales | 2. OTel / 5. Trazas |
-| `load-generator` | bombardea `hotrod` con tráfico sintético en bucle | soporte para todos los talleres |
-| `dashy` | portal unificado de acceso rápido y estado de servicios (`:4000`) | Soporte general / Portal |
-| `caddy` | solo redirige los enlaces "find trace" de hot-rod (`localhost:16686/trace/<id>`) al Explore de Grafana/Tempo; sin TLS (el TLS está en el ejemplo 47) | soporte para Trazas |
+| Servicio | Rol | Bloque del temario | URL de acceso | Usuario / Password |
+|---|---|---|---|---|
+| `dashy` | portal unificado de acceso y comprobación de estado | Soporte general / Portal | `http://localhost:4000` | Ninguno (acceso directo) |
+| `grafana` | dashboards + alertas + correlación de señales | 4. Grafana | `http://localhost:3030` | `admin` / *(generada en `compose.env` por `00_init.sh`)* |
+| `prometheus` | almacena métricas, evalúa alertas, consultas PromQL | 3. Prometheus | `http://localhost:9090` | Ninguno |
+| `alertmanager` | enruta y agrupa alertas de Prometheus | 3. Prometheus / 6. Incidentes | `http://localhost:9093` | Ninguno |
+| `loki` | almacén central de logs estructurados | 5. Logging | `http://localhost:3100` (API) | Ninguno |
+| `alloy` | recolecta y envía logs a Loki (UI de pipeline) | 5. Logging | `http://localhost:12345` (UI) | Ninguno |
+| `tempo` | almacén de trazas distribuidas | 5. Trazas | `http://localhost:3200` (API) | Ninguno |
+| `otel-collector` | pipeline único OTLP (trazas, métricas y logs) | 2. OTel | `http://localhost:8889/metrics` | Ninguno |
+| `hotrod` | app de demostración instrumentada con OTel | 2. OTel / 5. Trazas | `http://localhost:8082` | Ninguno |
+| `node-exporter` | métricas de CPU, RAM, disco y red del host | 3. Prometheus | `http://localhost:9100/metrics` | Ninguno |
+| `blackbox-exporter` | comprobación de disponibilidad HTTP de endpoints | 3. Prometheus | `http://localhost:9115` | Ninguno |
+| `caddy` | redirige enlaces de traza de hot-rod a Grafana | Soporte para trazas | `http://localhost:16686` | Ninguno |
+| `load-generator` | genera tráfico sintético continuo hacia hot-rod | Soporte para talleres | *(proceso interno en bucle)* | Sin interfaz |
 
 No hay imagen "de aplicación propia" que instrumentar a mano en clase: se
 puede usar `hotrod` como caso ya resuelto para explorar Grafana/Tempo/Loki,

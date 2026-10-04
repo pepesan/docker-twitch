@@ -27,22 +27,23 @@ El plan completo está en [PLAN.md](PLAN.md).
 
 ## Componentes que se arrancan
 
-| Servicio | Rol | Bloque del temario |
-|---|---|---|
-| `node-exporter` | métricas del sistema (CPU, RAM, disco, red) del host | 3. Prometheus |
-| `cadvisor` | métricas por contenedor del host (CPU, RAM, red, disco, uptime), de todos los contenedores Docker de la máquina, no solo de este stack; sin puertos publicados | 3. Prometheus / Docker |
-| `blackbox-exporter` | prueba disponibilidad HTTP de endpoints (hot-rod, Grafana) | 3. Prometheus |
-| `prometheus` | almacena métricas, evalúa reglas de alerta, PromQL | 3. Prometheus |
-| `alertmanager` | enruta/agrupa alertas de Prometheus | 3. Prometheus / 6. Incidentes |
-| `grafana` | dashboards + alertas + correlación métricas↔logs↔trazas | 4. Grafana |
-| `loki` | almacén de logs (etiquetado, no full-text index) | 5. Logging |
-| `promtail` | recolecta y etiqueta logs de contenedores + host (agente temario, EOL 2026) | 5. Logging |
-| `alloy` | recolector unificado Grafana Alloy (alternativa mantenida, UI en `:12345` y `alloy.lab.local`) | 5. Logging |
-| `dashy` | portal unificado de acceso y comprobación de estado (`:4000`, `portal.lab.local` y `lab.local`) | Portal |
-| `otel-collector` | pipeline único OTLP → Tempo (trazas) / Prometheus (métricas) / Loki (logs) | 2. OTel |
-| `hotrod` | app de ejemplo de Jaeger, instrumentada con OTel, genera trazas reales | 2. OTel / 5. Trazas |
-| `caddy` | reverse proxy: TLS autofirmado (CA local), `basic_auth` y un vhost `*.lab.local` por servicio | seguridad |
-| `load-generator` | bombardea `hotrod` con tráfico sintético en bucle | soporte para todos los talleres |
+| Servicio | Rol | Bloque del temario | URL directa | URL vía Caddy (HTTPS) | Credenciales |
+|---|---|---|---|---|---|
+| `dashy` | portal unificado de acceso y estado | Soporte / Portal | `http://localhost:4000` | `https://portal.lab.local` | `curso` / *(en Caddy)* |
+| `grafana` | dashboards + alertas + correlación | 4. Grafana | `http://localhost:3030` | `https://grafana.lab.local` | `admin` / *(generada en `compose.env`)* |
+| `prometheus` | servidor central de métricas y PromQL | 3. Prometheus | `http://localhost:9090` | `https://prometheus.lab.local` | `curso` / *(en Caddy)* |
+| `alertmanager` | enrutamiento de alertas | 3. Prometheus / 6. Incidentes | `http://localhost:9093` | `https://alertmanager.lab.local` | `curso` / *(en Caddy)* |
+| `loki` | almacén central de logs estructurados | 5. Logging | `http://localhost:3100` (API) | `https://loki.lab.local` | `curso` / *(en Caddy)* |
+| `alloy` | recolector unificado OpenTelemetry (UI) | 5. Logging | `http://localhost:12345` (UI) | `https://alloy.lab.local` | `curso` / *(en Caddy)* |
+| `promtail` | recolector de logs (agente temario, EOL 2026) | 5. Logging | *(red interna de Docker)* | *(red interna de Docker)* | Sin interfaz web |
+| `tempo` | almacén de trazas distribuidas | 5. Trazas | `http://localhost:3200` (API) | `https://tempo.lab.local` | `curso` / *(en Caddy)* |
+| `otel-collector` | pipeline único OTLP | 2. OTel | `http://localhost:8889/metrics` | *(sin vhost)* | Sin autenticación |
+| `hotrod` | app de demostración con trazas OTLP | 2. OTel / 5. Trazas | `http://localhost:8082` | `https://hotrod.lab.local` | `curso` / *(en Caddy)* |
+| `cadvisor` | métricas de contenedores del host | 3. Prometheus / Docker | *(sin puertos publicados)* | *(sin vhost)* | Sin interfaz directa |
+| `node-exporter` | métricas de sistema del host | 3. Prometheus | `http://localhost:9100/metrics` | *(sin vhost)* | Sin autenticación |
+| `blackbox-exporter` | comprobación de disponibilidad HTTP | 3. Prometheus | `http://localhost:9115` | *(sin vhost)* | Sin autenticación |
+| `caddy` | reverse proxy TLS y auth básica | Seguridad | `http://localhost:80` / `:443` | `https://*.lab.local` | `curso` / *(en Caddy)* |
+| `load-generator` | genera tráfico sintético continuo | Soporte para talleres | *(proceso interno en bucle)* | *(sin interfaz)* | Sin interfaz |
 
 No hay imagen "de aplicación propia" que instrumentar a mano en clase: se
 puede usar `hotrod` como caso ya resuelto para explorar Grafana/Tempo/Loki,
