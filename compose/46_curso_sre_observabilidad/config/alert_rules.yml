@@ -1,0 +1,44 @@
+# Reglas de ejemplo para el taller de "Gestión de Incidentes" (bloque 6).
+# Pensadas para poder dispararse fácilmente en clase (parando node-exporter,
+# generando carga de CPU, etc.) y así practicar todo el ciclo detección →
+# Alertmanager → respuesta → post-mortem.
+groups:
+  - name: infraestructura
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} ({{ $labels.instance }}) caído"
+          description: "El target {{ $labels.instance }} del job {{ $labels.job }} lleva más de 30s sin responder a Prometheus."
+
+      - alert: CPUAltaSostenida
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU alta en {{ $labels.instance }}"
+          description: "Uso de CPU por encima del 80% durante más de 2 minutos ({{ $value | printf \"%.1f\" }}%)."
+
+      - alert: DiscoCasiLleno
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Poco espacio libre en {{ $labels.instance }} ({{ $labels.mountpoint }})"
+          description: "Queda menos del 15% de espacio libre."
+
+  - name: endpoints
+    rules:
+      - alert: EndpointNoResponde
+        expr: probe_success == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Endpoint {{ $labels.instance }} no responde"
+          description: "El probe de Blackbox Exporter contra {{ $labels.instance }} lleva fallando más de 1 minuto."

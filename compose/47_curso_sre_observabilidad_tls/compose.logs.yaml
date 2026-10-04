@@ -1,0 +1,52 @@
+## Módulo 2 — LOGS: Loki + Alloy (y Promtail legacy).
+##
+## Se puede levantar solo: docker compose --env-file compose.env -f compose.logs.yaml up -d
+## Sin `depends_on` hacia servicios de otros módulos (el orden lo dan los
+## scripts 01..06); `restart: always` cubre el arranque en desorden.
+
+services:
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - ./volumes/loki/data:/loki
+    ports:
+      - "3100:3100"
+
+  alloy:
+    image: grafana/alloy:v1.20.1
+    container_name: alloy
+    restart: always
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=0.0.0.0:12345
+    volumes:
+      - ./config/config.alloy:/etc/alloy/config.alloy:ro
+      - ./volumes/alloy/data:/var/lib/alloy/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log/host:ro
+    ports:
+      - "12345:12345"
+    depends_on:
+      - loki
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    restart: always
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    volumes:
+      - ./config/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      # Socket de Docker directo (aceptable en este laboratorio local). Para
+      # quitárselo a promtail con un proxy de solo lectura, ver README:
+      # «Endurecer el acceso al socket de Docker (opcional)».
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log/host:ro
+    depends_on:
+      - loki

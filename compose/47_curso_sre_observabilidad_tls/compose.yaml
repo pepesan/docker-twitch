@@ -1,0 +1,33 @@
+########################################################
+# 📡 CURSO SRE + OBSERVABILIDAD — STACK ON-PREMISE 📡  #
+########################################################
+##
+## Este compose.yaml levanta todo el stack usado en el curso:
+##
+##   Métricas     : node-exporter, blackbox-exporter, Prometheus, Alertmanager
+##   Visualización: Grafana (datasources Prometheus/Loki/Tempo preconfigurados)
+##   Logs         : Loki + Alloy y Promtail (etiqueta logs de contenedores)
+##   Trazas       : Tempo
+##   OTel         : OpenTelemetry Collector (pipeline único metrics/logs/traces)
+##   Proxy TLS    : Caddy con certificados autofirmados y autenticación básica
+##   Portal       : Dashy (portal de inicio y estado de servicios en :4000)
+##   Demo         : hot-rod (app de ejemplo de Jaeger, ya instrumentada con OTel)
+##                  y un load-generator que la bombardea con tráfico sintético
+##                  para tener datos en Grafana desde el minuto 1.
+##
+## Pensado para desplegarse tal cual sobre una VM/bare metal del CPD (todo
+## on-premise, sin depender de ningún SaaS).
+
+## Este fichero solo agrupa los módulos con `include`; cada bloque vive en su
+## propio compose.<módulo>.yaml y se puede levantar por separado (ver README,
+## scripts 01_launch_metricas.sh ... 06_launch_proxy.sh). `docker compose up`
+## sobre este fichero levanta todo de golpe (07_launch_todo.sh).
+
+include:
+  - compose.metricas.yaml
+  - compose.logs.yaml
+  - compose.trazas.yaml
+  - compose.grafana.yaml
+  - compose.demo.yaml
+  - compose.proxy.yaml
+  - compose.portal.yaml

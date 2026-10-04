@@ -1,0 +1,36 @@
+## Módulo 3 — TRAZAS/OTEL: Tempo + OpenTelemetry Collector (pipeline único).
+##
+## Se puede levantar solo: docker compose --env-file compose.env -f compose.trazas.yaml up -d
+## Sin `depends_on` hacia servicios de otros módulos (el orden lo dan los
+## scripts 01..06); `restart: always` cubre el arranque en desorden.
+
+services:
+
+  tempo:
+    ## Se fija a 2.6.1 (en vez de "latest") porque Tempo 3.x cambió el
+    ## esquema de configuración monolítica (ingester/compactor sustituidos
+    ## por backend-scheduler/block-builder) y rompe config/tempo.yaml.
+    image: grafana/tempo:2.6.1
+    container_name: tempo
+    restart: always
+    command: -config.file=/etc/tempo/tempo.yaml
+    volumes:
+      - ./config/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - ./volumes/tempo/data:/var/tempo
+    ports:
+      - "3200:3200"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    restart: always
+    command:
+      - '--config=/etc/otel-collector-config.yaml'
+    volumes:
+      - ./config/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # métricas expuestas para que las recoja Prometheus
+    depends_on:
+      - tempo

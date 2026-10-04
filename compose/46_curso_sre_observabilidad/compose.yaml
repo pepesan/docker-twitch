@@ -1,0 +1,222 @@
+########################################################
+# 📡 CURSO SRE + OBSERVABILIDAD — STACK ON-PREMISE 📡  #
+########################################################
+##
+## Este compose.yaml levanta todo el stack usado en el curso:
+##
+##   Métricas     : node-exporter, blackbox-exporter, Prometheus, Alertmanager
+##   Visualización: Grafana (datasources Prometheus/Loki/Tempo preconfigurados)
+##   Logs         : Loki + Alloy (etiqueta logs de todos los contenedores)
+##   Trazas       : Tempo
+##   OTel         : OpenTelemetry Collector (pipeline único metrics/logs/traces)
+##   Portal       : Dashy (portal unificado de acceso y salud en :4000)
+##   Demo         : hot-rod (app de ejemplo de Jaeger, ya instrumentada con OTel)
+##                  y un load-generator que la bombardea con tráfico sintético
+##                  para tener datos en Grafana desde el minuto 1.
+##
+## Pensado para desplegarse tal cual sobre una VM/bare metal del CPD (todo
+## on-premise, sin depender de ningún SaaS).
+
+services:
+
+  ## ------------------------- MÉTRICAS (Prometheus) -------------------------
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    hostname: node-exporter
+    restart: always
+    pid: host
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - "9100:9100"
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-exporter
+    restart: always
+    volumes:
+      - ./config/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    ports:
+      - "9115:9115"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - ./volumes/prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+    ports:
+      - "9090:9090"
+    depends_on:
+      - node-exporter
+      - blackbox-exporter
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    restart: always
+    volumes:
+      - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./volumes/alertmanager/data:/alertmanager
+    ports:
+      - "9093:9093"
+
+  ## ------------------------- LOGS (Loki + Alloy) -------------------------
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - ./volumes/loki/data:/loki
+    ports:
+      - "3100:3100"
+
+  alloy:
+    ## Sustituye a Promtail (fin de vida el 2-mar-2026). Mismas etiquetas.
+    image: grafana/alloy:v1.20.1
+    container_name: alloy
+    restart: always
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=0.0.0.0:12345
+    volumes:
+      - ./config/config.alloy:/etc/alloy/config.alloy:ro
+      - ./volumes/alloy/data:/var/lib/alloy/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log/host:ro
+    ports:
+      - "12345:12345"   # UI de Alloy (grafo del pipeline, útil para depurar)
+    depends_on:
+      - loki
+
+  ## ------------------------- TRAZAS (Tempo) -------------------------
+
+  tempo:
+    ## Se fija a 2.6.1 (en vez de "latest") porque Tempo 3.x cambió el
+    ## esquema de configuración monolítica (ingester/compactor sustituidos
+    ## por backend-scheduler/block-builder) y rompe config/tempo.yaml.
+    image: grafana/tempo:2.6.1
+    container_name: tempo
+    restart: always
+    command: -config.file=/etc/tempo/tempo.yaml
+    volumes:
+      - ./config/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - ./volumes/tempo/data:/var/tempo
+    ports:
+      - "3200:3200"
+
+  ## ------------------------- OTEL COLLECTOR -------------------------
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    restart: always
+    command:
+      - '--config=/etc/otel-collector-config.yaml'
+    volumes:
+      - ./config/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # métricas expuestas para que las recoja Prometheus
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
+
+  ## ------------------------- GRAFANA -------------------------
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    restart: always
+    env_file: ./compose.env
+    volumes:
+      - ./volumes/grafana/data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3030:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+
+  ## ------------------------- PORTAL (Dashy) -------------------------
+
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: sre-dashy
+    restart: always
+    volumes:
+      - ./config/dashy/conf.yml:/app/user-data/conf.yml:ro
+    ports:
+      - "4000:8080"
+    environment:
+      - NODE_ENV=production
+
+  ## ------------------------- REDIRECT DE ENLACES DE TRAZA (Caddy) -------------------------
+  ## hot-rod genera enlaces "find trace" a un Jaeger UI (localhost:16686) que
+  ## aquí no existe; este Caddy los redirige al Explore de Grafana/Tempo.
+
+  caddy:
+    image: caddy:2.11.4
+    container_name: caddy
+    restart: always
+    volumes:
+      - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
+    ports:
+      - "16686:16686"
+
+  ## ------------------------- APP DE DEMO (genera métricas/logs/trazas) -----
+
+  hotrod:
+    image: jaegertracing/example-hotrod:latest
+    container_name: hotrod
+    restart: always
+    command: ["all", "--otel-exporter=otlp"]
+    environment:
+      # hot-rod exporta por OTLP/HTTP (no gRPC) pese a hablar del puerto por
+      # defecto de gRPC: hay que apuntarlo explícitamente al puerto HTTP
+      # (4318) del collector, si no el handshake HTTP/2 falla con "malformed
+      # HTTP response".
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    ports:
+      - "8082:8080"
+    depends_on:
+      - otel-collector
+
+  load-generator:
+    image: curlimages/curl:latest
+    container_name: load-generator
+    restart: always
+    depends_on:
+      - hotrod
+    entrypoint: >
+      /bin/sh -c "
+      sleep 15;
+      while true; do
+        curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=123&nonse='$$RANDOM;
+        curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=392&nonse='$$RANDOM;
+        curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=731&nonse='$$RANDOM || true;
+        sleep 2;
+      done"

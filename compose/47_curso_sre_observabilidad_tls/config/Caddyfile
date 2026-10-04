@@ -1,0 +1,92 @@
+# Caddy: reverse proxy único del laboratorio, con TLS autofirmado (CA local
+# propia gestionada por Caddy, sin Let's Encrypt: no hay dominio público).
+# Un vhost por servicio (`*.lab.local`, resueltos vía /etc/hosts del alumno).
+{
+	# No intentar ACME público ni pedir email.
+	auto_https disable_redirects
+	local_certs
+	# CA raíz propia del laboratorio (./pki, creada por 00_init.sh) en vez de
+	# la que Caddy improvisaría: el fichero existe antes de arrancar y se puede
+	# instalar con host/instalar_ca.sh. Caddy genera él la intermedia.
+	pki {
+		ca local {
+			name "Curso SRE Lab"
+			root {
+				cert /pki/root.crt
+				key /pki/root.key
+			}
+		}
+	}
+}
+
+(tls_lab) {
+	tls internal
+}
+
+# Usuario/hash bcrypt del curso: vienen de caddy.env (nunca en claro aquí).
+(auth_lab) {
+	basic_auth {
+		{$CADDY_BASIC_USER} {$CADDY_BASIC_HASH}
+	}
+}
+
+# Grafana: sin basic_auth, ya autentica con su propio login.
+grafana.lab.local {
+	import tls_lab
+	reverse_proxy grafana:3000
+}
+
+prometheus.lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy prometheus:9090
+}
+
+alertmanager.lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy alertmanager:9093
+}
+
+loki.lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy loki:3100
+}
+
+tempo.lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy tempo:3200
+}
+
+hotrod.lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy hotrod:8080
+}
+
+alloy.lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy alloy:12345
+}
+
+portal.lab.local, lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy dashy:8080
+}
+
+# node-exporter, blackbox-exporter y otel-collector NO tienen vhost: solo los
+# consulta Prometheus por la red interna (ver PLAN.md, §1).
+
+# Enlaces "find trace" de hot-rod: la app los genera como
+# <--jaeger-ui>/trace/<id> (por defecto http://localhost:16686, un Jaeger UI
+# que aquí no existe). Este sitio HTTP los redirige al Explore de Grafana con
+# la traza en Tempo (Grafana, ya tras el proxy TLS).
+http://:16686 {
+	@trace path_regexp t ^/trace/([0-9a-fA-F]+)$
+	redir @trace https://grafana.lab.local:{$CADDY_HTTPS_PORT:443}/explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22tempo%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22tempo%22%2C%22uid%22%3A%22tempo%22%7D%2C%22queryType%22%3A%22traceql%22%2C%22query%22%3A%22{re.t.1}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D&orgId=1 302
+	respond "hot-rod: enlace de traza no reconocido" 404
+}

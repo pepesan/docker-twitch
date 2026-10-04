@@ -1,0 +1,71 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+rule_files:
+  - /etc/prometheus/alert_rules.yml
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # cAdvisor: métricas por contenedor del host (CPU, RAM, red, IO).
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Métricas del propio demonio Docker del host (engine_*). Los targets vienen
+  # de un fichero que rellena `./15_docker_metrics.sh on`; vacío = inactivo.
+  # Requiere exponer `metrics-addr` en el host (./host/docker_metrics.sh).
+  - job_name: 'docker-daemon'
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets/docker-daemon.yml']
+        refresh_interval: 30s
+
+  # Alertmanager (dashboard comunitario "Alertmanager").
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+
+  # Métricas internas del propio OTel Collector (otelcol_*), puerto 8888;
+  # las usa el dashboard comunitario "OpenTelemetry Collector". Distinto del
+  # job "otel-collector" de abajo, que recoge las métricas de las apps (:8889).
+  - job_name: 'otel-collector-internal'
+    static_configs:
+      - targets: ['otel-collector:8888']
+
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8889']
+
+  # Blackbox: comprueba disponibilidad HTTP de la app de demo (hotrod) y de
+  # Grafana. Añade aquí cualquier otro endpoint del CPD que quieras vigilar.
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://hotrod:8080
+          - http://grafana:3000/login
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: 'blackbox-exporter'
+    static_configs:
+      - targets: ['blackbox-exporter:9115']

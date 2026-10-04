@@ -1,0 +1,48 @@
+// Grafana Alloy — recolector de logs del stack (sustituye a Promtail, que
+// llegó a fin de vida el 2-mar-2026). Mantiene las mismas etiquetas que
+// usaba Promtail: `container` y `stream` para los contenedores y
+// `job="syslog"` para el sistema del host.
+
+// ---- Contenedores Docker del host (vía socket Docker) ----
+discovery.docker "contenedores" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+}
+
+discovery.relabel "contenedores" {
+  targets = discovery.docker.contenedores.targets
+
+  // /nombre -> nombre
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+
+loki.source.docker "contenedores" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.relabel.contenedores.output
+  forward_to       = [loki.write.loki.receiver]
+  refresh_interval = "5s"
+}
+
+// ---- Logs del sistema Linux del host (/var/log montado en /var/log/host) ----
+local.file_match "syslog" {
+  path_targets = [{
+    __path__ = "/var/log/host/syslog",
+    job      = "syslog",
+  }]
+}
+
+loki.source.file "syslog" {
+  targets    = local.file_match.syslog.targets
+  forward_to = [loki.write.loki.receiver]
+}
+
+// ---- Destino ----
+loki.write "loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

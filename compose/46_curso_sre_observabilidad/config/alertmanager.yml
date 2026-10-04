@@ -1,0 +1,41 @@
+# Configuración mínima de Alertmanager para el curso.
+# Por defecto solo registra las alertas (receiver "null"). Descomenta y
+# rellena el receiver de "webhook-ejemplo" o añade uno de email/Slack para
+# el taller de Gestión de Incidentes (bloque 6) — ver comentarios abajo.
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: 'default'
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 1h
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: 'default'
+
+receivers:
+  - name: 'default'
+    # webhook_configs:
+    #   - url: 'http://host.docker.internal:5001/alertas'
+    #     send_resolved: true
+    # email_configs:
+    #   - to: 'oncall@tuempresa.com'
+    #     from: 'alertmanager@tuempresa.com'
+    #     smarthost: 'smtp.tuempresa.com:587'
+    #     auth_username: 'alertmanager@tuempresa.com'
+    #     auth_password: 'CAMBIA_ESTA_PASSWORD'
+    #     send_resolved: true
+    # slack_configs:
+    #   - api_url: 'https://hooks.slack.com/services/T00/B00/XXXX'
+    #     channel: '#alertas-sre'
+    #     send_resolved: true
+
+inhibit_rules:
+  - source_matchers:
+      - severity="critical"
+    target_matchers:
+      - severity="warning"
+    equal: ['alertname', 'instance']

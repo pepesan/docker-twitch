@@ -1,0 +1,4 @@
+# Generado por 15_docker_metrics.sh (on). host.docker.internal = host Docker
+- targets: ['host.docker.internal:9323']
+  labels:
+    host: 'moria'

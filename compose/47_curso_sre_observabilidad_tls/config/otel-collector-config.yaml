@@ -1,0 +1,57 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch: {}
+
+exporters:
+  # Trazas -> Tempo
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Métricas -> expuestas en :8889 para que Prometheus las scrapee (job
+  # "otel-collector" en config/prometheus.yml)
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+  # Logs -> Loki, vía su endpoint nativo OTLP (Loki 3.x), por si en el futuro
+  # se instrumentan apps para mandar logs directamente por OTLP en vez de
+  # vía Promtail.
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+
+  debug:
+    verbosity: basic
+
+service:
+  # Métricas internas del collector (otelcol_*) en :8888, accesibles desde
+  # Prometheus por la red interna (por defecto solo escuchan en localhost).
+  telemetry:
+    metrics:
+      level: detailed
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: 0.0.0.0
+                port: 8888
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/loki, debug]

@@ -1,0 +1,39 @@
+## Módulo 5 — DEMO: hot-rod (app de Jaeger instrumentada con OTel) + load-generator.
+##
+## Se puede levantar solo: docker compose --env-file compose.env -f compose.demo.yaml up -d
+## Sin `depends_on` hacia servicios de otros módulos (el orden lo dan los
+## scripts 01..06); `restart: always` cubre el arranque en desorden.
+
+services:
+
+  hotrod:
+    image: jaegertracing/example-hotrod:latest
+    container_name: hotrod
+    restart: always
+    command: ["all", "--otel-exporter=otlp"]
+    environment:
+      # hot-rod exporta por OTLP/HTTP (no gRPC) pese a hablar del puerto por
+      # defecto de gRPC: hay que apuntarlo explícitamente al puerto HTTP
+      # (4318) del collector, si no el handshake HTTP/2 falla con "malformed
+      # HTTP response".
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    ports:
+      - "8082:8080"
+
+  load-generator:
+    image: curlimages/curl:latest
+    container_name: load-generator
+    restart: always
+    depends_on:
+      - hotrod
+    entrypoint: >
+      /bin/sh -c "
+      sleep 15;
+      while true; do
+        curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=123&nonse='$$RANDOM;
+        curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=392&nonse='$$RANDOM;
+        curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=731&nonse='$$RANDOM || true;
+        sleep 2;
+      done"

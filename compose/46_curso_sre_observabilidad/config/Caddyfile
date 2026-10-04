@@ -1,0 +1,16 @@
+# Caddy en el 46: NO hace TLS ni proxy de servicios (eso es el ejemplo 47);
+# solo redirige los enlaces de traza de hot-rod a Grafana/Tempo.
+{
+	auto_https off
+}
+
+# Enlaces "find trace" de hot-rod: la app los genera como
+# <--jaeger-ui>/trace/<id> (por defecto http://localhost:16686, un Jaeger UI
+# que aquí no existe). Este sitio HTTP los redirige al Explore de Grafana con
+# la traza en Tempo. (En el 47, con TLS, la URL de destino es la de Grafana
+# tras el proxy.)
+http://:16686 {
+	@trace path_regexp t ^/trace/([0-9a-fA-F]+)$
+	redir @trace http://localhost:3030/explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22tempo%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22tempo%22%2C%22uid%22%3A%22tempo%22%7D%2C%22queryType%22%3A%22traceql%22%2C%22query%22%3A%22{re.t.1}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D&orgId=1 302
+	respond "hot-rod: enlace de traza no reconocido" 404
+}
