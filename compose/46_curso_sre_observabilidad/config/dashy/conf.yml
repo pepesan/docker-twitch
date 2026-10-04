@@ -4,12 +4,11 @@ pageInfo:
   description: Portal de acceso rápido a los servicios del laboratorio SRE (Docker Compose 46)
   navLinks:
     - title: Documentación Dashy
-      path: https://dashy.to/docs
-
 appConfig:
   theme: modern
   layout: auto
   iconSize: medium
+  statusCheckInterval: 10
 
 sections:
   - name: Visualización y Métricas
