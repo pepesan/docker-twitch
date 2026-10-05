@@ -88,7 +88,7 @@
    "steppedLine": false,
    "targets": [
     {
-     "expr": "sum(count_over_time({job=\"$app\"} |= \"$search\" [$__interval]))",
+     "expr": "sum(count_over_time({job=~\"$app\"} |= \"$search\" [$__interval]))",
      "legendFormat": "",
      "refId": "A"
     }
@@ -160,7 +160,7 @@
    },
    "targets": [
     {
-     "expr": "{job=\"$app\"} |= \"$search\" | logfmt",
+     "expr": "{job=~\"$app\"} |= \"$search\" | logfmt",
      "hide": false,
      "legendFormat": "",
      "refId": "A"
@@ -180,14 +180,22 @@
  "templating": {
   "list": [
    {
-    "allValue": null,
-    "current": {},
+    "allValue": ".+",
+    "current": {
+     "selected": true,
+     "text": [
+      "All"
+     ],
+     "value": [
+      "$__all"
+     ]
+    },
     "datasource": "Loki",
     "definition": "label_values(job)",
     "hide": 0,
-    "includeAll": false,
+    "includeAll": true,
     "label": "App",
-    "multi": false,
+    "multi": true,
     "name": "app",
     "options": [],
     "query": "label_values(job)",
@@ -224,7 +232,7 @@
   ]
  },
  "time": {
-  "from": "now-1h",
+  "from": "now-24h",
   "to": "now"
  },
  "timepicker": {
