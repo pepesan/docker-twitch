@@ -33,6 +33,12 @@ scrape_configs:
     static_configs:
       - targets: ['otel-collector:8889']
 
+  # App Spring Boot demo-app-sre: métricas de aplicación (Micrometer).
+  - job_name: 'demo-app-sre'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['demo-app:8080']
+
   # Blackbox: comprueba disponibilidad HTTP de la app de demo (hotrod) y de
   # Grafana. Añade aquí cualquier otro endpoint del CPD que quieras vigilar.
   - job_name: 'blackbox-http'

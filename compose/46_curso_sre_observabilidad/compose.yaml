@@ -11,7 +11,8 @@
 ##   OTel         : OpenTelemetry Collector (pipeline único metrics/logs/traces)
 ##   Portal       : Dashy (portal unificado de acceso y salud en :4000)
 ##   Demo         : hot-rod (app de ejemplo de Jaeger, ya instrumentada con OTel)
-##                  y un load-generator que la bombardea con tráfico sintético
+##                  y la app Spring Boot demo-app-sre (métricas, logs y trazas OTel),
+##                  más un load-generator que las bombardea con tráfico sintético
 ##                  para tener datos en Grafana desde el minuto 1.
 ##
 ## Pensado para desplegarse tal cual sobre una VM/bare metal del CPD (todo
@@ -205,12 +206,33 @@ services:
     depends_on:
       - otel-collector
 
+  ## App Spring Boot propia del curso: métricas Prometheus (/actuator/prometheus),
+  ## logs con traceId y trazas OTLP/HTTP al collector. Código público:
+  ## https://gitlab.com/pepesan/spring-boot-30-demo-maven
+  demo-app:
+    image: pepesan/spring-boot-3.0-demo:metrics-sre-otel
+    container_name: demo-app
+    restart: always
+    environment:
+      # Trazas: OTLP/HTTP al puerto 4318 del collector (ruta /v1/traces).
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      # 1.0 = traza el 100 % de las peticiones (solo para el laboratorio).
+      TRACING_SAMPLING_PROBABILITY: "1.0"
+      # Base de Grafana tal como la abre TU navegador; /api/traza la usa para
+      # devolver el enlace directo a la traza (datasource Tempo, uid "tempo").
+      GRAFANA_URL: http://localhost:3030
+    ports:
+      - "8090:8080"
+    depends_on:
+      - otel-collector
+
   load-generator:
     image: curlimages/curl:latest
     container_name: load-generator
     restart: always
     depends_on:
       - hotrod
+      - demo-app
     entrypoint: >
       /bin/sh -c "
       sleep 15;
@@ -218,5 +240,8 @@ services:
         curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=123&nonse='$$RANDOM;
         curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=392&nonse='$$RANDOM;
         curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=731&nonse='$$RANDOM || true;
+        curl -s -o /dev/null 'http://demo-app:8080/api/saludo?nombre=SRE';
+        curl -s -o /dev/null 'http://demo-app:8080/api/lento';
+        curl -s -o /dev/null 'http://demo-app:8080/api/fallo?probabilidad=0.2' || true;
         sleep 2;
       done"

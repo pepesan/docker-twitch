@@ -38,6 +38,7 @@ El plan completo está en [PLAN.md](PLAN.md).
 | `promtail` | recolector de logs (agente temario, EOL 2026) | 5. Logging | *(red interna de Docker)* | *(red interna de Docker)* | Sin interfaz web |
 | `tempo` | almacén de trazas distribuidas | 5. Trazas | `http://localhost:3200` (API) | `https://tempo.lab.local` | Directo: ninguna / Caddy: `curso` (ver `caddy.env`) |
 | `otel-collector` | pipeline único OTLP | 2. OTel | `http://localhost:8889/metrics` | *(sin vhost)* | Sin autenticación |
+| `demo-app` | app Spring Boot del curso: métricas, logs con `traceId` y trazas OTLP; `GET /api/traza` devuelve el enlace a su traza en Grafana | 2. OTel / 5. Trazas | `http://localhost:8090/api/traza` | `https://demo-app.lab.local` | Directo: ninguna / Caddy: `curso` (ver `caddy.env`) |
 | `hotrod` | app de demostración con trazas OTLP | 2. OTel / 5. Trazas | `http://localhost:8082` | `https://hotrod.lab.local` | Directo: ninguna / Caddy: `curso` (ver `caddy.env`) |
 | `cadvisor` | métricas de contenedores del host | 3. Prometheus / Docker | *(sin puertos publicados)* | *(sin vhost)* | Sin interfaz directa |
 | `node-exporter` | métricas de sistema del host | 3. Prometheus | `http://localhost:9100/metrics` | *(sin vhost)* | Sin autenticación |
@@ -70,6 +71,7 @@ contenedores, de la fuente hasta Grafana:
 flowchart LR
     subgraph Demo["App de demo"]
         LG[load-generator] -->|tráfico HTTP| HR[hotrod]
+        LG -->|/api/saludo, /api/lento, /api/fallo| DA[demo-app]
     end
 
     subgraph Metricas["Métricas"]
@@ -317,6 +319,7 @@ cualquiera de las dos.
 | Loki API | http://localhost:3100 | https://loki.lab.local |
 | Tempo API | http://localhost:3200 | https://tempo.lab.local |
 | hot-rod (demo) | http://localhost:8082 | https://hotrod.lab.local |
+| demo-app (Spring Boot) | http://localhost:8090/api/traza | https://demo-app.lab.local/api/traza |
 | Blackbox Exporter | http://localhost:9115 | sin vhost |
 | Node Exporter | http://localhost:9100 | sin vhost |
 | OTel Collector (OTLP) | `localhost:4317` (gRPC) / `4318` (HTTP) | sin vhost |

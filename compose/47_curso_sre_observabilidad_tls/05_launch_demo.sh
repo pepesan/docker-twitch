@@ -7,4 +7,5 @@ cat <<'EOT'
 
 URLs:                  directa                  vía Caddy (HTTPS, usuario curso)
   hot-rod (demo app)   http://localhost:8082    https://hotrod.lab.local
+  demo-app (Spring)    http://localhost:8090    https://demo-app.lab.local
 EOT

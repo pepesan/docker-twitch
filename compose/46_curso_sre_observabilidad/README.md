@@ -23,6 +23,7 @@ desde el primer minuto sin tener que programar nada.
 | `tempo` | almacén de trazas distribuidas | 5. Trazas | `http://localhost:3200` (API) | Ninguno |
 | `otel-collector` | pipeline único OTLP (trazas, métricas y logs) | 2. OTel | `http://localhost:8889/metrics` | Ninguno |
 | `hotrod` | app de demostración instrumentada con OTel | 2. OTel / 5. Trazas | `http://localhost:8082` | Ninguno |
+| `demo-app` | app Spring Boot del curso: métricas (`/actuator/prometheus`), logs con `traceId` y trazas OTLP; `GET /api/traza` devuelve el enlace a su traza en Grafana | 2. OTel / 5. Trazas | `http://localhost:8090/api/traza` | Ninguno |
 | `node-exporter` | métricas de CPU, RAM, disco y red del host | 3. Prometheus | `http://localhost:9100/metrics` | Ninguno |
 | `blackbox-exporter` | comprobación de disponibilidad HTTP de endpoints | 3. Prometheus | `http://localhost:9115` | Ninguno |
 | `caddy` | adapta los enlaces `Find trace` de HotROD (búsqueda por tag `driver` o traza por ID) a Grafana/Tempo | Soporte para trazas | `http://localhost:16686` | Ninguno |
@@ -41,6 +42,7 @@ contenedores, de la fuente hasta Grafana:
 flowchart LR
     subgraph Demo["App de demo"]
         LG[load-generator] -->|tráfico HTTP| HR[hotrod]
+        LG -->|/api/saludo, /api/lento, /api/fallo| DA[demo-app]
     end
 
     subgraph Metricas["Métricas"]
@@ -103,6 +105,7 @@ cd compose/46_curso_sre_observabilidad
 - **Alloy UI**: http://localhost:12345 (grafo del pipeline de logs y estado de sus componentes)
 - **Tempo API**: http://localhost:3200 (sin UI propia, se consulta desde Grafana)
 - **Blackbox Exporter**: http://localhost:9115
+- **demo-app (Spring Boot)**: http://localhost:8090 — `/api/saludo`, `/api/lento`, `/api/fallo` y `/api/traza`; el generador de tráfico las llama solas. `curl http://localhost:8090/api/traza` devuelve el `traceId` de esa petición y `urlTraza`, un enlace que abre la traza en Grafana (la base se configura con `GRAFANA_URL` en `compose.yaml`; imagen y código público: https://gitlab.com/pepesan/spring-boot-30-demo-maven)
 - **hot-rod (demo app)**: http://localhost:8082 — cuatro botones de cliente (Rachel's Floral Designs, Trom Chocolatier, Japanese Desserts y Amazing Coffee Roasters); cada clic genera una petición y una traza distribuida
 
 Grafana ya trae provisionados (sin tocar nada) los datasources de
@@ -169,7 +172,8 @@ saber dónde mirar cada cosa la primera vez que entras:
 
 3. **Logs (LogQL)** — **Explore** → datasource **Loki** → query
    `{container="hotrod"}`. Cada línea de log de `hotrod` incluye su
-   `trace_id`, clave para el paso 5.
+   `trace_id`, clave para el paso 5. Prueba también `{container="demo-app"}`:
+   sus líneas llevan `[demo-app-sre,<traceId>,<spanId>]`.
    - Alternativa sin escribir LogQL a mano: menú **Drilldown → Logs**
      (`/drilldown`), elige datasource Loki y te lista los `container`
      disponibles (`hotrod`, `grafana`, `prometheus`, `otel-collector`...)

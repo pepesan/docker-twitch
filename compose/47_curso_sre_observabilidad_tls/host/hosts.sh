@@ -12,7 +12,7 @@ set -euo pipefail
 HOSTS_FILE="${HOSTS_FILE:-/etc/hosts}"     # variable solo para poder probarlo
 BEGIN="# BEGIN curso-sre-lab"
 END="# END curso-sre-lab"
-NOMBRES=(grafana prometheus alertmanager loki tempo hotrod alloy portal)
+NOMBRES=(grafana prometheus alertmanager loki tempo hotrod demo-app alloy portal)
 
 accion="poner"; ip="127.0.0.1"
 case "${1:-}" in

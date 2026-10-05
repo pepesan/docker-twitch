@@ -14,5 +14,6 @@ URLs:                  directa                  vía Caddy (HTTPS; requiere /etc
   Tempo (API)          http://localhost:3200    https://tempo.lab.local         (usuario curso)
   Blackbox Exporter    http://localhost:9115    (sin vhost)
   hot-rod (demo app)   http://localhost:8082    https://hotrod.lab.local        (usuario curso)
+  demo-app (Spring)    http://localhost:8090    https://demo-app.lab.local      (usuario curso)
 Si cambiaste CADDY_HTTPS_PORT en compose.env, añade :<puerto> a las URLs de Caddy.
 EOF

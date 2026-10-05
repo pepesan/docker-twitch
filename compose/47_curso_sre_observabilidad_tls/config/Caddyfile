@@ -66,6 +66,12 @@ hotrod.lab.local {
 	reverse_proxy hotrod:8080
 }
 
+demo-app.lab.local {
+	import tls_lab
+	import auth_lab
+	reverse_proxy demo-app:8080
+}
+
 alloy.lab.local {
 	import tls_lab
 	import auth_lab

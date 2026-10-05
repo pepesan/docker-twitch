@@ -1,4 +1,5 @@
-## Módulo 5 — DEMO: hot-rod (app de Jaeger instrumentada con OTel) + load-generator.
+## Módulo 5 — DEMO: hot-rod (app de Jaeger instrumentada con OTel), la app Spring
+## Boot demo-app (métricas, logs y trazas OTel) + load-generator.
 ##
 ## Se puede levantar solo: docker compose --env-file compose.env -f compose.demo.yaml up -d
 ## Sin `depends_on` hacia servicios de otros módulos (el orden lo dan los
@@ -22,12 +23,32 @@ services:
     ports:
       - "8082:8080"
 
+  ## App Spring Boot propia del curso: métricas Prometheus (/actuator/prometheus),
+  ## logs con traceId y trazas OTLP/HTTP al collector (por la red interna de
+  ## Compose; TLS y auth solo en la entrada de Caddy). Código público:
+  ## https://gitlab.com/pepesan/spring-boot-30-demo-maven
+  demo-app:
+    image: pepesan/spring-boot-3.0-demo:metrics-sre-otel
+    container_name: demo-app
+    restart: always
+    environment:
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      # 1.0 = traza el 100 % de las peticiones (solo para el laboratorio).
+      TRACING_SAMPLING_PROBABILITY: "1.0"
+      # Base de Grafana tal como la abre TU navegador (vía Caddy, con TLS);
+      # /api/traza la usa para devolver el enlace directo a la traza. Si
+      # cambiaste CADDY_HTTPS_PORT, añade :<puerto>.
+      GRAFANA_URL: https://grafana.lab.local
+    ports:
+      - "8090:8080"
+
   load-generator:
     image: curlimages/curl:latest
     container_name: load-generator
     restart: always
     depends_on:
       - hotrod
+      - demo-app
     entrypoint: >
       /bin/sh -c "
       sleep 15;
@@ -35,5 +56,8 @@ services:
         curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=123&nonse='$$RANDOM;
         curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=392&nonse='$$RANDOM;
         curl -s -o /dev/null 'http://hotrod:8080/dispatch?customer=731&nonse='$$RANDOM || true;
+        curl -s -o /dev/null 'http://demo-app:8080/api/saludo?nombre=SRE';
+        curl -s -o /dev/null 'http://demo-app:8080/api/lento';
+        curl -s -o /dev/null 'http://demo-app:8080/api/fallo?probabilidad=0.2' || true;
         sleep 2;
       done"

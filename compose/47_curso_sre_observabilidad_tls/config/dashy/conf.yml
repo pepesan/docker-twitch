@@ -104,3 +104,10 @@ sections:
         target: newtab
         statusCheck: true
         statusCheckUrl: http://hotrod:8080/
+      - title: Demo App Spring Boot
+        description: "App Spring Boot con métricas, logs y trazas; /api/traza devuelve el enlace a su traza (HTTPS: https://demo-app.lab.local)"
+        icon: fas fa-leaf
+        url: http://localhost:8090/api/traza
+        target: newtab
+        statusCheck: true
+        statusCheckUrl: http://demo-app:8080/actuator/health
