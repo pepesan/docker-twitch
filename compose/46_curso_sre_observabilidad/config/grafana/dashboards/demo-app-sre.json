@@ -1,0 +1,34 @@
+{
+  "title": "demo-app-sre",
+  "uid": "compose46-demo-app-sre",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "type": "timeseries", "title": "Peticiones por segundo, por endpoint y código",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum by (uri, status) (rate(http_server_requests_seconds_count{application=\"demo-app-sre\"}[1m]))", "legendFormat": "{{uri}} {{status}}" }]
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "Tasa de error 5xx",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(rate(http_server_requests_seconds_count{application=\"demo-app-sre\",status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"demo-app-sre\"}[5m]))", "legendFormat": "tasa de error" }]
+    },
+    {
+      "id": 3, "type": "timeseries", "title": "Latencia media por endpoint (s)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "rate(http_server_requests_seconds_sum{application=\"demo-app-sre\"}[5m]) / rate(http_server_requests_seconds_count{application=\"demo-app-sre\"}[5m])", "legendFormat": "{{uri}}" }]
+    },
+    {
+      "id": 4, "type": "logs", "title": "Logs recientes (demo-app)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "expr": "{job=\"46_curso_sre_observabilidad/demo-app\"}" }]
+    }
+  ]
+}

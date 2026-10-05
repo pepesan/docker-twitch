@@ -1,0 +1,40 @@
+# Alerta de Grafana provisionada por fichero (apiVersion 1), equivalente a
+# alert_rules.yml en Prometheus pero evaluada dentro de Grafana. Reutiliza el
+# datasource Prometheus ya fijado (uid: prometheus) y la misma consulta de
+# tasa de error 5xx del dashboard demo-app-sre.
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: curso-sre-demo-app
+    folder: Curso SRE
+    interval: 1m
+    rules:
+      - uid: demo-app-high-error-rate
+        title: DemoAppHighErrorRate (Grafana)
+        condition: C
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Tasa de error 5xx alta en demo-app-sre"
+          description: "La tasa de error 5xx de demo-app-sre supera el 50% durante más de 2 minutos."
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >-
+                sum(rate(http_server_requests_seconds_count{application="demo-app-sre",status=~"5.."}[5m]))
+                /
+                sum(rate(http_server_requests_seconds_count{application="demo-app-sre"}[5m]))
+              instant: true
+              refId: A
+          - refId: C
+            datasourceUid: "__expr__"
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [0.5] }
+              refId: C
