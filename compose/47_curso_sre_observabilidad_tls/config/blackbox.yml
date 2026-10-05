@@ -1,4 +1,8 @@
+# Módulos de sondeo de Blackbox Exporter. Prometheus consulta /probe con el
+# módulo y el target deseados (ver job "blackbox-http" en prometheus.yml);
+# Blackbox hace la comprobación y devuelve el resultado como métricas.
 modules:
+  # Usado en el curso: sonda HTTP contra HotROD y Grafana.
   http_2xx:
     prober: http
     timeout: 5s
@@ -7,9 +11,11 @@ modules:
       valid_status_codes: []  # cualquier 2xx
       method: GET
       preferred_ip_protocol: "ip4"
+  # Disponible para comprobar un puerto TCP sin HTTP (no usado en este curso).
   tcp_connect:
     prober: tcp
     timeout: 5s
+  # Disponible para comprobar accesibilidad por ping (no usado en este curso).
   icmp_ping:
     prober: icmp
     timeout: 5s

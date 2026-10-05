@@ -1,3 +1,5 @@
+# Provisiona por fichero los dashboards que haya en el volumen montado en
+# options.path, en vez de crearlos a mano en la interfaz de Grafana.
 apiVersion: 1
 
 providers:
