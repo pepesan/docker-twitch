@@ -36,6 +36,10 @@ metrics_generator:
     local_blocks:
       filter_server_spans: false
       flush_to_storage: true
+    span_metrics:
+      # Etiqueta `service_name` (además de `service`) que esperan los
+      # dashboards comunitarios de span metrics.
+      dimensions: ['service.name']
   traces_storage:
     path: /var/tempo/generator/traces
   storage:

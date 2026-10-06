@@ -6,6 +6,18 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
+  # Métricas reales del propio contenedor del collector (CPU, memoria, disco,
+  # red), para que el pipeline "metrics" tenga tráfico de verdad sin depender
+  # de que una app envíe métricas por OTLP.
+  hostmetrics:
+    collection_interval: 15s
+    scrapers:
+      cpu: {}
+      memory: {}
+      disk: {}
+      network: {}
+      load: {}
+
 processors:
   batch: {}
 
@@ -21,9 +33,9 @@ exporters:
   prometheus:
     endpoint: 0.0.0.0:8889
 
-  # Logs -> Loki, vía su endpoint nativo OTLP (Loki 3.x), por si en el futuro
-  # se instrumentan apps para mandar logs directamente por OTLP en vez de
-  # vía Alloy.
+  # Logs -> Loki, vía su endpoint nativo OTLP (Loki 3.x). Alloy (config.alloy)
+  # ya no escribe directamente a Loki: convierte a OTLP y los manda aquí, así
+  # este pipeline lleva tráfico real.
   otlphttp/loki:
     endpoint: http://loki:3100/otlp
 
@@ -46,7 +58,7 @@ service:
       processors: [batch]
       exporters: [otlp/tempo, debug]
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, hostmetrics]
       processors: [batch]
       exporters: [prometheus, debug]
     logs:

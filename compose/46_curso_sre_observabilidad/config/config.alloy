@@ -43,6 +43,40 @@ loki.source.docker "contenedores" {
   refresh_interval = "5s"
 }
 
+// ---- Igual que arriba, pero solo los contenedores de ESTE stack, y con
+// destino al OTel Collector por OTLP (Destino 2). El host puede tener otros
+// proyectos Docker corriendo con mucho más volumen de logs; mandar TODO ese
+// tráfico ajeno por OTLP agota el rate-limit de ingesta OTLP de Loki (4
+// MiB/s por tenant) sin aportar nada a este laboratorio.
+discovery.relabel "contenedores_lab" {
+  targets = discovery.docker.contenedores.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    regex         = "46_curso_sre_observabilidad"
+    action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project", "__meta_docker_container_label_com_docker_compose_service"]
+    separator     = "/"
+    regex         = "(.+)/(.+)"
+    target_label  = "job"
+    replacement   = "${1}/${2}"
+  }
+}
+
+loki.source.docker "contenedores_lab" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.relabel.contenedores_lab.output
+  forward_to       = [otelcol.receiver.loki.bridge.receiver]
+  refresh_interval = "5s"
+}
+
 // ---- Logs del sistema Linux del host (/var/log montado en /var/log/host) ----
 local.file_match "syslog" {
   path_targets = [{
@@ -56,9 +90,31 @@ loki.source.file "syslog" {
   forward_to = [loki.write.loki.receiver]
 }
 
-// ---- Destino ----
+// ---- Destino 1: escritura directa a Loki (igual que antes) ----
 loki.write "loki" {
   endpoint {
     url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// ---- Destino 2 (complementario, solo logs de este stack): se convierte a
+// OTLP y se manda al OTel Collector (pipeline "logs" de
+// otel-collector-config.yaml), que hace su propio push a Loki vía el
+// endpoint OTLP nativo. Deja tráfico real en ese pipeline sin depender de
+// que una app lo use directamente; los logs que llegan por aquí aparecen en
+// Loki con labels ligeramente distintas (atributos de recurso OTLP) a los
+// que llegan por el Destino 1.
+otelcol.receiver.loki "bridge" {
+  output {
+    logs = [otelcol.exporter.otlp.collector.input]
+  }
+}
+
+otelcol.exporter.otlp "collector" {
+  client {
+    endpoint = "otel-collector:4317"
+    tls {
+      insecure = true
+    }
   }
 }
