@@ -4,8 +4,9 @@
 ##
 ## Este compose.yaml levanta todo el stack usado en el curso:
 ##
-##   Métricas     : node-exporter, blackbox-exporter, Prometheus, Alertmanager
+##   Métricas     : node-exporter, blackbox-exporter, cAdvisor, Prometheus, Alertmanager
 ##   Visualización: Grafana (datasources Prometheus/Loki/Tempo preconfigurados)
+##   Correo       : mailserver (SMTP+POP3 de pruebas), destino de las alertas
 ##   Logs         : Loki + Alloy (etiqueta logs de todos los contenedores)
 ##   Trazas       : Tempo
 ##   OTel         : OpenTelemetry Collector (pipeline único metrics/logs/traces)
@@ -43,6 +44,25 @@ services:
       - ./config/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
     ports:
       - "9115:9115"
+
+  cadvisor:
+    ## Métricas por contenedor (CPU, RAM, red, IO, reinicios) de este host.
+    ## Sin `ports:`: solo lo consulta Prometheus por la red interna.
+    image: ghcr.io/google/cadvisor:v0.60.6
+    container_name: cadvisor
+    restart: always
+    privileged: true
+    devices:
+      - /dev/kmsg
+    command:
+      - '--docker_only=true'
+      - '--housekeeping_interval=15s'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
 
   prometheus:
     image: prom/prometheus:latest

@@ -26,6 +26,8 @@ desde el primer minuto sin tener que programar nada.
 | `demo-app` | app Spring Boot del curso: métricas (`/actuator/prometheus`), logs con `traceId` y trazas OTLP; `GET /api/traza` devuelve el enlace a su traza en Grafana | 2. OTel / 5. Trazas | `http://localhost:8090/api/traza` | Ninguno |
 | `node-exporter` | métricas de CPU, RAM, disco y red del host | 3. Prometheus | `http://localhost:9100/metrics` | Ninguno |
 | `blackbox-exporter` | comprobación de disponibilidad HTTP de endpoints | 3. Prometheus | `http://localhost:9115` | Ninguno |
+| `cadvisor` | métricas por contenedor (CPU, RAM, red, IO, reinicios) de este host | 3. Prometheus / 4. Grafana | *(sin puerto publicado; solo lo consulta Prometheus)* | Ninguno |
+| `mailserver` | SMTP+POP3 de pruebas (GreenMail), destino de las alertas de Grafana y Alertmanager | 3. Prometheus / 4. Grafana / 6. Incidentes | SMTP `localhost:3025`, POP3 `localhost:3110` | Sin autenticación |
 | `caddy` | adapta los enlaces `Find trace` de HotROD (búsqueda por tag `driver` o traza por ID) a Grafana/Tempo | Soporte para trazas | `http://localhost:16686` | Ninguno |
 | `load-generator` | genera tráfico sintético continuo hacia hot-rod | Soporte para talleres | *(proceso interno en bucle)* | Sin interfaz |
 
@@ -149,6 +151,20 @@ stack y puede quitar paneles). Compruébalo con
 `tools/verificar_dashboard.py config/grafana/dashboards/<fichero>.json`, que
 resuelve las variables contra Prometheus/Loki y ejecuta cada consulta
 (el stack debe estar levantado); avisa de los paneles sin datos.
+
+**Notificaciones por email** (contact point `email-sre` en Grafana, receiver
+`email-sre` en Alertmanager, contra el servicio `mailserver` de este mismo
+compose): para comprobar que llegan de verdad sin esperar a que dispare una
+regla real ni abrir la UI, usa (todos sin dependencias, solo librería
+estándar de Python 3):
+- `tools/disparar_alerta_prueba.py` — inyecta una alerta sintética
+  directamente en Alertmanager (API v2).
+- `tools/disparar_alerta_prueba_grafana.py` — crea por API una regla de
+  Grafana con umbral fijo que dispara siempre; `--borrar=<uid>` la retira
+  después. Lee la contraseña de admin de `compose.env`.
+- `tools/comprobar_correo_alertas.py [buzón@lab.local ...]` — lee por POP3
+  los buzones de `mailserver` (por defecto `alertas-grafana@lab.local` y
+  `alertas-alertmanager@lab.local`) y lista los correos recibidos.
 
 
 ## Cómo ver todo esto en Grafana (guía rápida)

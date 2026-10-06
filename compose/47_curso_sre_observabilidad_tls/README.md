@@ -371,6 +371,20 @@ stack y puede quitar paneles). Compruébalo con
 resuelve las variables contra Prometheus/Loki y ejecuta cada consulta
 (el stack debe estar levantado); avisa de los paneles sin datos.
 
+**Notificaciones por email** (contact point `email-sre` en Grafana, receiver
+`email-sre` en Alertmanager, contra el servicio `mailserver` del módulo
+métricas): para comprobar que llegan de verdad sin esperar a que dispare una
+regla real ni abrir la UI, usa (todos sin dependencias, solo librería
+estándar de Python 3):
+- `tools/disparar_alerta_prueba.py` — inyecta una alerta sintética
+  directamente en Alertmanager (API v2).
+- `tools/disparar_alerta_prueba_grafana.py` — crea por API una regla de
+  Grafana con umbral fijo que dispara siempre; `--borrar=<uid>` la retira
+  después. Lee la contraseña de admin de `compose.env`.
+- `tools/comprobar_correo_alertas.py [buzón@lab.local ...]` — lee por POP3
+  los buzones de `mailserver` (por defecto `alertas-grafana@lab.local` y
+  `alertas-alertmanager@lab.local`) y lista los correos recibidos.
+
 ## Cómo ver todo esto en Grafana (guía rápida)
 
 Todo llega ya conectado (datasources + dashboard provisionados), pero conviene

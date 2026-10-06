@@ -1,0 +1,30 @@
+# Destino de notificaciones por email para las alertas de Grafana
+# (apiVersion 1), provisionado por fichero. El SMTP ya está configurado en
+# compose.env (servicio "mailserver", módulo métricas: SMTP de pruebas del
+# propio laboratorio, sin TLS ni autenticación). La dirección de abajo la
+# crea dinámicamente ese mismo servidor en cuanto le llega el primer
+# correo; compruébala con tools/comprobar_correo_alertas.py.
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: email-sre
+    receivers:
+      - uid: email-sre-1
+        type: email
+        settings:
+          addresses: alertas-grafana@lab.local
+          singleEmail: false
+
+# Política de notificación: las alertas con severity=critical se enrutan a
+# este contact point. El resto sigue la política por defecto de Grafana
+# (sin destino hasta que se configure uno).
+policies:
+  - orgId: 1
+    receiver: email-sre
+    group_by: ['alertname']
+    routes:
+      - receiver: email-sre
+        object_matchers:
+          - ['severity', '=', 'critical']
+        continue: false

@@ -1,7 +1,9 @@
-# Configuración mínima de Alertmanager para el curso.
-# Por defecto solo registra las alertas (receiver "null"). Descomenta y
-# rellena el receiver de "webhook-ejemplo" o añade uno de email/Slack para
-# el taller de Gestión de Incidentes (bloque 6) — ver comentarios abajo.
+# Configuración de Alertmanager para el curso. Las alertas críticas van al
+# receiver "email-sre", contra el SMTP de pruebas del propio laboratorio
+# (servicio "mailserver", sin TLS ni autenticación: smarthost sin
+# require_tls ni auth_username/auth_password). El resto sigue en "default"
+# (sin notificar). Para un SMTP real externo, descomenta el bloque TLS/auth
+# de más abajo y cambia el smarthost.
 global:
   resolve_timeout: 5m
 
@@ -14,24 +16,32 @@ route:
   routes:
     - matchers:
         - severity="critical"
-      receiver: 'default'
+      receiver: 'email-sre'
 
 receivers:
   - name: 'default'
     # webhook_configs:
     #   - url: 'http://host.docker.internal:5001/alertas'
     #     send_resolved: true
-    # email_configs:
-    #   - to: 'oncall@tuempresa.com'
-    #     from: 'alertmanager@tuempresa.com'
-    #     smarthost: 'smtp.tuempresa.com:587'
-    #     auth_username: 'alertmanager@tuempresa.com'
-    #     auth_password: 'CAMBIA_ESTA_PASSWORD'
-    #     send_resolved: true
     # slack_configs:
     #   - api_url: 'https://hooks.slack.com/services/T00/B00/XXXX'
     #     channel: '#alertas-sre'
     #     send_resolved: true
+
+  - name: 'email-sre'
+    email_configs:
+      - to: 'alertas-alertmanager@lab.local'
+        from: 'alertmanager@lab.local'
+        smarthost: 'mailserver:3025'
+        require_tls: false
+        send_resolved: true
+        # Para un SMTP real externo (STARTTLS, puerto 587 habitual):
+        # auth_username: 'alertmanager@tuempresa.com'
+        # auth_password: 'CAMBIA_ESTA_PASSWORD'
+        # require_tls: true
+        # tls_config:
+        #   insecure_skip_verify: false
+        #   # ca_file: '/etc/alertmanager/certs/ca.pem'  # si el SMTP usa CA propia
 
 inhibit_rules:
   - source_matchers:
