@@ -37,7 +37,12 @@ services:
       - loki
 
   promtail:
-    image: grafana/promtail:latest
+    ## Agente legacy (prescrito por el temario, en mantenimiento): demuestra
+    ## que también sabe leer logs de contenedores Docker (docker_sd_configs),
+    ## no solo journald. Complementario a Alloy, no lo sustituye: mismos
+    ## contenedores etiquetados también por Alloy, distinguibles por
+    ## agent="promtail" (ver config/promtail-config.yaml).
+    image: grafana/promtail:3.6.11
     container_name: promtail
     restart: always
     command: -config.file=/etc/promtail/promtail-config.yaml

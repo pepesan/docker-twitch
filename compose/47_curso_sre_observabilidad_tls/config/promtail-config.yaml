@@ -9,15 +9,22 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # Logs de TODOS los contenedores Docker del host (vía discovery de ficheros
-  # de log en /var/lib/docker/containers), etiquetados con el nombre del
-  # contenedor. Es el equivalente "on-premise" de lo que en Grafana Cloud
-  # haría un agente gestionado.
+  # Logs de los contenedores Docker de ESTE proyecto (vía discovery de
+  # ficheros de log en /var/lib/docker/containers), etiquetados con el
+  # nombre del contenedor. Es el equivalente "on-premise" de lo que en
+  # Grafana Cloud haría un agente gestionado; docker_sd_configs es el
+  # equivalente de discovery.docker + loki.source.docker de Alloy.
+  # Filtrado al proyecto (igual que discovery.relabel.contenedores_lab en
+  # Alloy): el host puede tener otros proyectos Docker corriendo, y sin este
+  # filtro Promtail leería también sus logs.
   - job_name: docker
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
     relabel_configs:
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
+        regex: '47_curso_sre_observabilidad_tls'
+        action: keep
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
@@ -36,6 +43,8 @@ scrape_configs:
         regex: '(.+)/(.+)'
         target_label: 'job'
         replacement: '$1/$2'
+      - replacement: 'promtail'
+        target_label: 'agent'
 
   # Logs del propio sistema Linux del host (systemd/journal vía ficheros en
   # /var/log), para el bloque de "Logging centralizado" — problemática de

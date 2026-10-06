@@ -37,6 +37,20 @@ limits_config:
   # Necesario para que Grafana pueda correlacionar logs con trace_id (ver
   # derivedFields en datasources.yaml).
   allow_structured_metadata: true
+  # El límite por defecto (4 MB/s, pensado para proteger a un tenant de
+  # otro en un Loki multi-tenant real) se queda corto en este laboratorio:
+  # Alloy y Promtail tailan los mismos contenedores a la vez (uno por el
+  # socket Docker, el otro por journal/ficheros), compitiendo por el mismo
+  # cupo del único tenant ("fake") que existe aquí. Subido para este
+  # entorno de un solo tenant local, no recomendable tal cual en Loki
+  # multi-tenant de producción.
+  ingestion_rate_mb: 64
+  ingestion_burst_size_mb: 128
+  # Límite aparte del anterior: por stream individual (no por tenant). El
+  # job "docker" de Promtail/Alloy puede generar streams muy activos al
+  # releer el historial completo de un contenedor.
+  per_stream_rate_limit: 32MB
+  per_stream_rate_limit_burst: 64MB
 
 compactor:
   working_directory: /loki/compactor
