@@ -65,3 +65,15 @@ limits_config:
 
 compactor:
   working_directory: /loki/compactor
+
+ruler:
+  # Sin esto, la API de reglas de Loki (GET /loki/api/v1/rules) responde 404
+  # y Grafana marca el datasource Loki como "Error" en Alerting > Alert rules,
+  # aunque no se usen reglas gestionadas por Loki en este laboratorio (solo
+  # alertas Grafana-managed sobre Prometheus). Almacenamiento local vacío,
+  # solo para registrar la ruta de la API; no se define ninguna regla aquí.
+  storage:
+    type: local
+    local:
+      directory: /loki/rules
+  rule_path: /loki/rules-scratch

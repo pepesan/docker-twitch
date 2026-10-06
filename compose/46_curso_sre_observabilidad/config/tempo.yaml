@@ -1,54 +1,79 @@
+# API HTTP: Grafana consulta aquí las trazas; /ready indica salud.
 server:
   http_listen_port: 3200
 
+# El distribuidor recibe spans por OTLP (OpenTelemetry Protocol).
 distributor:
   receivers:
     otlp:
       protocols:
         grpc:
+          # Escuchar dentro del contenedor permite recibir del Collector.
           endpoint: 0.0.0.0:4317
         http:
+          # Alternativa OTLP sobre HTTP; no es la API de consulta.
           endpoint: 0.0.0.0:4318
 
+# El ingester agrupa spans en bloques antes de almacenarlos.
 ingester:
+  # Cerrar el bloque como máximo tras 5 minutos; no es retención.
   max_block_duration: 5m
 
+# El compactor reorganiza bloques y aplica su caducidad.
 compactor:
   compaction:
+    # Retener bloques de trazas 48 horas; borrado periódico, no instantáneo.
     block_retention: 48h
 
+# Las rutas son internas al contenedor; /var/tempo está montado en el host.
 storage:
   trace:
+    # Backend local: guardar bloques en disco en este laboratorio.
     backend: local
     local:
       path: /var/tempo/traces
     wal:
+      # WAL: registro previo en disco para recuperar escrituras tras reiniciar.
       path: /var/tempo/wal
 
+# Además de guardar trazas, Tempo puede derivar métricas de sus spans.
 metrics_generator:
   registry:
     external_labels:
+      # Identificar en Prometheus el origen de las métricas generadas.
       source: tempo
-  # Procesador local-blocks: necesario para las métricas TraceQL
-  # (Grafana Traces Drilldown, `| rate() by(...)`). Guarda los bloques
-  # recientes en local para poder consultarlos.
   processor:
+    # En Tempo 2.x, mantener bloques para consultas de métricas TraceQL.
     local_blocks:
+      # Incluir también spans de otros tipos, no solo los de servidor.
       filter_server_spans: false
+      # Volcar bloques al backend para consultarlos más allá de la memoria.
       flush_to_storage: true
+
+    # span-metrics deriva recuentos, errores y duraciones de los spans.
     span_metrics:
-      # Etiqueta `service_name` (además de `service`) que esperan los
-      # dashboards comunitarios de span metrics.
+      # Añadir service.name como etiqueta service_name en las métricas.
+      # Permite agrupar por servicio; más dimensiones aumentan las series.
       dimensions: ['service.name']
   traces_storage:
+    # Bloques locales de trazas del generador, separados del almacén principal.
     path: /var/tempo/generator/traces
   storage:
+    # WAL de métricas pendientes de enviar; distinto del WAL de trazas.
     path: /var/tempo/generator/wal
+
+    # Enviar métricas a Prometheus usando su receptor remote-write.
     remote_write:
+      # prometheus es el nombre DNS del servicio en la red de Compose.
+      # Requiere --web.enable-remote-write-receiver en Prometheus.
       - url: http://prometheus:9090/api/v1/write
+        # Enviar ejemplos con trace ID para saltar de una métrica a una traza.
         send_exemplars: true
 
+# Configurar un procesador arriba no basta: aquí se activa por defecto.
 overrides:
   defaults:
     metrics_generator:
+      # service-graphs: relaciones entre servicios; span-metrics: métricas RED
+      # (peticiones, errores y duración); local-blocks: consultas TraceQL.
       processors: [service-graphs, span-metrics, local-blocks]
