@@ -9,22 +9,18 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # Logs de los contenedores Docker de ESTE proyecto (vía discovery de
+  # Logs de TODOS los contenedores Docker del host (vía discovery de
   # ficheros de log en /var/lib/docker/containers), etiquetados con el
   # nombre del contenedor. Es el equivalente "on-premise" de lo que en
   # Grafana Cloud haría un agente gestionado; docker_sd_configs es el
-  # equivalente de discovery.docker + loki.source.docker de Alloy.
-  # Filtrado al proyecto (igual que discovery.relabel.contenedores_lab en
-  # Alloy): el host puede tener otros proyectos Docker corriendo, y sin este
-  # filtro Promtail leería también sus logs.
+  # equivalente de discovery.docker + loki.source.docker de Alloy. Sin
+  # filtrar por proyecto a propósito (ver loki-config.yaml: ingestion_rate_mb
+  # y per_stream_rate_limit ya admiten el volumen de leer todo el host).
   - job_name: docker
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
     relabel_configs:
-      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
-        regex: '47_curso_sre_observabilidad_tls'
-        action: keep
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'

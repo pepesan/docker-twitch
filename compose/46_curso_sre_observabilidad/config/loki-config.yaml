@@ -51,6 +51,17 @@ limits_config:
   # releer el historial completo de un contenedor.
   per_stream_rate_limit: 32MB
   per_stream_rate_limit_burst: 64MB
+  # Promtail (docker_sd_configs) lee TODOS los contenedores del host, sin
+  # filtrar por proyecto. No hace falta reject_old_samples_max_age ni
+  # max_query_length (por defecto 168h y 30d1h): ningún contenedor de este
+  # proyecto tiene logs antiguos (se recrea desde cero cada vez) y los
+  # contenedores ajenos al curso que hubiera en el host con logs de meses de
+  # antigüedad se resuelven en origen (vaciar su log o recrearlos), no
+  # ampliando aquí cuánto acepta/consulta Loki. Si algún día hiciera falta
+  # (p. ej. para no fallar aunque el host tenga contenedores ajenos con
+  # logs muy antiguos sin tocar), serían:
+  #   reject_old_samples_max_age: 8760h
+  #   max_query_length: 8760h
 
 compactor:
   working_directory: /loki/compactor
