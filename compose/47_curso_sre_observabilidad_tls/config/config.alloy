@@ -4,11 +4,19 @@
 // `job="syslog"` para el sistema del host.
 
 // ---- Contenedores Docker del host (vía socket Docker) ----
+// Pregunta al socket Docker cada refresh_interval qué contenedores hay
+// corriendo (en todo el host, no solo en este proyecto) y expone cada uno
+// como un "target" con sus metadatos (__meta_docker_*), que discovery.relabel
+// convierte después en las etiquetas finales del stream de Loki.
 discovery.docker "contenedores" {
   host             = "unix:///var/run/docker.sock"
   refresh_interval = "5s"
 }
 
+// Convierte los metadatos crudos de Docker (__meta_docker_*, que no viajan a
+// Loki) en las etiquetas finales del stream (container, job), que sí se
+// indexan. Sin este paso, loki.source.docker etiquetaría cada log solo con
+// el ID del contenedor.
 discovery.relabel "contenedores" {
   targets = discovery.docker.contenedores.targets
 
@@ -36,6 +44,9 @@ discovery.relabel "contenedores" {
 
 
 
+// Hace el tail real de la salida (stdout/stderr) de cada contenedor
+// descubierto arriba, usando las etiquetas ya calculadas por
+// discovery.relabel, y los reenvía al receptor indicado en forward_to.
 loki.source.docker "contenedores" {
   host             = "unix:///var/run/docker.sock"
   targets          = discovery.relabel.contenedores.output
@@ -44,6 +55,8 @@ loki.source.docker "contenedores" {
 }
 
 // ---- Logs del sistema Linux del host (/var/log montado en /var/log/host) ----
+// local.file_match localiza el fichero y le asigna la etiqueta job=syslog;
+// no lee contenido, solo descubre la ruta.
 local.file_match "syslog" {
   path_targets = [{
     __path__ = "/var/log/host/syslog",
@@ -51,12 +64,14 @@ local.file_match "syslog" {
   }]
 }
 
+// Hace el tail real del fichero localizado arriba (igual que `tail -f`), con
+// la etiqueta job=syslog ya asignada.
 loki.source.file "syslog" {
   targets    = local.file_match.syslog.targets
   forward_to = [loki.write.loki.receiver]
 }
 
-// ---- Destino ----
+// ---- Destino: push HTTP a la API nativa de Loki (loki/api/v1/push) ----
 loki.write "loki" {
   endpoint {
     url = "http://loki:3100/loki/api/v1/push"
