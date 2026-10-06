@@ -1,7 +1,10 @@
 # Alerta de Grafana provisionada por fichero (apiVersion 1), equivalente a
 # alert_rules.yml en Prometheus pero evaluada dentro de Grafana. Reutiliza el
-# datasource Prometheus ya fijado (uid: prometheus) y la misma consulta de
-# tasa de error 5xx del dashboard demo-app-sre.
+# datasource Prometheus ya fijado (uid: prometheus). La consulta se acota a
+# uri="/api/fallo": el load-generator del Compose 46 llama también sin parar
+# a /api/saludo, /api/lento e /api/incidencias (siempre con éxito), y con la
+# tasa de error global de demo-app-sre esas peticiones diluían el ratio por
+# debajo del 50% aunque /api/fallo estuviera fallando mucho.
 apiVersion: 1
 
 groups:
@@ -25,9 +28,9 @@ groups:
             datasourceUid: prometheus
             model:
               expr: >-
-                sum(rate(http_server_requests_seconds_count{application="demo-app-sre",status=~"5.."}[5m]))
+                sum(rate(http_server_requests_seconds_count{application="demo-app-sre",uri="/api/fallo",status=~"5.."}[5m]))
                 /
-                sum(rate(http_server_requests_seconds_count{application="demo-app-sre"}[5m]))
+                sum(rate(http_server_requests_seconds_count{application="demo-app-sre",uri="/api/fallo"}[5m]))
               instant: true
               refId: A
           - refId: C
