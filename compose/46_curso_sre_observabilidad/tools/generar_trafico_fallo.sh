@@ -1,13 +1,13 @@
 #!/bin/bash
 # Genera tráfico real y continuo contra /api/fallo de demo-app-sre (Compose 46),
 # para disparar de verdad la regla DemoAppHighErrorRate en Grafana
-# (for: 2m) y tener una traza con status=500 que localizar en Tempo.
+# (for: 1m) y tener una traza con status=500 que localizar en Tempo.
 #
 # Uso:
 #   tools/generar_trafico_fallo.sh [probabilidad] [duracion_segundos]
 #
-# Por defecto: probabilidad=0.9, duracion_segundos=180 (3 minutos, suficiente
-# para que la regla pase inactive -> pending -> firing con for: 2m).
+# Por defecto: probabilidad=0.9, duracion_segundos=180 (margen cómodo para
+# que la regla pase inactive -> pending -> firing con for: 1m e interval 1m).
 set -euo pipefail
 
 PROBABILIDAD="${1:-0.9}"

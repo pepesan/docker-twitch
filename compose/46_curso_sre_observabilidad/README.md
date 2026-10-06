@@ -171,7 +171,7 @@ real, no sintético, y tener una traza con `status=500` que seguir en Tempo):
 - `tools/generar_trafico_fallo.sh [probabilidad] [duracion_segundos]` — llama
   en bucle a `/api/fallo` de `demo-app-sre` (puerto 8090 del host). Por
   defecto `probabilidad=0.9`, `duracion_segundos=180` (3 minutos, suficiente
-  para que la regla, con `for: 2m`, pase de `pending` a `firing`).
+  para que la regla, con `for: 1m`, pase de `pending` a `firing`).
 
 
 ## Cómo ver todo esto en Grafana (guía rápida)
