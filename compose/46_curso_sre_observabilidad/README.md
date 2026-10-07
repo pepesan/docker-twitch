@@ -166,7 +166,10 @@ estándar de Python 3):
   niega a ejecutarse (código 2) si esas alertas ya están activas.
 - `tools/disparar_alerta_prueba_grafana.py` — crea por API una regla de
   Grafana con umbral fijo que dispara siempre; `--borrar=<uid>` la retira
-  después. Lee la contraseña de admin de `compose.env`.
+  después. Lee la contraseña de admin de `compose.env`. Con `--fallo
+  [--probabilidad=0.9] [--duracion=240]` no crea nada: genera tráfico real a
+  `/api/fallo` hasta que la regla provisionada `DemoAppHighErrorRate
+  (Grafana)` pasa a `firing` (sale con 1 si no llega).
 - `tools/comprobar_correo_alertas.py [buzón@lab.local ...]` — lee por POP3
   los buzones de `mailserver` (por defecto `alertas-grafana@lab.local` y
   `alertas-alertmanager@lab.local`) y lista los correos recibidos.
