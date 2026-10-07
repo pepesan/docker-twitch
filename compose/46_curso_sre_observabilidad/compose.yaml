@@ -270,7 +270,7 @@ services:
   ## logs con traceId y trazas OTLP/HTTP al collector. Código público:
   ## https://gitlab.com/pepesan/spring-boot-30-demo-maven
   demo-app:
-    image: pepesan/spring-boot-3.0-demo:metrics-sre-otel-v2
+    image: pepesan/spring-boot-3.0-demo:metrics-sre-otel-v3
     container_name: demo-app
     restart: always
     environment:
