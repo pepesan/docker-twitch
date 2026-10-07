@@ -25,9 +25,9 @@ groups:
 
       - alert: DiscoCasiLleno
         expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}) * 100 < 15
-        for: 5m
+        for: 1m
         labels:
-          severity: warning
+          severity: critical
         annotations:
           summary: "Poco espacio libre en {{ $labels.instance }} ({{ $labels.mountpoint }})"
           description: "Queda menos del 15% de espacio libre."

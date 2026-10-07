@@ -158,13 +158,27 @@ compose): para comprobar que llegan de verdad sin esperar a que dispare una
 regla real ni abrir la UI, usa (todos sin dependencias, solo librería
 estándar de Python 3):
 - `tools/disparar_alerta_prueba.py` — inyecta una alerta sintética
-  directamente en Alertmanager (API v2).
+  directamente en Alertmanager (API v2). Con `--caida` simula una caída
+  real: para `node-exporter` y `hotrod` (o los de `--servicios=a,b`), espera
+  a que `InstanceDown` y `EndpointNoResponde` pasen a `firing` en
+  Alertmanager y vuelve a arrancarlos siempre, aunque se interrumpa con
+  Ctrl+C. Con `--esperar-resuelta` espera además a que se resuelvan. Se
+  niega a ejecutarse (código 2) si esas alertas ya están activas.
 - `tools/disparar_alerta_prueba_grafana.py` — crea por API una regla de
   Grafana con umbral fijo que dispara siempre; `--borrar=<uid>` la retira
   después. Lee la contraseña de admin de `compose.env`.
 - `tools/comprobar_correo_alertas.py [buzón@lab.local ...]` — lee por POP3
   los buzones de `mailserver` (por defecto `alertas-grafana@lab.local` y
   `alertas-alertmanager@lab.local`) y lista los correos recibidos.
+  `--exigir=FIRING` / `--exigir=RESOLVED` (repetibles) hacen que termine con
+  código 1 si ningún asunto contiene ese texto; `--borrar` vacía el buzón.
+
+  Ejemplo de comprobación completa de una caída:
+  ```bash
+  python3 tools/comprobar_correo_alertas.py alertas-alertmanager@lab.local --borrar
+  python3 tools/disparar_alerta_prueba.py --caida --esperar-resuelta
+  python3 tools/comprobar_correo_alertas.py alertas-alertmanager@lab.local --exigir=FIRING --exigir=RESOLVED
+  ```
 
 **Tráfico real de error** (para disparar `DemoAppHighErrorRate` con tráfico
 real, no sintético, y tener una traza con `status=500` que seguir en Tempo):
