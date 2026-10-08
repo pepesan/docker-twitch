@@ -1,0 +1,38 @@
+digraph awx_scalable_architecture {
+    rankdir=TB;
+    fontname="Helvetica";
+    node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12, margin="0.2,0.12"];
+    edge [fontname="Helvetica", fontsize=10, color="#888780"];
+    bgcolor="transparent";
+
+    user [label="UI / API\nUsuario", fillcolor="#F1EFE8", color="#5F5E5A"];
+    control [label="awx-1\nControl node", fillcolor="#CECBF6", color="#534AB7"];
+    postgres [label="Postgres\nBase de datos", fillcolor="#F1EFE8", color="#5F5E5A"];
+    redis [label="Redis\nCola / cache", fillcolor="#F1EFE8", color="#5F5E5A"];
+    hop [label="receptor-hop\nRelay Receptor", fillcolor="#F5C4B3", color="#993C1D"];
+
+    subgraph cluster_execution {
+        label="Execution nodes";
+        fontsize=11;
+        color="#B4B2A9";
+        style=dashed;
+        exec1 [label="receptor-1\nExecution node", fillcolor="#9FE1CB", color="#0F6E56"];
+        exec2 [label="receptor-2\nExecution node", fillcolor="#9FE1CB", color="#0F6E56"];
+        execN [label="receptor-N\nExecution node", fillcolor="#9FE1CB", color="#0F6E56"];
+    }
+
+    ee1 [label="EE awx-ee:latest\n(podman pull)", shape=box, style="rounded,filled", fillcolor="#F1EFE8", color="#5F5E5A", fontsize=10];
+    ee2 [label="EE awx-ee:latest\n(podman pull)", shape=box, style="rounded,filled", fillcolor="#F1EFE8", color="#5F5E5A", fontsize=10];
+    eeN [label="EE awx-ee:latest\n(podman pull)", shape=box, style="rounded,filled", fillcolor="#F1EFE8", color="#5F5E5A", fontsize=10];
+
+    user -> control;
+    control -> postgres;
+    control -> redis;
+    control -> hop;
+    hop -> exec1;
+    hop -> exec2;
+    hop -> execN;
+    exec1 -> ee1;
+    exec2 -> ee2;
+    execN -> eeN;
+}

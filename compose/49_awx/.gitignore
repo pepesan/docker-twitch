@@ -1,0 +1,3 @@
+awx/
+volumes/
+secrets.env

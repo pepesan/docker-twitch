@@ -1,0 +1,5 @@
+awx/
+volumes/
+secrets.env
+PLAN.md
+compose.yaml
