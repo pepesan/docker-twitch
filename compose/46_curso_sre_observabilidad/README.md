@@ -44,7 +44,7 @@ contenedores, de la fuente hasta Grafana:
 flowchart LR
     subgraph Demo["App de demo"]
         LG[load-generator] -->|tráfico HTTP| HR[hotrod]
-        LG -->|/api/saludo, /api/lento, /api/fallo| DA[demo-app]
+        LG -->|/api/saludo, /api/lento, /api/fallo, /api/incidencias| DA[demo-app]
     end
 
     subgraph Metricas["Métricas"]
@@ -107,7 +107,14 @@ cd compose/46_curso_sre_observabilidad
 - **Alloy UI**: http://localhost:12345 (grafo del pipeline de logs y estado de sus componentes)
 - **Tempo API**: http://localhost:3200 (sin UI propia, se consulta desde Grafana)
 - **Blackbox Exporter**: http://localhost:9115
-- **demo-app (Spring Boot)**: http://localhost:8090 — `/api/saludo`, `/api/lento`, `/api/fallo` y `/api/traza`; el generador de tráfico las llama solas. `curl http://localhost:8090/api/traza` devuelve el `traceId` de esa petición y `urlTraza`, un enlace que abre la traza en Grafana (la base se configura con `GRAFANA_URL` en `compose.yaml`; imagen y código público: https://gitlab.com/pepesan/spring-boot-30-demo-maven)
+- **demo-app (Spring Boot)**: http://localhost:8090 — `/api/saludo`,
+  `/api/lento`, `/api/fallo`, `/api/incidencias` y `/api/traza`. El generador
+  llama en cada ciclo a los tres primeros y crea y lista incidencias; desde el
+  host, `curl http://localhost:8090/api/incidencias` devuelve la lista.
+  `curl http://localhost:8090/api/traza` devuelve el `traceId` de esa petición
+  y `urlTraza`, un enlace que abre la traza en Grafana (la base se configura
+  con `GRAFANA_URL` en `compose.yaml`; imagen y código público:
+  https://gitlab.com/pepesan/spring-boot-30-demo-maven).
 - **hot-rod (demo app)**: http://localhost:8082 — cuatro botones de cliente (Rachel's Floral Designs, Trom Chocolatier, Japanese Desserts y Amazing Coffee Roasters); cada clic genera una petición y una traza distribuida
 
 Grafana ya trae provisionados (sin tocar nada) los datasources de
@@ -219,9 +226,17 @@ saber dónde mirar cada cosa la primera vez que entras:
      disponibles (`hotrod`, `grafana`, `prometheus`, `otel-collector`...)
      para ir filtrando a clics.
 
-4. **Trazas** — **Explore** → datasource **Tempo** → pestaña **Search** →
-   filtra por `Service Name = frontend` (o pega un `trace_id` visto en Loki).
-   Verás el árbol de spans de una petición real de `hotrod`.
+4. **Trazas** — **Explore** → datasource **Tempo**. Para localizar la petición
+   que lista incidencias y exigir que incluya su consulta hija a H2, cambia el
+   editor a **TraceQL** y ejecuta:
+   ```traceql
+   { resource.service.name = "demo-app-sre" && name = "http get /api/incidencias" }
+     > { name = "h2.consulta.incidencias" && span.db.system = "h2" && span.db.operation = "SELECT" }
+   ```
+   Abre un resultado: el árbol debe mostrar `http get /api/incidencias` como
+   span servidor y `h2.consulta.incidencias` como hijo directo. Para las trazas
+   de hot-rod, filtra por `Service Name = frontend` o pega un `trace_id` visto
+   en Loki.
 
 5. **Correlación traza → log → métrica** — abre una traza en Tempo, cada span
    tiene un botón **Logs for this span** que te lleva directo a Loki filtrado

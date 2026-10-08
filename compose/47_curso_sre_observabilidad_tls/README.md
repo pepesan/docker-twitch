@@ -71,7 +71,7 @@ contenedores, de la fuente hasta Grafana:
 flowchart LR
     subgraph Demo["App de demo"]
         LG[load-generator] -->|tráfico HTTP| HR[hotrod]
-        LG -->|/api/saludo, /api/lento, /api/fallo| DA[demo-app]
+        LG -->|/api/saludo, /api/lento, /api/fallo, /api/incidencias| DA[demo-app]
     end
 
     subgraph Metricas["Métricas"]
@@ -425,9 +425,17 @@ saber dónde mirar cada cosa la primera vez que entras:
      disponibles (`hotrod`, `grafana`, `prometheus`, `otel-collector`...)
      para ir filtrando a clics.
 
-4. **Trazas** — **Explore** → datasource **Tempo** → pestaña **Search** →
-   filtra por `Service Name = frontend` (o pega un `trace_id` visto en Loki).
-   Verás el árbol de spans de una petición real de `hotrod`.
+4. **Trazas** — **Explore** → datasource **Tempo**. Para localizar la petición
+   que lista incidencias y exigir que incluya su consulta hija a H2, cambia el
+   editor a **TraceQL** y ejecuta:
+   ```traceql
+   { resource.service.name = "demo-app-sre" && name = "http get /api/incidencias" }
+     > { name = "h2.consulta.incidencias" && span.db.system = "h2" && span.db.operation = "SELECT" }
+   ```
+   Abre un resultado: el árbol debe mostrar `http get /api/incidencias` como
+   span servidor y `h2.consulta.incidencias` como hijo directo. Para las trazas
+   de hot-rod, filtra por `Service Name = frontend` o pega un `trace_id` visto
+   en Loki.
 
 5. **Correlación traza → log → métrica** — abre una traza en Tempo, cada span
    tiene un botón **Logs for this span** que te lleva directo a Loki filtrado
