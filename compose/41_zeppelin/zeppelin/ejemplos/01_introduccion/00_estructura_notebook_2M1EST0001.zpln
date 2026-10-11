@@ -3,7 +3,7 @@
     {
       "text": "%md\n# Módulo 1 · Estructura de un notebook Zeppelin\n\n**Objetivo:** identificar las partes de un notebook (celdas de código, Markdown y resultados) y el flujo de trabajo reproducible que se usará durante todo el curso.\n\nAutor: David Vaquero Santiago (pepesan@gmail.com)",
       "user": "anonymous",
-      "dateUpdated": "2026-09-16 08:47:48.249",
+      "dateUpdated": "2026-10-05 15:01:29.615",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -37,20 +37,25 @@
       "jobName": "paragraph_1789206606922_1531152406",
       "id": "paragraph_1789206440531_1400711180",
       "dateCreated": "2026-09-12 09:50:06.922",
-      "dateStarted": "2026-09-12 09:58:37.341",
-      "dateFinished": "2026-09-12 09:58:37.348",
+      "dateStarted": "2026-10-05 15:01:29.638",
+      "dateFinished": "2026-10-05 15:01:31.729",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 1. Celdas Markdown\n\nEsta celda es de tipo `%md`. Sirve para documentar el análisis: contexto, supuestos, decisiones y conclusiones. Zeppelin la renderiza como texto enriquecido al ejecutarla (`Shift+Enter`).\n\nEn auditoría, estas celdas son las que dejan **evidencia** de qué se hizo y por qué, no solo el código.",
       "user": "anonymous",
+      "dateUpdated": "2026-10-05 15:01:31.739",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -71,14 +76,14 @@
       "jobName": "paragraph_1789206606922_471968199",
       "id": "paragraph_1789206440531_-829106718",
       "dateCreated": "2026-09-12 09:50:06.922",
-      "dateStarted": "2026-09-12 09:50:07.023",
-      "dateFinished": "2026-09-12 09:50:07.028",
+      "dateStarted": "2026-10-05 15:01:31.741",
+      "dateFinished": "2026-10-05 15:01:31.750",
       "status": "FINISHED"
     },
     {
       "text": "%python\n# Celda de código: %python es el intérprete que usaremos en todo el curso\nprint(\"Módulo 1 - Python en auditoría\")\nmensaje \u003d \"Cada celda se ejecuta de forma independiente, pero comparte \"\\\n    \"variables con las demás celdas del mismo notebook.\"\nprint(mensaje)",
       "user": "anonymous",
-      "dateUpdated": "2026-09-16 10:22:20.680",
+      "dateUpdated": "2026-10-05 15:01:31.841",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -110,14 +115,14 @@
       "jobName": "paragraph_1789206606922_1465300360",
       "id": "paragraph_1789206440531_855912322",
       "dateCreated": "2026-09-12 09:50:06.922",
-      "dateStarted": "2026-09-16 10:22:20.691",
-      "dateFinished": "2026-09-16 10:22:20.746",
+      "dateStarted": "2026-10-05 15:01:31.845",
+      "dateFinished": "2026-10-05 15:01:35.616",
       "status": "FINISHED"
     },
     {
       "text": "%python\n# Las variables definidas en una celda anterior siguen disponibles aquí\nprint(f\"Longitud del mensaje anterior: {len(mensaje)} caracteres\")",
       "user": "anonymous",
-      "dateUpdated": "2026-09-12 09:58:45.165",
+      "dateUpdated": "2026-10-05 15:01:35.648",
       "progress": 0,
       "config": {
         "editorSetting": {
@@ -149,20 +154,25 @@
       "jobName": "paragraph_1789206606922_586128259",
       "id": "paragraph_1789206440531_1158490893",
       "dateCreated": "2026-09-12 09:50:06.922",
-      "dateStarted": "2026-09-12 09:58:45.167",
-      "dateFinished": "2026-09-12 09:58:45.225",
+      "dateStarted": "2026-10-05 15:01:35.651",
+      "dateFinished": "2026-10-05 15:01:35.658",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 2. Resultados\n\nDebajo de cada celda de código aparece su **resultado** (salida de `print`, valor devuelto, tablas, gráficos...). Esto permite dejar evidencia de cada paso del análisis sin salir del notebook ni depender de capturas externas.",
       "user": "anonymous",
+      "dateUpdated": "2026-10-05 15:01:35.751",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -183,20 +193,25 @@
       "jobName": "paragraph_1789206606922_1510760176",
       "id": "paragraph_1789206440531_-830250173",
       "dateCreated": "2026-09-12 09:50:06.922",
-      "dateStarted": "2026-09-12 09:50:07.325",
-      "dateFinished": "2026-09-12 09:50:07.329",
+      "dateStarted": "2026-10-05 15:01:35.753",
+      "dateFinished": "2026-10-05 15:01:35.760",
       "status": "FINISHED"
     },
     {
       "text": "%md\n## 3. Buenas prácticas de documentación\n\n- Usar celdas `%md` para explicar el **porqué** de cada paso, no solo el qué.\n- Ejecutar el notebook de arriba a abajo antes de darlo por bueno (menú *Run all paragraphs*) — garantiza que es reproducible.\n- Guardar evidencia de la ejecución (exportar a HTML/PDF) para el expediente de auditoría.\n- Nombrar los notebooks con un prefijo numérico (`00_`, `01_`...) para que el orden de trabajo quede claro de un vistazo.",
       "user": "anonymous",
+      "dateUpdated": "2026-10-05 15:01:35.853",
       "progress": 0,
       "config": {
         "editorSetting": {
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorHide": true
+        "editorHide": true,
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {}
       },
       "settings": {
         "params": {},
@@ -217,8 +232,8 @@
       "jobName": "paragraph_1789206606922_2088681705",
       "id": "paragraph_1789206440531_-282842936",
       "dateCreated": "2026-09-12 09:50:06.922",
-      "dateStarted": "2026-09-12 09:50:07.425",
-      "dateFinished": "2026-09-12 09:50:07.435",
+      "dateStarted": "2026-10-05 15:01:35.857",
+      "dateFinished": "2026-10-05 15:01:35.868",
       "status": "FINISHED"
     }
   ],
@@ -233,6 +248,7 @@
     "isZeppelinNotebookCronEnable": false
   },
   "info": {
-    "inIsolatedMode": false
+    "inIsolatedMode": false,
+    "isRunning": true
   }
 }

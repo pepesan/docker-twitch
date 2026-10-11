@@ -12,7 +12,7 @@ services:
   sencho:
     image: saelix/sencho:0.97.1
     container_name: sencho
-    restart: unless-stopped
+    restart: always
     ports:
       - "1852:1852"
     volumes:
