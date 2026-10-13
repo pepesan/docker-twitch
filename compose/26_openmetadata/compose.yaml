@@ -491,6 +491,13 @@ services:
       - app_net
     healthcheck:
       test: [ "CMD", "wget", "-q", "--spider",  "http://localhost:8586/healthcheck" ]
+      # El servidor siembra datos de demo (gobierno de IA, linaje) antes de abrir
+      # el 8586; en máquinas con disco lento tarda varios minutos. Sin esto, los
+      # valores por defecto (30 s x 3) lo marcan unhealthy y compose up aborta.
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 120s
 
   ingestion:
     container_name: openmetadata_ingestion
