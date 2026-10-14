@@ -487,6 +487,76 @@ declara con `inlets` y `outlets` qué tablas lee y escribe.
 
 > **Pregunta:** si cambias el nombre de la columna `customer.email`, ¿qué activos se ven afectados? Usa el linaje.
 
+### 9.4 Nota técnica: ¿se puede automatizar el linaje de Airflow 3?
+
+Probado sobre este stack (Airflow 3.3.2, OpenMetadata 2.0.5.0). No forma parte del recorrido: es el resultado de
+una investigación, por si quieres repetirla. Resumen: **sí es posible con OpenLineage, pero con un parche y con
+limitaciones**; los `inlets`/`outlets` de este DAG siguen sin producir linaje.
+
+| Mecanismo | Resultado en Airflow 3 |
+|---|---|
+| Lineage backend (`AIRFLOW__LINEAGE__BACKEND`, las líneas comentadas del `compose.yaml`) | **No funciona**: el provider falla al importar (`No module named 'airflow.lineage.backend'`). Airflow 3 ya no tiene esa clase base |
+| Callbacks de `airflow_provider_openmetadata` | Solo actualizan el **estado de las ejecuciones**; no crean linaje |
+| `inlets`/`outlets` en tareas Python (`@task`) | OpenMetadata no los convierte en linaje (por eso el `22` lo declara por API) |
+| **OpenLineage** (`apache-airflow-providers-openlineage`) | **Funciona**, con el parche descrito abajo |
+
+**Cómo se configuró OpenLineage**
+- Provider: `apache-airflow-providers-openlineage`, instalado con un `constraint` sobre la versión de Airflow para
+  no cambiarla, y `apache-airflow-providers-mysql` con `--no-deps` (sin él, `pip` intenta recompilar
+  `mysqlclient` y falla; `MySQLdb` ya viene en la imagen).
+- Variables en el contenedor `ingestion`: `AIRFLOW__OPENLINEAGE__NAMESPACE` (nombre del servicio de pipelines)
+  y `AIRFLOW__OPENLINEAGE__TRANSPORT` apuntando a `http://openmetadata-server:8585/api/v1/openlineage/`
+  (`endpoint: lineage`) con el JWT del bot `ingestion-bot` como `api_key`. El JWT **no se guarda en el
+  repositorio**; se obtiene en el momento con `GET /users/token/{id del bot}`.
+- Las tareas deben ser **operadores SQL** (`SQLExecuteQueryOperator` con una conexión MySQL): OpenLineage
+  analiza el `INSERT ... SELECT` y deduce las tablas. Una tarea Python `@task` no emite datasets por sí sola.
+- Las tablas de destino **deben existir ya en OpenMetadata**: hay que ejecutar el DAG una vez, ingestar el
+  servicio de base de datos y volver a ejecutarlo.
+
+**El parche necesario.** El provider genera `eventTime` con `isoformat()` (sufijo `+00:00`) y el endpoint de
+OpenMetadata 2.0.5.0 responde `400 {"message":"Invalid request format"}` a **todos** los eventos. Con sufijo `Z`
+los acepta (`200`). Se verificó enviando el mismo evento con ambos formatos. Solución usada: un transport propio
+que normaliza el campo, referenciado en `"type"` del transport por su ruta de clase:
+
+```python
+# ol_om_transport.py  (debe ser importable por Airflow; "type": "ol_om_transport.OpenMetadataHttpTransport")
+import json
+from datetime import datetime, timezone
+from openlineage.client.transport.http import HttpTransport
+
+
+def _to_zulu(value):
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return value
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+class OpenMetadataHttpTransport(HttpTransport):
+    def _prepare_request(self, event_str):
+        event = json.loads(event_str)
+        if isinstance(event.get("eventTime"), str):
+            event["eventTime"] = _to_zulu(event["eventTime"])
+        return super()._prepare_request(json.dumps(event))
+```
+
+**Qué se obtiene y qué no**
+- Aristas **tabla -> tabla** automáticas (`customer` -> `dim_cliente_ol`, `payment` -> `fact_pagos_ol`), con
+  `source: OpenLineage`, el SQL ejecutado y linaje de columnas. En la prueba llegaron 3 de 4 columnas: la que se
+  construye con `CONCAT(first_name, ' ', last_name)` no se resolvió.
+- **La pipeline no forma parte del linaje**: las aristas no la referencian y en el grafo no hay nodo de pipeline
+  entre las tablas. OpenLineage tampoco crea la pipeline: apareció porque se ejecutó la ingestión de metadatos de
+  Airflow, que es independiente. A diferencia del `22`, aquí no hay pestaña *Linaje* con la pipeline en medio.
+- Si se quisiera la pipeline en medio habría que añadir la referencia a cada arista por API, es decir,
+  declararlo a mano, que es justo lo que se quería evitar.
+
+**Limitaciones prácticas:** el provider y el transport se instalan con `pip` dentro del contenedor y se pierden al
+recrearlo (haría falta una imagen propia), y el parche depende de la versión del servidor: conviene retirarlo
+cuando OpenMetadata acepte `+00:00`.
+
 ---
 
 ## Módulo 10. Uso diario: la portada y el Centro de contexto
