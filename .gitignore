@@ -14,6 +14,9 @@ compose/41_zeppelin/volumes/
 # (artefacto de salida, no dato de entrada fijo)
 compose/41_zeppelin/zeppelin/ejemplos/04_analisis_trazabilidad/data/evidencia_analisis.csv
 
+# Datos runtime del ejemplo 26_openmetatada (volumen de MySQL: incluye certificados/claves TLS generados)
+compose/26_openmetatada/docker-volume/
+
 # Datos runtime del ejemplo 51_sencho
 compose/51_sencho/data/
 compose/51_sencho/stacks/*
