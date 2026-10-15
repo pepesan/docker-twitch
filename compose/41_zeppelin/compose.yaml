@@ -12,7 +12,8 @@ services:
 
   # Módulos 1, 3 y 4 — entorno de notebooks
   zeppelin:
-    build: ./zeppelin/image
+    # Imagen ya publicada en Docker Hub (no se construye al levantar el
+    # entorno). Para reconstruirla y publicarla: scripts/build_push_zeppelin_image.sh
     image: pepesan/zeppelin:python-3.14
     container_name: curso_zeppelin
     ports:

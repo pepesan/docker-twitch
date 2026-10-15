@@ -76,7 +76,7 @@ docker compose down -v    # parar y borrar los datos persistidos (BBDD, notebook
 
 | Servicio  | Imagen                              |
 |-----------|-------------------------------------|
-| `zeppelin`| `pepesan/zeppelin:python-3.14` (construida de `./zeppelin/image`, ver más abajo; también en Docker Hub) |
+| `zeppelin`| `pepesan/zeppelin:python-3.14` (publicada en Docker Hub; se construye de `./zeppelin/image`, ver más abajo) |
 | `db`      | `postgres:18.6`                     |
 | `hue`     | `gethue/hue:20260611-140101`        |
 | `adminer` | `adminer:6.0.1`                     |
@@ -110,22 +110,50 @@ Librerías instaladas (`zeppelin/image/requirements.txt`): `pandas`, `numpy`,
 `openpyxl`, `sqlalchemy`, `psycopg2-binary`, `matplotlib`, `seaborn`,
 `scikit-learn`, `anthropic` — cubre los Módulos 1 a 8 del curso.
 
-`compose.yaml` construye esta imagen automáticamente (`build: ./zeppelin/image`)
-con el nombre `pepesan/zeppelin:python-3.14` — el mismo con el que se publica
-en Docker Hub, para no tener un nombre distinto en local y en remoto. No hace
-falta nada manual para levantar el entorno; los scripts de `scripts/`
-son solo para reconstruirla aparte o publicarla en Docker Hub:
+`compose.yaml` **no construye** esta imagen: la descarga ya publicada de
+Docker Hub como `pepesan/zeppelin:python-3.14`. Levantar el entorno es solo
+un `docker compose pull`/`up` (rápido, sin compilar nada). La imagen se
+construye y publica aparte, desde una máquina con Docker y sesión en Docker
+Hub, con un único script:
 
 ```bash
 cd scripts
-./build_zeppelin_image.sh   # reconstruye pepesan/zeppelin:python-3.14 (local)
-./push_zeppelin_image.sh    # la sube a Docker Hub: python-3.14 y también como "latest"
+./build_push_zeppelin_image.sh            # build + verificación + push
+./build_push_zeppelin_image.sh --no-push  # solo build y verificación (local)
 ```
 
-El `X.Y` del tag (`python-3.14`) se calcula solo a partir de la imagen ya
-construida (`python3 --version` dentro de ella) — nunca se escribe a mano,
-para que no se desincronice del contenido real de la imagen. `latest` es un
-alias explícito hacia esa misma versión, no una imagen distinta.
+Qué hace, en orden:
+
+1. **Build** de `./zeppelin/image` (`apache/zeppelin:0.12.1` + Python con `uv`
+   + `requirements.txt`). Tarda varios minutos y ocupa ~7 GB.
+2. **Verificación** dentro de la imagen: lee la versión exacta de Python y
+   comprueba que *todas* las librerías de `requirements.txt` están instaladas
+   (y que `anthropic` se importa, que usa el notebook 08). Si falta algo,
+   aborta **sin publicar nada**.
+3. **Etiquetado** con tres tags que apuntan a la misma imagen, calculados
+   siempre a partir de lo que lleva dentro, nunca escritos a mano:
+
+   | Tag          | Uso                                                        |
+   |--------------|------------------------------------------------------------|
+   | `python-3.14`| flotante; el que usa `compose.yaml`                        |
+   | `3.14.8`     | versión exacta de Python (reproducible; cambia con cada build) |
+   | `latest`     | alias de la anterior                                       |
+
+4. **Push** de los tres a Docker Hub (requiere `docker login` como
+   `pepesan`). Sobrescribe `python-3.14` y `latest`.
+
+La versión exacta del tag no es fija: `uv venv --python 3.14` resuelve la
+última 3.14.x disponible en el momento del build, así que el mismo Dockerfile
+produce `3.14.7` un mes y `3.14.8` al siguiente. Por eso se lee de la imagen.
+
+**Cuándo hay que reconstruir y publicar**: al cambiar `zeppelin/image/Dockerfile`
+o `zeppelin/image/requirements.txt`, o para recoger una versión nueva de
+Python 3.14.x. Hasta que se publique, quienes ya tienen la imagen en local
+seguirán con la anterior (`docker compose pull` para actualizarla).
+
+Los scripts `build_zeppelin_image.sh` y `push_zeppelin_image.sh` hacen lo
+mismo por separado, sin verificación ni tag de versión exacta; se conservan
+por compatibilidad.
 
 ## Notebooks de ejemplo (`./zeppelin/ejemplos`)
 
