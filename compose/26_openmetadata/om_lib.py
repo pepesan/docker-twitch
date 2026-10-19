@@ -3,6 +3,7 @@ import base64
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -33,10 +34,29 @@ def call(method, path, body=None, ctype="application/json", ok_missing=False):
         sys.exit(f"{method} {path} -> {e.code}: {e.read().decode()[:400]}")
 
 
+def login_token(pwd_b64, tries=40, pause=15):
+    """Login que espera si OpenMetadata bloquea la cuenta por intentos fallidos (p. ej. desde el navegador)."""
+    body = json.dumps({"email": EMAIL, "password": pwd_b64}).encode()
+    for _ in range(tries):
+        req = urllib.request.Request(API + "/users/login", data=body, method="POST",
+                                     headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return json.loads(r.read())["accessToken"]
+        except urllib.error.HTTPError as e:
+            msg = e.read().decode()
+            if e.code == 401 and "Failed Login Attempts" in msg:
+                print("  cuenta bloqueada temporalmente por OpenMetadata; reintento en %ds..." % pause, flush=True)
+                time.sleep(pause)
+                continue
+            sys.exit(f"POST /users/login -> {e.code}: {msg[:400]}")
+    sys.exit("POST /users/login: la cuenta sigue bloqueada tras esperar")
+
+
 def login():
     global _token
     pwd = base64.b64encode(PASSWORD.encode()).decode()
-    _token = call("POST", "/users/login", {"email": EMAIL, "password": pwd})["accessToken"]
+    _token = login_token(pwd)
     if call("GET", f"/tables/name/{DB}.customer", ok_missing=True) is None:
         sys.exit("No existe mysql_sakila: ejecuta antes ./08_load_sakila.sh")
 

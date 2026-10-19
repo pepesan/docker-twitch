@@ -58,8 +58,7 @@ def mysql_count(sql):
 
 # login sin exigir mysql_sakila (la fase 07 se verifica antes de cargar Sakila)
 import base64
-om_lib._token = call("POST", "/users/login", {
-    "email": om_lib.EMAIL, "password": base64.b64encode(om_lib.PASSWORD.encode()).decode()})["accessToken"]
+om_lib._token = om_lib.login_token(base64.b64encode(om_lib.PASSWORD.encode()).decode())
 
 wanted = set(sys.argv[1:])
 run = lambda p: not wanted or p in wanted
