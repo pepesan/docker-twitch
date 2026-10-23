@@ -1,7 +1,7 @@
 services:
   db:
     container_name: wordpress-database
-    image: docker.io/bitnami/mariadb:latest
+    image: docker.io/soldevelo/mariadb:latest
     volumes:
       - ./volumes/database:/bitnami/mariadb
     restart: always

@@ -1,7 +1,7 @@
 services:
   db:
     container_name: wordpress-database
-    image: bitnami/mariadb:latest
+    image: soldevelo/mariadb:latest
     restart: always
     environment:
       - MARIADB_ROOT_PASSWORD=root
