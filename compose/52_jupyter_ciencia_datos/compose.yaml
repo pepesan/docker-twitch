@@ -1,0 +1,56 @@
+services:
+  jupyter:
+    build: .
+    container_name: jupyter-ciencia-datos
+    ports:
+      - "127.0.0.1:8888:8888"
+    environment:
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:-cambia-este-token}
+      MONGO_URI: ${MONGO_URI:-mongodb://ml_lab:ml_lab_local_only@mongodb:27017/test?authSource=admin}
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-ml_lab}
+      MARIADB_USER: ${MARIADB_USER:-ml_lab}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-ml_lab_local_only}
+    volumes:
+      - ./notebooks:/home/jovyan/work
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-ml_lab}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-ml_lab_local_only}
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --username \"$${MONGO_INITDB_ROOT_USERNAME}\" --password \"$${MONGO_INITDB_ROOT_PASSWORD}\" --authenticationDatabase admin --eval \"db.adminCommand('ping').ok\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-ml_lab_local_only}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-ml_lab}
+      MARIADB_USER: ${MARIADB_USER:-ml_lab}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-ml_lab_local_only}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  mariadb_data:

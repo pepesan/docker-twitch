@@ -1,0 +1,16 @@
+jupyterlab
+notebook
+ipykernel
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+scikit-learn
+statsmodels
+plotly
+openpyxl
+xlrd
+pyarrow
+mongoengine
+mysql-connector-python

@@ -1,0 +1,11 @@
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+.env
+notebooks/machine-learning-python/csv/births1880.csv
+notebooks/machine-learning-python/csv/salida*
+notebooks/machine-learning-python/logs/
+notebooks/machine-learning-python/inception/
+notebooks/machine-learning-python/figures/arbol.dot
+notebooks/machine-learning-python/figures/tree*
+notebooks/machine-learning-python/iris_knn_model.pkl

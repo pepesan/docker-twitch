@@ -1,0 +1,7 @@
+tensorflow-cpu
+tensorflow-hub
+Pillow
+six
+# `06_04_tensorflow_image_clasiffication.py` and `ejercicios/06_03_cancer_tflearn.py`
+# use legacy `tflearn` APIs that may not work with current TensorFlow/Keras versions.
+# Install `tflearn` separately only in a compatible environment; do not assume it works here.

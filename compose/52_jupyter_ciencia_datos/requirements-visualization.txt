@@ -1,0 +1,8 @@
+bokeh
+mglearn
+pydotplus
+pyqtgraph
+PySide6
+funcsigs
+# `05_*` tree visualizations may additionally require the system `graphviz` executable.
+# PyQtGraph's Qt backend needs a display; it may not work in a headless container.
