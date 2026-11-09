@@ -1,0 +1,9 @@
+[mariadb]
+# Do not permit LOAD DATA LOCAL INFILE from a database client.
+local_infile=0
+# Restrict server-side file import/export to a dedicated, non-world-writable directory.
+secure_file_priv=/var/lib/mysql-files
+# Do not resolve client hostnames for authentication.
+skip_name_resolve=ON
+# Disable symbolic-link handling for database files.
+symbolic-links=0
