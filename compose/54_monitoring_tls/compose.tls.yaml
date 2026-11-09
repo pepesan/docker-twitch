@@ -1,0 +1,47 @@
+services:
+  grafana:
+    # El proxy mTLS será el único acceso al Grafana de esta variante.
+    ports: !reset []
+    environment:
+      GF_SERVER_ROOT_URL: https://localhost:3300/
+      GF_SECURITY_COOKIE_SECURE: "true"
+
+  grafana-mtls-gateway:
+    image: caddy:2.11.9-alpine
+    user: "${ALLOY_UID:-1000}:${ALLOY_GID:-1000}"
+    ports:
+      - "127.0.0.1:3300:8443"
+    depends_on:
+      - grafana
+    read_only: true
+    tmpfs:
+      - /data:uid=${ALLOY_UID:-1000},gid=${ALLOY_GID:-1000},mode=0700
+      - /config:uid=${ALLOY_UID:-1000},gid=${ALLOY_GID:-1000},mode=0700
+      - /tmp:uid=${ALLOY_UID:-1000},gid=${ALLOY_GID:-1000},mode=0700
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ../54_monitoring_tls/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - type: bind
+        source: ../54_monitoring_tls/certs/server.crt
+        target: /etc/caddy/tls/server.crt
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../54_monitoring_tls/certs/server.key
+        target: /etc/caddy/tls/server.key
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../54_monitoring_tls/certs/ca.crt
+        target: /etc/caddy/tls/ca.crt
+        read_only: true
+        bind:
+          create_host_path: false
+    restart: unless-stopped
+    networks:
+      - observability

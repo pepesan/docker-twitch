@@ -1,0 +1,10 @@
+:8443 {
+  tls /etc/caddy/tls/server.crt /etc/caddy/tls/server.key {
+    client_auth {
+      mode require_and_verify
+      trust_pool file /etc/caddy/tls/ca.crt
+    }
+  }
+
+  reverse_proxy grafana:3000
+}

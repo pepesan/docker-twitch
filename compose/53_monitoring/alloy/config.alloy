@@ -1,0 +1,62 @@
+// Lee solo procfs/sysfs para métricas Linux y dpkg.log para logs.
+// No hay socket de Docker/Podman, journald ni montaje de / completo.
+prometheus.exporter.unix "host" {
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+  set_collectors = [
+    "cpu",
+    "loadavg",
+    "meminfo",
+    "netclass",
+    "netdev",
+    "stat",
+    "time",
+    "uname",
+    "vmstat",
+  ]
+}
+
+prometheus.scrape "host" {
+  targets         = prometheus.exporter.unix.host.targets
+  scrape_interval = "15s"
+  forward_to      = [prometheus.relabel.host.receiver]
+}
+
+prometheus.relabel "host" {
+  forward_to = [prometheus.remote_write.local.receiver]
+
+  rule {
+    target_label = "host"
+    replacement  = sys.env("HOST_LABEL")
+  }
+  rule {
+    target_label = "service"
+    replacement  = "host-metrics"
+  }
+  rule {
+    target_label = "job"
+    replacement  = "alloy/unix"
+  }
+}
+
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+loki.source.file "dpkg" {
+  targets = [{
+    __path__ = "/host/log/dpkg.log",
+    host     = sys.env("HOST_LABEL"),
+    service  = "package-manager",
+    job      = "host/dpkg",
+  }]
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
