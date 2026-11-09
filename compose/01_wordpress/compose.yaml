@@ -1,15 +1,15 @@
 services:
   db:
     container_name: wordpress-database
-    image: docker.io/bitnami/mariadb:latest
+    image: mariadb:latest
     volumes:
-      - ./volumes/database:/bitnami/mariadb
+      - ./volumes/database:/var/lib/mysql
     restart: always
     environment:
-      - MARIADB_ROOT_PASSWORD=root
-      - MARIADB_DATABASE=wordpress
-      - MARIADB_USER=wordpress_user
-      - MARIADB_PASSWORD=wordpress_password
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress_user
+      - MYSQL_PASSWORD=wordpress_password
 #    ports:
 #      - 3306:3306
 #      - 33060:33060
