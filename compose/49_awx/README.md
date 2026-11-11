@@ -65,6 +65,10 @@ si el entorno ya estaba levantado.
 - Login: `admin` / el valor de `AWX_ADMIN_PASSWORD` en `secrets.env`
   (impreso por `./00_init.sh` y recordado por `./01_launch_compose.sh`)
 
+Los puertos HTTP/HTTPS de AWX se publican en todas las interfaces del host.
+PostgreSQL no publica un puerto al host; solo es accesible desde los servicios
+del proyecto Compose.
+
 ## 3. Gestión del día a día
 
 - `./03_preload_demo_data.sh` — opcional: organización/proyecto/inventario
