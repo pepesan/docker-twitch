@@ -5,6 +5,7 @@ services:
     environment:
       GF_SERVER_ROOT_URL: https://localhost:3300/
       GF_SECURITY_COOKIE_SECURE: "true"
+    networks: !override [observability]
 
   grafana-mtls-gateway:
     image: caddy:2.11.9-alpine
@@ -45,3 +46,4 @@ services:
     restart: unless-stopped
     networks:
       - observability
+      - grafana_frontend

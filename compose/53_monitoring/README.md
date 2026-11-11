@@ -1,6 +1,6 @@
 # Monitorización local HTTP
 
-Pila aislada Alloy → Prometheus y Alloy → Loki, consultable desde Grafana. Alloy lee métricas de `/proc` y `/sys` y únicamente `/var/log/dpkg.log`; no lee journald ni otros logs potencialmente sensibles, no conecta con máquinas externas y no monta el socket Docker/Podman. Prometheus, Loki y Grafana usan volúmenes persistentes; el WAL/offset de Alloy queda en `data/alloy`. La red es interna y Grafana solo publica `127.0.0.1:3300`.
+Alloy, Prometheus y Loki permanecen en la red interna `observability`. Grafana también usa la red bridge dedicada `grafana_frontend`: en el Docker Engine probado, el puerto publicado no se aplicó cuando Grafana solo estaba conectado a una red `internal`. Esta red permite salida desde Grafana, pero no se comparte con los demás ejemplos; el único puerto publicado sigue siendo `127.0.0.1:3300`.
 
 Esta es la versión **sin TLS**. La versión TLS/mTLS numerada inmediatamente después está en [`../54_monitoring_tls/README.md`](../54_monitoring_tls/README.md).
 

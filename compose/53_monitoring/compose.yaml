@@ -86,10 +86,13 @@ services:
     restart: unless-stopped
     networks:
       - observability
+      - grafana_frontend
 
 networks:
   observability:
     internal: true
+  grafana_frontend:
+    driver: bridge
 
 volumes:
   prometheus_data:

@@ -1,6 +1,6 @@
 # Monitorización local con HTTPS y mTLS
 
-Variante TLS del ejemplo [`53_monitoring`](../53_monitoring/README.md). Reutiliza sus servicios/configuración base y aplica `compose.tls.yaml`, que añade Caddy como proxy TLS y requiere certificado cliente para acceder a Grafana. Solo el gateway publica `127.0.0.1:3300`; conserva además el login de Grafana. No habilita acceso remoto.
+Variante TLS del ejemplo [`53_monitoring`](../53_monitoring/README.md). Reutiliza sus servicios/configuración base y aplica `compose.tls.yaml`, que añade Caddy como proxy TLS y requiere certificado cliente para acceder a Grafana. Grafana permanece solo en `observability`; Caddy se conecta también a `grafana_frontend` para publicar únicamente `127.0.0.1:3300`. Esa red bridge permite salida desde Caddy, no acceso remoto entrante. Se conserva además el login de Grafana.
 
 Los archivos de este directorio incluyen el override TLS, el Caddyfile y scripts. La configuración de Alloy, Prometheus, Loki y Grafana vive en `../53_monitoring/`. Los certificados de laboratorio quedan en `certs/`, excluidos por Git; no uses sus claves en producción.
 
