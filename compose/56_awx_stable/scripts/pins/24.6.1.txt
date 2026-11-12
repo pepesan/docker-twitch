@@ -1,0 +1,9 @@
+# Commits de la rama devel de cada dependencia en la fecha del tag 24.6.1 de AWX
+# (2024-07-02 21:05 UTC). requirements/requirements_git.txt del tag las instala
+# desde "@devel", una rama que sigue avanzando: sin fijar, la release no se
+# puede reconstruir (django-ansible-base devel ya exige Django 5 y el tag trae
+# Django 4.2.10). Formato: <repositorio en github.com/ansible> <commit>
+system-certifi 5aa52ab91f9d579bfe52b5acf30ca799f1a563d9
+ansible-runner c3e8cdb24f784a70328f1bfb54eb9c886148acef
+python3-saml f90824c4910e36c5a89dd295271be26691204ba3
+django-ansible-base 12139716db383b5eaf0022389c11c5c86fd5818c

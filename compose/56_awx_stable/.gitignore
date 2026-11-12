@@ -1,0 +1,6 @@
+awx/
+volumes/
+secrets.env
+e2e.env
+e2e-secrets.env
+.e2e-state/
