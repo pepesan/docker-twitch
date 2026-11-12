@@ -5,7 +5,7 @@ Entorno de **laboratorio** de AWX ([ansible/awx](https://github.com/ansible/awx)
 usa el mismo modo «entorno de desarrollo» del repositorio de AWX (imagen `Dockerfile.dev`, código montado desde `./awx`),
 pero con el código de una release, de modo que dos construcciones en fechas distintas dan la misma versión.
 
-No es una instalación para producción.
+**No es una instalación para producción**: es un entorno de desarrollo de AWX pensado para aprender y probar.
 
 ## Diferencias con `49_awx`
 
@@ -18,7 +18,16 @@ No es una instalación para producción.
 | PostgreSQL | 17 | 15 |
 | Compilar la UI | `make ui` | `make ui-devel` |
 
-## Uso
+## Requisitos
+
+- Linux con **Docker** y el plugin **Compose**, `git`, `make`, `curl` y `jq`.
+- Los puertos **8014** y **8044** libres (se cambian con `AWX_HTTP_PORT` / `AWX_HTTPS_PORT` en [.env](.env)).
+- Espacio y tiempo para compilar la imagen (varios GB; ver [Tiempos medidos](#tiempos-medidos)).
+- `sudo` para el borrado final (`99_destroy.sh`): `./awx` y `./volumes` los crea Docker como root.
+
+`scripts/00_install_prerequisites.sh` instala git, make, Docker, el plugin Compose y Ansible en una máquina nueva (una sola vez, con `sudo`).
+
+## Inicio rápido
 
 ```bash
 ./00_init.sh            # genera secrets.env, clona el tag y compila la imagen
@@ -27,14 +36,27 @@ No es una instalación para producción.
 ./08_build_ui.sh        # compila la interfaz web (sin esto solo hay un placeholder)
 ```
 
-La URL es `https://localhost:8044/` (certificado autofirmado) y el usuario `admin`. La contraseña está en `secrets.env`
-(no se versiona).
+1. **URL:** `https://localhost:8044/` (certificado autofirmado) · **usuario:** `admin`.
+2. **Contraseña:** la de `AWX_ADMIN_PASSWORD` en `secrets.env` (generada al azar, no se versiona).
+3. `02_create_admin.sh` solo funciona cuando las migraciones han terminado y el usuario `admin` ya existe; si falla, espera
+   un par de minutos y repite (`./05_logs_compose.sh` muestra el progreso).
 
-`02_create_admin.sh` solo funciona cuando las migraciones terminaron y el usuario `admin` ya existe.
+Opcional: `./03_preload_demo_data.sh` carga la organización, el proyecto y el inventario de demostración.
 
-Parar y arrancar: `./06_stop_compose.sh` / `./07_start_compose.sh` (conservan datos y UI). Destruir todo el laboratorio (contenedores, datos y clon de AWX): `./97_destroy_lab.sh`.
+## Ciclo de vida
 
-### Reproducibilidad: ajuste de `openssl`
+| Script | Qué hace | Datos |
+|---|---|---|
+| `04_ps_compose.sh` / `05_logs_compose.sh` | Estado de los contenedores / logs | — |
+| `06_stop_compose.sh` / `07_start_compose.sh` | Parar / arrancar | **se conservan** (BD y UI) |
+| `97_destroy_resources.sh` | Borra de AWX solo lo creado por los scripts 10–16 (pide `DESTROY`) | AWX sigue en marcha |
+| `98_reset.sh` | AWX como recién instalado y destino sin nginx ni Docker | se borran los recursos y el historial |
+| `99_destroy.sh` | **Destruye el laboratorio**: contenedores, volúmenes, `./volumes` y `./awx` | **se borra todo** |
+
+`99_destroy.sh` pide confirmación (`y`), conserva `secrets.env` y no borra las imágenes de Docker. Para empezar con
+contraseñas nuevas, borra `secrets.env` a mano antes de `./00_init.sh`.
+
+## Reproducibilidad: ajuste de `openssl`
 
 El `Dockerfile` de algunas releases fija el paquete `openssl-3.0.7`, que el repositorio actual de CentOS Stream 9 ya no ofrece,
 y la compilación falla en `dnf install`. `scripts/01_clone_awx.sh` quita esa versión fija del fichero
@@ -71,15 +93,15 @@ entrada estándar de `curl` (no aparece en `ps`) y AWX la guarda cifrada: la API
 | `25_uninstall_docker.sh` | Desinstalar Docker (**borra `/var/lib/docker`**) | `25` |
 | `80_deploy_awx_with_examples.sh` | Levanta AWX y crea los recursos (10–17) | `80` |
 | `90_e2e.sh` | Ciclo 18→25 completo | `90` |
+| `97_destroy_resources.sh` | Elimina de AWX los recursos creados por estos scripts (no destruye el laboratorio: para eso, `99_destroy.sh`) | `97` |
 | `98_reset.sh` | Deja AWX y el destino como recién instalados | — |
-| `99_destroy.sh` | Elimina de AWX los recursos creados por estos scripts (no destruye el laboratorio: para eso, `97_destroy_lab.sh`) | `99` |
 
 Cada script crea o reutiliza por nombre, así que se puede repetir. Los de 18 a 25 guardan un marcador en `.e2e-state/` y se
 niegan a ejecutarse fuera de orden. `25` y `90_e2e.sh` borran los datos de Docker del destino: exigen
 `E2E_CONFIRM_DOCKER_PURGE=YES` y solo continúan si el destino estaba limpio antes de instalar Docker.
 `98_reset.sh` también desinstala nginx y Docker del destino: úsalo solo con una máquina de laboratorio desechable.
 
-### Lo que hay que saber de los playbooks
+## Lo que hay que saber de los playbooks
 
 1. **AWX no lista los playbooks de un directorio `tasks/`.** Los de `14_docker/tasks/` no se pueden elegir en una plantilla
    (la API responde *Playbook not found for project*). El repositorio `ejemplos-ansible` incluye envoltorios en
@@ -87,6 +109,31 @@ niegan a ejecutarse fuera de orden. `25` y `90_e2e.sh` borran los datos de Docke
 2. **La imagen de ejecución no incluye `community.docker`.** El proyecto la declara en `collections/requirements.yml` y AWX la
    instala al sincronizar.
 3. **Privilegios.** Los playbooks de Docker no declaran `become`: dependen de *Privilege Escalation* en la plantilla.
+
+## Ficheros del directorio
+
+| Ruta | Contenido | ¿Versionado? |
+|---|---|---|
+| `.env` | Versión (`AWX_REF`), imagen y puertos | sí |
+| `secrets.env` | Contraseñas de `admin` y de PostgreSQL (generadas por `00_init.sh`) | no |
+| `e2e.env`, `e2e-secrets.env`, `.e2e-state/` | Destino SSH, cuenta E2E y marcadores de estado | no |
+| `compose.yaml` | Servicios `awx`, `redis` y `postgres` | sí |
+| `scripts/` | Preparación (clonar, compilar, publicar la imagen) y librerías de los scripts | sí |
+| `awx/` | Clon del tag de AWX (lo crea `00_init.sh`) | no |
+| `volumes/` | Datos de PostgreSQL (`awx_db`) y socket de redis | no |
+
+## Solución de problemas
+
+| Síntoma | Causa probable y solución |
+|---|---|
+| La compilación falla en `dnf install` con `openssl-3.0.7` | Ver «Reproducibilidad»; `scripts/01_clone_awx.sh` ya lo corrige. |
+| La web muestra solo un placeholder | Falta `./08_build_ui.sh`. |
+| `02_create_admin.sh` falla | Las migraciones no han terminado: espera y repite. |
+| `https://localhost:8044` no responde justo tras compilar la UI | Tarda ≈ 36 s en reiniciar; recarga. |
+| El navegador avisa del certificado | Es autofirmado; acéptalo para el laboratorio. |
+| Puerto ocupado | Cambia `AWX_HTTP_PORT` / `AWX_HTTPS_PORT` en `.env` y relanza `01_launch_compose.sh`. |
+| Un script 18–25 se niega a ejecutarse | Orden de marcadores en `.e2e-state/`; ejecuta el paso anterior o `98_reset.sh`. |
+| `Playbook not found for project` | El playbook está en un directorio `tasks/`; ver «Lo que hay que saber de los playbooks». |
 
 ## Tiempos medidos
 
