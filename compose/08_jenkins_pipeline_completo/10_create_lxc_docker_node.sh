@@ -4,7 +4,7 @@ set -euo pipefail
 
 NODE_NAME="jenkins-external-docker"
 FIXED_IP="10.207.154.80"
-IMAGE="ubuntu-2404-ssh-template"
+IMAGE="ubuntu:26.04"
 KERNEL_MODULES="ip_vs,ip_vs_rr,ip_vs_wrr,ip_vs_sh,ip_tables,ip6_tables,netlink_diag,nf_nat,overlay,br_netfilter"
 
 echo "==> Iniciando creación del nodo LXC: $NODE_NAME"
@@ -37,6 +37,8 @@ echo "==> Esperando a que el nodo responda..."
 for attempt in $(seq 1 30); do
   if lxc exec "$NODE_NAME" -- true &>/dev/null; then
     echo "    [OK] Contenedor $NODE_NAME listo e inicializado."
+    echo "==> Asegurando OpenSSH Server para los agentes remotos..."
+    lxc exec "$NODE_NAME" -- bash -lc 'if ! command -v sshd >/dev/null 2>&1; then apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-server; fi; systemctl enable --now ssh'
     lxc list "$NODE_NAME"
     exit 0
   fi

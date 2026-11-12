@@ -36,31 +36,31 @@ Para arrancar el ejemplo hace falta la imagen de [.env](.env)
   primero a la sección "Descarga de fuentes, build y publicación de la
   imagen" más abajo, y vuelve aquí cuando termine.
 
-## 1. Lanzar el entorno
+## 1. Preparar y lanzar el entorno
+
+`compose.yaml` **no se incluye en el repositorio**: se genera localmente
+a partir del código de `ansible/awx` y de los valores de [.env](.env).
+Por eso, no puedes ejecutar `docker compose up` nada más clonar este
+proyecto. Primero ejecuta `00_init.sh`; ese paso prepara fuentes,
+construye la imagen local y genera el archivo Compose.
 
 ```shell
-./00_init.sh              # crea ./volumes y ./secrets.env (contraseñas) si no existen
-./01_launch_compose.sh    # docker compose up -d (control + hop + execution nodes + postgres + redis)
-./02_create_admin.sh      # fija la password del admin
+./00_init.sh              # prepara fuentes e imagen, genera compose.yaml y secretos
+./01_launch_compose.sh    # arranca control, hop, execution nodes, PostgreSQL y Redis
+./02_create_admin.sh      # fija la contraseña del admin
 ./08_build_ui.sh          # compila la UI real (solo falta la primera vez)
 ```
 
-Todos son idempotentes: puedes volver a ejecutarlos sin que rompan nada
-si el entorno ya estaba levantado.
+`00_init.sh` puede tardar varios minutos porque clona/actualiza AWX y
+construye la imagen. También crea `./volumes` y `./secrets.env` si hace
+falta. `compose.yaml` y los archivos generados dentro de `./awx` son
+locales; si los borras, vuelve a ejecutar `00_init.sh` para generarlos.
 
-- `00_init.sh`: si no existe `secrets.env`, genera contraseñas
-  aleatorias (`AWX_PG_PASSWORD`, `AWX_ADMIN_PASSWORD`) y las imprime por
-  pantalla; crea `./volumes/awx_db` y `./volumes/redis_socket`; clona la
-  imagen y genera `compose.yaml` con la topología de [.env](.env)
-  (`AWX_CONTROL_NODE_COUNT`, `AWX_EXECUTION_NODE_COUNT`).
-- `01_launch_compose.sh`: `docker compose up -d`. La primera vez tarda
-  varios minutos (migraciones de base de datos y bootstrap de
-  desarrollo dentro del control node, `awx_1`). Ese bootstrap, además de
-  lo de siempre (admin, demo data), **auto-provisiona el hop node y
-  todos los execution nodes en AWX** (`awx-manage provision_instance` +
-  `register_peers` para cada `receptor-N`) — no hace falta ningún script
-  nuestro para eso, es el propio `bootstrap_development.sh` de
-  `ansible/awx` el que lo hace, de forma idempotente en cada arranque.
+Los pasos siguientes son idempotentes: puedes volver a ejecutarlos si
+el entorno ya estaba levantado.
+
+- `00_init.sh`: genera contraseñas aleatorias en `secrets.env` si aún no existe; crea los directorios persistentes, clona/actualiza `ansible/awx`, construye la imagen y genera `compose.yaml` con la topología de [.env](.env) (`AWX_CONTROL_NODE_COUNT`, `AWX_EXECUTION_NODE_COUNT`).
+- `01_launch_compose.sh`: ejecuta `docker compose up -d`. La primera vez tarda varios minutos por las migraciones y el bootstrap de desarrollo en `awx_1`. Ese bootstrap también aprovisiona el hop y los nodos de ejecución en AWX; no hace falta registrarlos a mano.
 - `02_create_admin.sh`: fija la contraseña del usuario `admin` con
   `awx-manage changepassword admin`, al valor de `secrets.env`
   (`AWX_ADMIN_PASSWORD`).
@@ -118,14 +118,10 @@ quedan `capacity=1245` cada uno en el grupo `default`) y luego
 comprobar en qué nodo corrió, y sale con código de error si el job no
 terminó en `successful`.
 
-> **Matiz real, verificado en esta sesión**: el control node (`awx-1`)
-> es de tipo `hybrid` y por eso también pertenece al grupo de instancias
-> `default` (el mismo donde están los `receptor-N`), compitiendo por
-> trabajo igual que ellos — no es "solo decide, nunca ejecuta". En una
-> prueba el job corrió en `receptor-1`; en otra, en `awx-1`. Si quisieras
-> un control plane que *nunca* ejecute jobs (el modelo puro de
-> producción), haría falta sacar `awx-1` del grupo `default` a mano vía
-> la API/CLI — no viene así por defecto en este tooling de desarrollo.
+`awx-1` se configura como nodo `control` mediante `MAIN_NODE_TYPE=control`
+en [.env](.env): coordina los trabajos, pero no los ejecuta. Los nodos
+`receptor-N` son los únicos nodos de ejecución; AWX elige cuál recibe
+cada job, así que el resultado concreto no está fijado de antemano.
 
 ## 5. Enlazar explícitamente el Execution Environment
 
@@ -301,3 +297,20 @@ generadas por `./00_init.sh` la primera vez.
   `AWX_UI_DEV_PORT`, `AWX_PG_PORT` en `.env`) están reescritos respecto a
   los literales que trae la plantilla de `ansible/awx`, para poder
   convivir con otros servicios del host y con el ejemplo 49 a la vez.
+
+- En Ubuntu, el perfil AppArmor de `rsyslogd` puede bloquear los archivos
+  de configuración y sockets que AWX crea dentro del contenedor. Si los
+  logs de `awx_1` muestran errores `Permission denied` de `rsyslogd`, añade
+  estas reglas al archivo local del perfil y recárgalo:
+
+  ```shell
+  printf '%s\n' \
+    '  /var/lib/awx/rsyslog/rsyslog.conf r,' \
+    '  /var/lib/awx/rsyslog/conf.d/ r,' \
+    '  /var/lib/awx/rsyslog/conf.d/** r,' \
+    '  /run/awx-rsyslog/ rw,' \
+    '  /run/awx-rsyslog/rsyslog.pid{,.tmp} rwk,' \
+    '  /run/awx-rsyslog/rsyslog.sock rwl,' \
+    | sudo tee -a /etc/apparmor.d/local/usr.sbin.rsyslogd
+  sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.rsyslogd
+  ```

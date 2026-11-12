@@ -9,9 +9,11 @@ cd "$(dirname "$0")/.."
 
 NAME="$1"
 if [ -z "$NAME" ]; then
-  echo "Uso: $0 <nombre-ejemplo>"
+  echo "Uso: $0 <nombre-ejemplo> [CLAVE=VALOR ...]"
   exit 1
 fi
+shift
+BUILD_PARAMETERS=("$@")
 
 JENKINS_URL="${JENKINS_URL:-http://localhost:8082}"
 JENKINS_ADMIN_ID="${JENKINS_ADMIN_ID:-admin}"
@@ -34,7 +36,18 @@ FIELD=$(echo "$CRUMB_JSON" | python3 -c "import sys,json; print(json.load(sys.st
 
 NEXT_BUILD=$(curl -sf -u "$AUTH" "$JENKINS_URL/job/$NAME/api/json" | python3 -c "import sys,json; print(json.load(sys.stdin)['nextBuildNumber'])")
 
-curl -s -u "$AUTH" -b "$COOKIES" -H "$FIELD: $CRUMB" -X POST "$JENKINS_URL/job/$NAME/build" -o /dev/null -w "Build #$NEXT_BUILD encolado, HTTP %{http_code}\n"
+if (( ${#BUILD_PARAMETERS[@]} > 0 )); then
+  CURL_ARGS=()
+  for parameter in "${BUILD_PARAMETERS[@]}"; do
+    CURL_ARGS+=(--data-urlencode "$parameter")
+  done
+  curl -s -u "$AUTH" -b "$COOKIES" -H "$FIELD: $CRUMB" -X POST \
+    "${CURL_ARGS[@]}" "$JENKINS_URL/job/$NAME/buildWithParameters" \
+    -o /dev/null -w "Build #$NEXT_BUILD encolado, HTTP %{http_code}\n"
+else
+  curl -s -u "$AUTH" -b "$COOKIES" -H "$FIELD: $CRUMB" -X POST \
+    "$JENKINS_URL/job/$NAME/build" -o /dev/null -w "Build #$NEXT_BUILD encolado, HTTP %{http_code}\n"
+fi
 
 echo "Esperando a que termine el build #$NEXT_BUILD de '$NAME'..."
 while true; do

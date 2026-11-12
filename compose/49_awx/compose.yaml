@@ -58,5 +58,3 @@ services:
       POSTGRES_PASSWORD: "${AWX_PG_PASSWORD:-awxpass123456}"
     volumes:
       - ./volumes/awx_db:/var/lib/postgresql/data
-    ports:
-      - "${AWX_PG_PORT:-5441}:5432"

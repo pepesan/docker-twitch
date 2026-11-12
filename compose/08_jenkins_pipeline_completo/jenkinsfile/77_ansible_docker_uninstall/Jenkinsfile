@@ -1,0 +1,108 @@
+pipeline {
+  agent {
+    docker {
+      image 'alpine:3.20'
+      label 'built-in'
+      args '--network jenkins_docker_pipeline_default'
+    }
+  }
+
+  parameters {
+    booleanParam(
+      name: 'CONFIRM_DATA_LOSS',
+      defaultValue: false,
+      description: 'Confirma que se eliminarán Docker, contenedores, imágenes y volúmenes de este host.'
+    )
+  }
+
+  stages {
+    stage('Preparar herramientas y playbook') {
+      steps {
+        sh 'apk add --no-cache ansible git openssh-client'
+        sh '''
+          rm -rf "$WORKSPACE/ansible-examples"
+          git clone --depth 1 --branch master https://github.com/pepesan/ejemplos-ansible.git "$WORKSPACE/ansible-examples"
+        '''
+      }
+    }
+
+    stage('Generar inventario y ansible.cfg') {
+      steps {
+        withCredentials([string(credentialsId: 'ansible-lxc-ip', variable: 'LXC_IP')]) {
+          sh '''
+            cat > "$WORKSPACE/inventory.ini" <<EOF
+[ubuntu]
+ansible-lxc ansible_host=$LXC_IP
+[webservers]
+ansible-lxc ansible_host=$LXC_IP
+[docker]
+ansible-lxc ansible_host=$LXC_IP
+EOF
+            cat > "$WORKSPACE/ansible.cfg" <<EOF
+[defaults]
+inventory = $WORKSPACE/inventory.ini
+host_key_checking = True
+retry_files_enabled = False
+interpreter_python = auto_silent
+[ssh_connection]
+pipelining = True
+EOF
+            mkdir -p "$HOME/.ssh"
+            chmod 700 "$HOME/.ssh"
+            ssh-keyscan -H "$LXC_IP" >> "$HOME/.ssh/known_hosts" 2>/dev/null
+            chmod 600 "$HOME/.ssh/known_hosts"
+          '''
+        }
+      }
+    }
+
+    stage('Comprobar sintaxis del playbook') {
+      steps {
+        sh '''
+          ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible-playbook --syntax-check \
+            "$WORKSPACE/ansible-examples/14_docker/tasks/docker_uninstall.yaml"
+        '''
+      }
+    }
+
+    stage('Confirmar operación destructiva') {
+      steps {
+        script {
+          if (!params.CONFIRM_DATA_LOSS) {
+            error('No se ejecuta el playbook destructivo sin CONFIRM_DATA_LOSS=true.')
+          }
+        }
+      }
+    }
+
+    stage('Desinstalar Docker y borrar sus datos') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-root-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible-playbook \
+              "$WORKSPACE/ansible-examples/14_docker/tasks/docker_uninstall.yaml" \
+              -u root --private-key="$SSH_KEY"
+          '''
+        }
+      }
+    }
+
+    stage('Verificar desinstalación') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-root-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u root --private-key="$SSH_KEY" -m ansible.builtin.shell \
+              -a '! command -v docker >/dev/null 2>&1 && ! systemctl is-active --quiet docker'
+          '''
+        }
+      }
+    }
+  }
+}

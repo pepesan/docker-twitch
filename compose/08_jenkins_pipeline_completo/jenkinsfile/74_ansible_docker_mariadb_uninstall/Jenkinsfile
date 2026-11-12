@@ -1,0 +1,98 @@
+pipeline {
+  agent {
+    docker {
+      image 'alpine:3.20'
+      label 'built-in'
+      args '--network jenkins_docker_pipeline_default'
+    }
+  }
+
+  stages {
+    stage('Preparar Ansible y colección Docker') {
+      steps {
+        sh 'apk add --no-cache ansible openssh-client'
+        sh "ansible-galaxy collection install --timeout 180 'community.docker:>=3.10.2' --force"
+      }
+    }
+
+    stage('Generar inventario y ansible.cfg') {
+      steps {
+        withCredentials([string(credentialsId: 'ansible-lxc-ip', variable: 'LXC_IP')]) {
+          sh '''
+            cat > "$WORKSPACE/inventory.ini" <<EOF
+[ubuntu]
+ansible-lxc ansible_host=$LXC_IP
+[webservers]
+ansible-lxc ansible_host=$LXC_IP
+[docker]
+ansible-lxc ansible_host=$LXC_IP
+EOF
+            cat > "$WORKSPACE/ansible.cfg" <<EOF
+[defaults]
+inventory = $WORKSPACE/inventory.ini
+host_key_checking = True
+retry_files_enabled = False
+interpreter_python = auto_silent
+[ssh_connection]
+pipelining = True
+EOF
+            mkdir -p "$HOME/.ssh"
+            chmod 700 "$HOME/.ssh"
+            ssh-keyscan -H "$LXC_IP" >> "$HOME/.ssh/known_hosts" 2>/dev/null
+            chmod 600 "$HOME/.ssh/known_hosts"
+          '''
+        }
+      }
+    }
+
+    stage('Comprobar Docker y SDK') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-alumno-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u alumno --private-key="$SSH_KEY" --become \
+              -m ansible.builtin.command -a 'docker info'
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u alumno --private-key="$SSH_KEY" --become \
+              -m ansible.builtin.apt -a 'name=python3-docker state=present update_cache=true'
+          '''
+        }
+      }
+    }
+
+    stage('Retirar el contenedor MariaDB') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-alumno-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u alumno --private-key="$SSH_KEY" --become \
+              -m community.docker.docker_container \
+              -a 'name=mariadb state=absent'
+          '''
+        }
+      }
+    }
+
+    stage('Verificar retirada y conservar datos') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-alumno-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u alumno --private-key="$SSH_KEY" --become \
+              -m ansible.builtin.shell \
+              -a '! docker container inspect mariadb >/dev/null 2>&1 && docker volume inspect mariadb-data-volume >/dev/null 2>&1'
+          '''
+        }
+      }
+    }
+  }
+}

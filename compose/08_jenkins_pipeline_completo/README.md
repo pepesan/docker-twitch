@@ -86,7 +86,7 @@ docker login localhost:8084 -u admin -p admin123
 ```
 
 ### Aprovisionamiento y Configuración de Nube Docker Externa (LXC)
-* **`./10_create_lxc_docker_node.sh`**: Crea y configura el contenedor LXC `jenkins-external-docker` con la imagen `ubuntu-2404-ssh-template`, activando los privilegios y módulos de kernel requeridos para anidar Docker con IP fija `10.207.154.80`.
+* **`./10_create_lxc_docker_node.sh`**: Crea `jenkins-external-docker` desde `ubuntu:26.04` (Resolute), configura privilegios y módulos de kernel para Docker anidado y fija la IP `10.207.154.80`.
 * **`./11_install_docker_lxc.sh`**: Instala y configura Docker Engine dentro del LXC, gestiona certificados mTLS reutilizables, expone la API segura en `2376`, verifica la conexión y recarga Jenkins cuando sea necesario.
 * **`./97_destroy_lxc_docker_node.sh`**: Detiene y elimina por completo el contenedor LXC `jenkins-external-docker` creado para el laboratorio.
 
@@ -101,8 +101,8 @@ El contenedor LXC `jenkins-external-docker` (IP `10.207.154.80`) actúa como nue
    * Se copian los certificados del servidor (`ca.pem`, `server-cert.pem`, `server-key.pem`) en `/etc/docker/` generados dinámicamente en el host.
    * Se añade un override de systemd en `/etc/systemd/system/docker.service.d/override.conf` para arrancar el demonio escuchando tanto en el socket de UNIX local como en el puerto TCP `2376`.
 4. **Acceso SSH sin Contraseña**:
-   * El servicio `openssh-server` viene preconfigurado en la imagen base.
-   * Se inyecta automáticamente la clave pública generada para Jenkins (`config/ssh/id_ed25519.pub`) en `/root/.ssh/authorized_keys` del contenedor LXC para permitir conexiones automatizadas y seguras de SSH.
+   * `10_create_lxc_docker_node.sh` instala y habilita `openssh-server` si falta.
+   * `11_install_docker_lxc.sh` añade la clave pública de Jenkins a `/root/.ssh/authorized_keys`.
 5. **Biblioteca de Docker para Python (`python3-docker`)**:
    * Instalada vía `apt` dentro del LXC.
    * Es una **dependencia crítica** requerida por la colección `community.docker` de Ansible para que el módulo `community.docker.docker_container` (ejemplo `56`) pueda interactuar con el demonio local de Docker a través de Python.
@@ -136,7 +136,7 @@ Jenkins Controller -- mTLS :2376 --> Docker Engine en LXC
 Requisitos del host:
 
 * LXD/LXC operativo y accesible mediante el comando `lxc`.
-* Imagen local `ubuntu-2404-ssh-template` disponible para crear el nodo.
+* Alias remoto `ubuntu:26.04` disponible; `10_create_lxc_docker_node.sh` instala OpenSSH si la imagen no lo incluye.
 * Docker, OpenSSL y curl instalados en el host.
 * Acceso desde la red del Controller a `10.207.154.80:2376`.
 
@@ -227,10 +227,10 @@ Para eliminar únicamente la infraestructura externa:
 ```
 
 ### Suite de Pruebas Automatizada
-* **`./98_test_pipelines.sh [all | NN_nombre_ejemplo]`**: Ejecuta todas las pipelines del laboratorio de forma secuencial de principio a fin, o una en concreto.
-  * Autoproveee dinámicamente las dependencias de infraestructura necesarias para cada test (ej. levanta `agent1` para la serie 20, o `nexus` para la serie 30).
-  * Lanza el build y consulta la API de Jenkins mediante un script de check propio para volcar el log completo.
-  * Realiza limpieza interactiva ejecutando `./05_stop_deploy.sh` de los ejemplos correspondientes al finalizar cada test (series 33, 50, 92) para no dejar contenedores huérfanos.
+* **`./98_test_pipelines.sh [all | NN_nombre_ejemplo]`**: Ejecuta todos los ejemplos seguros en secuencia, o uno concreto.
+  * Aprovisiona automáticamente las dependencias de infraestructura y ejecuta los scripts de preparación de credenciales.
+  * Consulta el resultado del build en Jenkins, muestra el log y ejecuta `05_stop_deploy.sh` cuando existe.
+  * El ejemplo 77 se omite por defecto; `all` termina con código distinto de cero si falla algún build.
 
 ---
 
@@ -246,7 +246,28 @@ Los ejemplos se dividen por bandas temáticas según su complejidad:
 | **40-47** | Testing, Seguridad y Calidad | Pruebas JUnit, métricas de cobertura JaCoCo, análisis estático con SonarQube, tests unitarios vs integración de Spring Boot, tests de Node.js en Vitest, pruebas E2E multi-navegador con Playwright y escaneos Trivy en paralelo. |
 | **50-58** | Estrategias de Despliegue | Despliegue idempotente con `docker run`, despliegues multicontenedor con DB mediante Docker Compose, gestión multi-entorno (`staging`/`prod`), rollbacks dinámicos, y despliegues en el servidor LXC externo vía SSH, Ansible (tanto individuales como con Docker Compose) y a nivel de API Docker nativa sobre TLS, usando credenciales secretas enmascaradas. |
 | **60-69** | Integración Docker Plugin | Ejemplos que demuestran la ejecución de builds en **agentes efímeros dynamically provisioned** en la nube de Docker local (`docker-agent-efimero`, ej. `60`) y nube externa LXC (`docker-agent-externo`, ej. `61`). |
+| **70-79** | Despliegues con Ansible | Siete pipelines: Nginx, instalación Docker, MariaDB directa y su retirada, MariaDB con Compose y su retirada, y desinstalación completa de Docker con confirmación. |
 | **90-92** | Escenarios Reales | Checkout de repositorios privados GitLab con credenciales seguras, ciclo completo del backend real Spring Boot y frontend real Astro. |
+
+### Serie 70: despliegues Ansible en `lxd-vm-auto`
+
+Esta serie se conecta por SSH a la VM Ubuntu 26.04 `lxd-vm-auto` (`10.207.154.161`), distinta del nodo Docker externo de la serie 50/60 (`10.207.154.80`).
+Consulta [ANSIBLE.md](ANSIBLE.md) para la preparación paso a paso del destino, `inventory.ini`, `ansible.cfg` y las credenciales SSH de Jenkins.
+
+Cada ejemplo de la serie tiene su propio `Jenkinsfile` y scripts de ciclo de vida. El paso numerado `14_create_ansible_credentials.sh` prepara las credenciales Jenkins `ansible-lxc-ip`, `ansible-lxc-alumno-ssh` y `ansible-lxc-root-ssh`, y genera las claves privadas en `config/ssh/` (ignorado por Git). No depende de LXD: prueba primero SSH como `root` a `10.207.154.161`; si no conecta, solicita IP y usuario SSH. Si tampoco logra conectar, aborta antes de generar claves o credenciales e indica cómo preparar el destino. Tras conectar, instala solo las claves públicas para `alumno` y `root`; si el usuario de preparación no es root, solicita su contraseña sudo cuando haga falta y no la almacena. Los `00_create_credentials.sh` de los ejemplos 70–77 delegan en este paso. El creador genérico `jenkinsfile/09_credentials/00_create_credentials.sh` permanece independiente y no contiene lógica de Ansible. El E2E de Ansible `./98_test_ansible_pipelines.sh` deja los servicios y jobs desplegados; `./99_destroy_ansible_e2e.sh` los retira. Consulta [ANSIBLE.md](ANSIBLE.md) para configurar IP, usuario SSH y `become`.
+
+| Ejemplo | Playbook de origen | Acción |
+|---|---|---|
+| `70_ansible_webserver` | `03_servidorweb/tasks.yaml` | Instala y verifica Nginx con SSH como `alumno` y `become`. |
+| `71_ansible_webserver_uninstall` | `03_servidorweb/tasks_uninstall.yaml` | Detiene, deshabilita y desinstala Nginx; verifica su retirada. |
+| `72_ansible_docker_install` | `14_docker/tasks/docker_install.yaml` | Instala Docker Engine/Compose en Ubuntu 26.04 con SSH como `root`. |
+| `73_ansible_docker_mariadb` | `14_docker/tasks/docker_deploy_mariadb.yaml` | Despliega MariaDB con Docker; el ejemplo 74 retira el contenedor y conserva su volumen. |
+| `74_ansible_docker_mariadb_uninstall` | Operaciones `community.docker` | Retira el contenedor del despliegue directo y conserva el volumen con los datos. |
+| `75_ansible_docker_compose_mariadb` | `14_docker/tasks/docker_compose_deploy_mariadb.yaml` | Despliega MariaDB en TCP/3307 y Adminer en TCP/8080 para coexistir con el contenedor directo del ejemplo 73. |
+| `76_ansible_docker_compose_mariadb_uninstall` | Operaciones `community.docker` | Retira contenedores, red y ficheros Compose; conserva el volumen de datos. |
+| `77_ansible_docker_uninstall` | `14_docker/tasks/docker_uninstall.yaml` | Desinstala Docker y elimina sus datos; requiere confirmación explícita. |
+
+Secuencia recomendada: 70, 71, 72, 73, 74, 75, 76 y 77; 77 es la retirada destructiva final. Ejecuta 70 antes de 71 para instalar y luego desinstalar Nginx. El ejemplo 73 publica MariaDB en TCP/3306; el Compose del 75 usa TCP/3307 (Adminer usa TCP/8080), de modo que ambos pueden permanecer activos a la vez. Los ejemplos 74 y 76 retiran los despliegues pero preservan sus volúmenes de datos. El ejemplo 77 **no se ejecuta con `all`**; confirma que la VM no contiene datos que deban conservarse y usa `CONFIRM_DOCKER_UNINSTALL=YES ./02_build.sh` desde su directorio.
 
 ---
 
