@@ -31,6 +31,6 @@ set -a
 # shellcheck disable=SC1091
 source secrets.env
 set +a
-printf 'Admin Semaphore: %s / %s\n' "${SEMAPHORE_ADMIN_USER:-admin}" "${SEMAPHORE_ADMIN_PASSWORD}"
+printf 'Admin Semaphore: %s / %s\n' "$(. ./.env; printf '%s' "${SEMAPHORE_ADMIN_USER:-admin}")" "${SEMAPHORE_ADMIN_PASSWORD}"
 printf 'Base de datos: usuario semaphore / password almacenada en secrets.env\n'
 printf 'URL local: http://localhost:%s/\n' "$(. ./.env; printf '%s' "${SEMAPHORE_HTTP_PORT:-3001}")"

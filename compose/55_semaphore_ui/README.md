@@ -18,13 +18,30 @@ cd compose/55_semaphore_ui
 
 `01_launch_compose.sh` valida la configuración con `docker compose config -q` y levanta Semaphore y PostgreSQL. En el primer arranque, Semaphore crea el usuario administrador con las variables de `secrets.env`; ese password inicial solo se utiliza cuando la cuenta se crea por primera vez.
 
-## Acceso
+## URL y credenciales
 
-- URL local: <http://localhost:3001/> (solo escucha en `127.0.0.1`)
-- Usuario inicial: `admin`
-- Contraseña: valor de `SEMAPHORE_ADMIN_PASSWORD` en `secrets.env`, también mostrado por los scripts de preparación y lanzamiento.
+La salida de `./00_init.sh` y `./01_launch_compose.sh` muestra la URL y los datos de acceso. Para volver a consultarlos, desde esta carpeta ejecuta:
 
-Para elegir otro puerto, cambia `SEMAPHORE_HTTP_PORT` en `.env` y ejecuta `./06_start_compose.sh`. No uses el puerto 3000: puede estar ocupado por otro servicio local.
+```bash
+./00_init.sh
+```
+
+`00_init.sh` no inicia ni detiene contenedores. Si `.env` y `secrets.env` ya existen, los conserva y muestra la contraseña inicial guardada; no genera credenciales nuevas.
+
+Con la configuración predeterminada verás:
+
+```text
+Admin Semaphore: admin / <contraseña-inicial>
+URL local: http://localhost:3001/
+```
+
+La cuenta web usa `SEMAPHORE_ADMIN_USER` de `.env` (por defecto, `admin`) y la contraseña `SEMAPHORE_ADMIN_PASSWORD` de `secrets.env`. El usuario y la contraseña de PostgreSQL son distintos; no se usan para iniciar sesión en la web.
+
+La URL predeterminada es `http://localhost:3001/` y solo escucha en `127.0.0.1`, así que ábrela en un navegador del mismo equipo. Si cambias `SEMAPHORE_HTTP_PORT` en `.env`, usa el puerto que indique `00_init.sh` o `01_launch_compose.sh` y aplica el cambio ejecutando `./06_start_compose.sh`.
+
+La contraseña que muestra `00_init.sh` es la contraseña de bootstrap. Si la cambiaste dentro de Semaphore, el fichero local conserva el valor inicial y no puede mostrar la contraseña nueva. Para recuperar el acceso tras perder la contraseña modificada, el reinicio completo descrito en «Persistencia y secretos» borra también proyectos, inventarios y credenciales guardadas.
+
+No compartas ni publiques la salida con la contraseña. `.env`, `secrets.env` y los datos de PostgreSQL están excluidos de Git.
 
 ## Operación
 
