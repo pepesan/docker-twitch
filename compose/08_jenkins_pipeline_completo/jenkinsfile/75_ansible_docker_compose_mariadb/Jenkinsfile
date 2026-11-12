@@ -1,0 +1,149 @@
+pipeline {
+  agent {
+    docker {
+      image 'alpine:3.20'
+      label 'built-in'
+      args '--network jenkins_docker_pipeline_default'
+    }
+  }
+
+  stages {
+    stage('Preparar herramientas y playbook') {
+      steps {
+        sh 'apk add --no-cache ansible git openssh-client python3'
+        sh "ansible-galaxy collection install --timeout 180 'community.docker:>=3.10.2' --force"
+        sh 'ansible-galaxy collection list community.docker'
+        sh '''
+          rm -rf "$WORKSPACE/ansible-examples"
+          git clone --depth 1 --branch master https://github.com/pepesan/ejemplos-ansible.git "$WORKSPACE/ansible-examples"
+        '''
+      }
+    }
+    stage('Evitar conflicto con MariaDB Docker en TCP/3306') {
+      steps {
+        sh '''
+          python3 - "$WORKSPACE/ansible-examples/14_docker/files/compose.mariadb.yaml" <<'PY'
+from pathlib import Path
+import sys
+
+compose_file = Path(sys.argv[1])
+compose_text = compose_file.read_text()
+source_mapping = '      - "3306:3306"'
+compose_mapping = '      - "3307:3306"'
+if compose_text.count(source_mapping) != 1:
+    raise SystemExit(f"Se esperaba un mapeo MariaDB 3306 único en {compose_file}")
+compose_file.write_text(compose_text.replace(source_mapping, compose_mapping))
+print("Compose MariaDB se publicará en el puerto del host 3307.")
+PY
+        '''
+      }
+    }
+
+
+    stage('Generar inventario y ansible.cfg') {
+      steps {
+        withCredentials([string(credentialsId: 'ansible-lxc-ip', variable: 'LXC_IP')]) {
+          sh '''
+            cat > "$WORKSPACE/inventory.ini" <<EOF
+[ubuntu]
+ansible-lxc ansible_host=$LXC_IP
+[webservers]
+ansible-lxc ansible_host=$LXC_IP
+[docker]
+ansible-lxc ansible_host=$LXC_IP
+EOF
+            cat > "$WORKSPACE/ansible.cfg" <<EOF
+[defaults]
+inventory = $WORKSPACE/inventory.ini
+host_key_checking = True
+retry_files_enabled = False
+interpreter_python = auto_silent
+[ssh_connection]
+pipelining = True
+EOF
+            mkdir -p "$HOME/.ssh"
+            chmod 700 "$HOME/.ssh"
+            ssh-keyscan -H "$LXC_IP" >> "$HOME/.ssh/known_hosts" 2>/dev/null
+            chmod 600 "$HOME/.ssh/known_hosts"
+          '''
+        }
+      }
+    }
+
+    stage('Comprobar Docker y preparar SDK de Ansible') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-alumno-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u alumno --private-key="$SSH_KEY" --become \
+              -m ansible.builtin.command -a 'docker info'
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u alumno --private-key="$SSH_KEY" --become \
+              -m ansible.builtin.apt -a 'name=python3-docker state=present update_cache=true'
+          '''
+        }
+      }
+    }
+
+    stage('Desplegar MariaDB y Adminer con Compose') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-alumno-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible-playbook \
+              "$WORKSPACE/ansible-examples/14_docker/tasks/docker_compose_deploy_mariadb.yaml" \
+              -u alumno --private-key="$SSH_KEY" --become
+          '''
+        }
+      }
+    }
+
+    stage('Verificar MariaDB y Adminer') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: 'ansible-lxc-alumno-ssh', keyFileVariable: 'SSH_KEY')
+        ]) {
+          sh '''
+            chmod 600 "$SSH_KEY"
+            ready=0
+            for attempt in $(seq 1 30); do
+              if ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+                -u alumno --private-key="$SSH_KEY" --become \
+                -m ansible.builtin.shell \
+                -a 'docker logs mariadb-compose 2>&1 | grep -q "ready for connections"' \
+                >/dev/null 2>&1; then
+                ready=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$ready" -ne 1 ]; then
+              echo 'MariaDB no llegó a estar lista.' >&2
+              ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+                -u alumno --private-key="$SSH_KEY" --become \
+                -m ansible.builtin.shell \
+                -a 'docker logs mariadb-compose 2>&1 | grep -q "ready for connections"'
+              exit 1
+            fi
+            if ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+              -u alumno --private-key="$SSH_KEY" --become \
+              -m ansible.builtin.uri -a 'url=http://127.0.0.1:8080/ status_code=200' \
+              >/dev/null 2>&1; then
+              echo 'Adminer responde HTTP 200.'
+            else
+              ANSIBLE_CONFIG="$WORKSPACE/ansible.cfg" ansible docker \
+                -u alumno --private-key="$SSH_KEY" --become \
+                -m ansible.builtin.uri -a 'url=http://127.0.0.1:8080/ status_code=200'
+              exit 1
+            fi
+          '''
+        }
+      }
+    }
+  }
+}

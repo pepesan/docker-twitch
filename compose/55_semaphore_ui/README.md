@@ -58,6 +58,29 @@ No compartas ni publiques la salida con la contraseña. `.env`, `secrets.env` y 
 
 `./04_exec_compose.sh` ejecuta el comando indicado dentro del contenedor `semaphore`; por ejemplo, permite comprobar la versión de Ansible incluida en la imagen.
 
+## Laboratorio E2E de Ansible
+
+`80_deploy_semaphore_with_examples.sh` arranca Semaphore, prepara un usuario y proyecto E2E, carga la clave SSH, el repositorio `pepesan/ejemplos-ansible`, el inventario de la LXC y las plantillas de despliegue/retirada. Ejecuta y verifica esta secuencia:
+
+1. Instala el servidor web y luego lo desinstala.
+2. Instala Docker.
+3. Despliega el contenedor Docker de Nginx y lo retira antes de Compose: ambos ejemplos publican el puerto 81 y no pueden ejecutarse a la vez.
+4. Despliega WordPress con Docker Compose. Al terminar, queda disponible en `http://<IP_LXC>:81/`.
+
+Antes de lanzarlo, revisa `e2e.env` (host, usuario SSH, clave privada y rama Git). Si falta, el script lo crea desde `e2e.env.example` y se detiene para que confirmes esos valores; vuelve a ejecutarlo tras revisarlos. La contraseña del usuario E2E se genera en `e2e-secrets.env`. Ambos ficheros están ignorados por Git. El script actualiza las rutas de playbook de las plantillas existentes y conserva los IDs, recursos e historial.
+
+```bash
+./80_deploy_semaphore_with_examples.sh
+```
+
+Para ejecutar el ciclo completo, incluida la retirada de Compose y la desinstalación de Docker, usa `90_e2e.sh`. **Borra `/var/lib/docker`, `/var/lib/containerd` y `/etc/docker`, incluidos datos Docker ajenos al ejemplo.** Solo debe usarse con una LXC desechable y después de verificar que Docker no contiene datos que conservar:
+
+```bash
+E2E_CONFIRM_DOCKER_PURGE=YES ./90_e2e.sh
+```
+
+La prueba completa deja la LXC sin Docker ni Nginx, pero conserva en Semaphore el proyecto, las plantillas y el historial de ejecuciones.
+
 ## Persistencia y secretos
 
 - PostgreSQL guarda el estado persistente en `./volumes/postgres`; detener servicios o ejecutar `./07_down_compose.sh` no borra esos datos.

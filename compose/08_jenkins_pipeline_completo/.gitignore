@@ -4,4 +4,5 @@ nexus_data/*
 sonar_data/*
 sonar_extensions/*
 sonar_logs/*
+config/ansible-e2e/*
 

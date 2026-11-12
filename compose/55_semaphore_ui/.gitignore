@@ -1,3 +1,6 @@
 .env
 secrets.env
 volumes/
+e2e.env
+e2e-secrets.env
+.e2e-state/

@@ -87,6 +87,11 @@ run_pipeline() {
   local num_str="${name%%_*}"
   local num=$((10#$num_str))
 
+  if [[ "$name" == 77_* && "${ALLOW_DESTRUCTIVE_EXAMPLES:-0}" != "1" ]]; then
+    echo "ERROR: '$name' es destructivo. Usa ALLOW_DESTRUCTIVE_EXAMPLES=1 y confirma el build manualmente." >&2
+    return 2
+  fi
+
   echo "======================================================================"
   echo ">>> PROBANDO PIPELINE: $name"
   echo "======================================================================"
@@ -174,8 +179,14 @@ declare -A RESULTS
 run_all_pipelines() {
   local failed_count=0
   local success_count=0
+  local skipped_count=0
 
   for name in "${EXAMPLES[@]}"; do
+    if [[ "$name" == 77_* && "${ALLOW_DESTRUCTIVE_EXAMPLES:-0}" != "1" ]]; then
+      RESULTS["$name"]="SKIPPED (destructive; explicit opt-in required)"
+      skipped_count=$((skipped_count+1))
+      continue
+    fi
     if run_pipeline "$name"; then
       RESULTS["$name"]="SUCCESS"
       success_count=$((success_count+1))
@@ -195,8 +206,11 @@ run_all_pipelines() {
   echo "========================================================"
   echo " Total exitosos: $success_count"
   echo " Total fallados: $failed_count"
+  echo " Total omitidos: $skipped_count"
   echo " Total analizados: ${#EXAMPLES[@]}"
   echo "========================================================"
+
+  return "$((failed_count > 0))"
 }
 
 # Comprobar si se ha pasado un argumento directo
@@ -204,8 +218,7 @@ if [ $# -gt 0 ]; then
   ARG="$1"
   if [[ "$ARG" == "all" || "$ARG" == "A" ]]; then
     echo "Ejecutando TODOS los ejemplos..."
-    run_all_pipelines
-    exit 0
+    if run_all_pipelines; then exit 0; else exit 1; fi
   else
     # Buscar por nombre exacto o número
     FOUND=""
@@ -216,8 +229,7 @@ if [ $# -gt 0 ]; then
       fi
     done
     if [ -n "$FOUND" ]; then
-      run_pipeline "$FOUND"
-      exit 0
+      if run_pipeline "$FOUND"; then exit 0; else exit 1; fi
     else
       echo "Ejemplo '$ARG' no encontrado."
       exit 1
@@ -233,7 +245,7 @@ while true; do
     break
   elif [[ "$OPTION" =~ ^[aA]$ ]]; then
     echo "Iniciando ejecución de todas las pipelines..."
-    run_all_pipelines
+    if run_all_pipelines; then :; else echo "Una o más pipelines fallaron."; fi
   elif [[ "$OPTION" =~ ^[0-9]+$ ]] && [ "$OPTION" -ge 1 ] && [ "$OPTION" -le "${#EXAMPLES[@]}" ]; then
     idx=$((OPTION-1))
     run_pipeline "${EXAMPLES[$idx]}" || true

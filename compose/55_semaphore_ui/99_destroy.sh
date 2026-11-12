@@ -11,5 +11,5 @@ if [[ "$confirmation" != "DESTROY" ]]; then
 fi
 
 docker compose down --remove-orphans
-rm -rf -- volumes
+sudo rm -rf -- volumes
 echo "Datos eliminados. .env y secrets.env se conservan; bórralos manualmente si quieres regenerar configuración y credenciales."
