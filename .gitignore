@@ -22,3 +22,5 @@ compose/51_sencho/data/
 compose/51_sencho/stacks/*
 !compose/51_sencho/stacks/hola-nginx/
 compose/51_sencho/stacks/*/.sencho-recovery-*.yml
+
+compose.iml
