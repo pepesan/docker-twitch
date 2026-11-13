@@ -9,6 +9,14 @@ en Docker Hub.
 **Aviso oficial del propio repo**: desplegar desde `devel`/HEAD no es
 estable — es la rama de desarrollo activo, no una release.
 
+## Requisitos
+
+- Linux con **Docker** y el plugin **Compose**, `git` y `make`
+  (`./scripts/00_install_prerequisites.sh` los instala; ver más abajo).
+- Los puertos **8013** y **8043** libres (configurables en [.env](.env)).
+- `sudo` para el borrado final: `./awx` y `./volumes` los crea Docker
+  como root.
+
 ## Requisito previo: tener la imagen
 
 Para arrancar el ejemplo hace falta la imagen de [.env](.env)
@@ -78,19 +86,61 @@ del proyecto Compose.
 - `./06_stop_compose.sh` / `./07_start_compose.sh` — parar/arrancar sin
   borrar datos
 
+## Recursos de ejemplo y despliegues por API
+
+Los scripts numerados a partir de `10` crean en AWX, por API, el usuario, la
+credencial SSH, el proyecto Git, el inventario y 8 plantillas, y ejecutan
+despliegues sobre una máquina destino por SSH. Son los mismos que los del
+ejemplo [56_awx_stable](../56_awx_stable) (consulta allí el detalle de cada
+script y los avisos sobre los playbooks), adaptados al puerto 8043.
+
+```shell
+cp e2e.env.example e2e.env     # revisa IP, usuario y ruta de la clave privada
+chmod 600 e2e.env
+./80_deploy_awx_with_examples.sh
+```
+
+`80_deploy_awx_with_examples.sh` levanta AWX si hace falta (00, 01, 02 y 08) y
+crea los recursos 10–17. Después se pueden lanzar por separado `18`–`25` o el
+ciclo completo con `./90_e2e.sh`. `e2e.env`, `e2e-secrets.env` y `.e2e-state/`
+no se versionan.
+
+| Script | Qué hace |
+|---|---|
+| `10`–`16` | Usuario, organización, credencial *Machine*, proyecto, inventario y plantillas |
+| `17_check_e2e_resources.sh` | Comprueba los recursos y hace un ping *ad hoc* desde AWX |
+| `18`–`25` | Instalar/desinstalar servidor web, Docker, contenedor y Compose en el destino |
+| `90_e2e.sh` | Ciclo 18→25 completo |
+| `97_destroy_resources.sh` | Borra de AWX los recursos creados (pide `DESTROY`) |
+| `98_reset.sh` | AWX y destino como recién instalados (**solo máquinas desechables**) |
+
 ## 4. Destruir el entorno
 
 ```shell
-./20_destroy.sh
+./99_destroy.sh
 ```
 
-Pide confirmación y hace `docker compose down --remove-orphans` + borra
+Pide confirmación y hace `docker compose down --remove-orphans --volumes` (incluye el
+volumen anónimo `/data` que crea la imagen de redis) + borra
 `./volumes` (datos de postgres y socket de redis) y el directorio
 `./awx` clonado (repo + configuración renderizada, incluye `SECRET_KEY`
 y contraseñas generadas en `database.py`). **Conserva** `secrets.env`
 (mismas credenciales en el próximo `./00_init.sh`; bórralo a mano si
 quieres contraseñas nuevas) y **no** borra la imagen ya publicada en
 Docker Hub. Irreversible.
+
+## 5. Solución de problemas
+
+| Síntoma | Causa probable y solución |
+|---|---|
+| La web muestra «the UI wasn't properly built» | Falta `./08_build_ui.sh`. |
+| `02_create_admin.sh` falla | Las migraciones no han terminado: espera unos minutos y repite (`./05_logs_compose.sh awx`). |
+| El navegador avisa del certificado | Es autofirmado; acéptalo para el laboratorio. |
+| Puerto ocupado | Cambia `AWX_HTTP_PORT` / `AWX_HTTPS_PORT` en `.env` y relanza `01_launch_compose.sh`. |
+| Quedan volúmenes huérfanos tras destruir | Usa `./99_destroy.sh` (incluye `--volumes`); `docker compose down` a secas deja el volumen anónimo de redis. |
+
+Si necesitas una versión fija y reproducible en vez de `devel`, usa el ejemplo
+[56_awx_stable](../56_awx_stable).
 
 ---
 

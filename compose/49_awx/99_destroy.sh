@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Borra completamente el entorno: contenedores, ./volumes (datos de
+# Borra completamente el entorno: contenedores, volúmenes anónimos (/data de redis), ./volumes (datos de
 # postgres y socket de redis) y el directorio awx clonado (repo +
 # configuración renderizada). No borra la imagen ya subida a Docker Hub.
 # Irreversible.
@@ -10,7 +10,7 @@ export AWX_EXAMPLE_DIR
 source scripts/lib_load_env.sh
 read -r -p "Esto borrará los contenedores, ./volumes y el directorio awx clonado. ¿Continuar? [y/N] " confirmacion
 if [[ "$confirmacion" =~ ^[yY]$ ]]; then
-    docker compose down --remove-orphans
+    docker compose down --remove-orphans --volumes
     sudo rm -rf awx volumes
     echo "secrets.env se ha conservado (mismas credenciales en el próximo ./00_init.sh)."
     echo "Bórralo a mano si quieres que se generen contraseñas nuevas."

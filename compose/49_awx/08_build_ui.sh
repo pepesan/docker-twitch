@@ -14,8 +14,8 @@ export AWX_EXAMPLE_DIR
 source scripts/lib_load_env.sh
 
 docker compose exec -T awx bash -c "
-    rm -rf /awx_devel/awx/ui/build /awx_devel/awx/ui/src/build
-    cd /awx_devel && make ui
+    rm -rf /awx_devel/awx/ui/build /awx_devel/awx/ui/src/build /awx_devel/awx/ui/.ui-built
+    cd /awx_devel && make ui && touch /awx_devel/awx/ui/.ui-built
 "
 
 echo "UI compilada. Reiniciando el contenedor awx para que nginx/uwsgi recojan los nuevos estáticos..."
