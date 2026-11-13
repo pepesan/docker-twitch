@@ -101,18 +101,57 @@ chmod 600 e2e.env
 ```
 
 `80_deploy_awx_with_examples.sh` levanta AWX si hace falta (00, 01, 02 y 08) y
-crea los recursos 10–17. Después se pueden lanzar por separado `18`–`25` o el
-ciclo completo con `./90_e2e.sh`. `e2e.env`, `e2e-secrets.env` y `.e2e-state/`
-no se versionan.
+crea los recursos 10–17. Después se pueden lanzar por separado `18`–`25` o uno
+de los dos ciclos completos (`90` o `91`, ver abajo). `e2e.env`,
+`e2e-secrets.env` y `.e2e-state/` no se versionan.
 
 | Script | Qué hace |
 |---|---|
+| `80_deploy_awx_with_examples.sh` | Levanta AWX (00, 01, 02, 08) si no está arriba y crea los recursos 10–17. Es idempotente |
 | `10`–`16` | Usuario, organización, credencial *Machine*, proyecto, inventario y plantillas |
 | `17_check_e2e_resources.sh` | Comprueba los recursos y hace un ping *ad hoc* desde AWX |
-| `18`–`25` | Instalar/desinstalar servidor web, Docker, contenedor y Compose en el destino |
-| `90_e2e.sh` | Ciclo 18→25 completo |
+| `18`–`25` | Instalar/desinstalar servidor web, Docker, contenedor y Compose en el destino. Cada uno exige haber hecho el anterior |
+| `90_e2e.sh` | Ciclo 18→25 completo **con limpieza final**: purga Docker del destino (borra contenedores, imágenes y volúmenes). Exige `E2E_CONFIRM_DOCKER_PURGE=YES` |
+| `91_e2e_keep.sh` | Ciclo 18→23 **sin limpieza final**: deja Docker y el stack de Compose (contenedores y volúmenes) desplegados en el destino |
 | `97_destroy_resources.sh` | Borra de AWX los recursos creados (pide `DESTROY`) |
 | `98_reset.sh` | AWX y destino como recién instalados (**solo máquinas desechables**) |
+| `99_destroy.sh` | Destruye el laboratorio AWX: contenedores, volúmenes (también los anónimos) y el clon de AWX |
+
+### Dos formas de ejecutar el E2E
+
+Ambos parten de `80`, así que sirven para probar desde cero si antes ejecutas
+`./99_destroy.sh`. Necesitan un destino sin nginx ni Docker previos.
+
+| Quiero... | Comando | Al terminar |
+|---|---|---|
+| Comprobar el ciclo entero y dejar el destino limpio | `E2E_CONFIRM_DOCKER_PURGE=YES ./90_e2e.sh` | Docker purgado en el destino; AWX sigue levantado con sus recursos y el historial de trabajos |
+| Comprobar el ciclo y dejar algo funcionando para mirarlo | `./91_e2e_keep.sh` | Docker y el stack de Compose siguen desplegados en el destino (WordPress y MySQL en el puerto 81, con sus volúmenes); AWX sigue levantado |
+
+Después de `91` puedes retirar el despliegue con el mismo estado:
+`./24_undeploy_docker_compose.sh` y
+`E2E_CONFIRM_DOCKER_PURGE=YES ./25_uninstall_docker.sh`. Mientras `91` esté
+desplegado, un `90` falla en el paso `20` porque el destino ya tiene Docker;
+deja antes el destino limpio con `24` y `25` o con `./98_reset.sh`.
+
+Tiempos medidos en dos ejecuciones completas desde cero (tras `./99_destroy.sh`),
+en un equipo de 32 CPU con las capas de la imagen ya en caché y la LXC como
+destino:
+
+| Paso | Ejecución 1 | Ejecución 2 |
+|---|---|---|
+| `99_destroy.sh` | 6 s | 12 s |
+| `80_deploy_awx_with_examples.sh` (incluye compilar la UI) | 7 min 45 s | 7 min 31 s |
+| `90_e2e.sh` | 3 min 3 s | 3 min 3 s |
+
+Con AWX ya levantado, `91_e2e_keep.sh` tardó 2 min 31 s. Con la caché de Docker
+vacía y sin el clon de AWX, la primera preparación tardará más; no la he medido.
+
+> **Un solo laboratorio 49 a la vez.** El proyecto Compose (`49_awx`), los
+> nombres de contenedor y los puertos están fijados. Si lanzas los scripts desde
+> dos copias del repositorio, una puede destruir o recrear los contenedores de la
+> otra. En una ocasión coincidió con fallos intermitentes al compilar la UI
+> (`webpack: command not found` y código 137); no está probado que esa fuera la
+> causa, pero con una sola copia no volvieron a aparecer.
 
 ## 4. Destruir el entorno
 
